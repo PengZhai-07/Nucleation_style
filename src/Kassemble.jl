@@ -10,8 +10,7 @@ function Kassemble(NGLL, NelX, NelY, dxe,dye, nglob, iglob, W)
     #  W = material_properties(NelX, NelY,NGLL,dxe, dye, ThickX, ThickY, wgll2, rho1, rho2, vs1, vs2)
     Ke = K_element(W, dxe, dye, NGLL, H, NelX*NelY)  # completed stiffness Matrix
     #  Ks22 = assembley(Ke, iglob, NelX*NelY, nglob)
-    K = FEsparse(NelX*NelY, Ke, iglob)
-
+    K = FEsparse(NelX*NelY, Ke, iglob)    # Sparse matrix K!!
     return dropzeros!(K)
     #  return rcmpermute(dropzeros!(K))
 end

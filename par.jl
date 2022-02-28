@@ -8,9 +8,10 @@ include("$(@__DIR__)/src/Massemble.jl")       #   Assemble mass matrix
 include("$(@__DIR__)/src/Kassemble.jl")      #   Assemble stiffness matrix
 include("$(@__DIR__)/src/MaterialProperties.jl")		 # 	Build 2D mesh
 #  include("$(@__DIR__)/trapezoidFZ/Assemble.jl") #   Gaussian fault zone assemble
+include("$(@__DIR__)/src/damageEvol.jl")   #    Stiffness index of damaged medium
 include("$(@__DIR__)/src/BoundaryMatrix.jl")    #	Boundary matrices
 include("$(@__DIR__)/src/initialConditions/defaultInitialConditions.jl")
-include("$(@__DIR__)/src/damageEvol.jl")   #    Stiffness index of damaged medium
+
 
 
 function setParameters(FZdepth, res)
@@ -98,6 +99,7 @@ function setParameters(FZdepth, res)
     #....................
     # 2D Mesh generation
     #....................
+    # global node index of the (i,j)th GLL node internal to the e-th element.
     iglob::Array{Int,3}, x::Vector{Float64}, y::Vector{Float64} =
                         MeshBox!(NGLL, Nel, NelX, NelY, FltNglob, dxe, dye)
     x = x .- LX     # +x direction is upward (-48km ~ 0km)
@@ -152,68 +154,73 @@ function setParameters(FZdepth, res)
     # Stiffness Assembly
     Ksparse::SparseMatrixCSC{Float64} = Kassemble(NGLL, NelX, NelY, dxe,dye, nglob, iglob, W)
 
-#     # Damage Indexed Kdam
-#     did = damage_indx!(ThickX, ThickY, dxe, dye, NGLL, NelX, NelY, iglob)
+    # Damage Indexed Kdam
+    # fault damage zone evolution
+    did = damage_indx!(ThickX, ThickY, dxe, dye, NGLL, NelX, NelY, iglob)
+    #println("index of nodes in fault damage zone: ", did) 
 
-#     #  return Ksparse, Kdam, iglob
-#     #  Kdam[Kdam .> 1.0] .= 1.0
+    #  return Ksparse, Kdam, iglob
+    #  Kdam[Kdam .> 1.0] .= 1.0
 
-#     # Time solver variables
-#     dt = CFL*dt
-#     dtmin = dt
-#     half_dt = 0.5*dtmin
-#     half_dt_sq = 0.5*dtmin^2
+    # Time solver variables
+    # current dafault dt meets c*(dt/dx) <= 1  from function 'Massemble'
+    dt = CFL*dt
+    dtmin = dt
+    half_dt = 0.5*dtmin
+    half_dt_sq = 0.5*dtmin^2
 
-#     #......................
-#     # Boundary conditions :
-#     #......................
+    #......................
+    # Boundary conditions :
+    #......................
 
-#     # Left boundary
-#     BcLC::Vector{Float64}, iBcL::Vector{Int} = BoundaryMatrix!(NGLL, NelX, NelY, rho1, vs1, rho2, vs2, dy_deta, dx_dxi, wgll, iglob, 'L')
+    # Left boundary
+    BcLC::Vector{Float64}, iBcL::Vector{Int} = BoundaryMatrix!(NGLL, NelX, NelY, 
+                        rho1, vs1, rho2, vs2, dy_deta, dx_dxi, wgll, iglob, 'L')
 
-#     # Right Boundary = free surface: nothing to do
-#     #  BcRC, iBcR = BoundaryMatrix(P, wgll, iglob, 'R')
+    # Right Boundary = free surface: nothing to do
+    #  BcRC, iBcR = BoundaryMatrix(P, wgll, iglob, 'R')
 
-#     # Top Boundary
-#     BcTC::Vector{Float64}, iBcT::Vector{Int} = BoundaryMatrix!(NGLL, NelX, NelY, rho1, vs1, rho2, vs2, dy_deta, dx_dxi, wgll, iglob, 'T')
+    # Top Boundary
+    BcTC::Vector{Float64}, iBcT::Vector{Int} = BoundaryMatrix!(NGLL, NelX, NelY, 
+                        rho1, vs1, rho2, vs2, dy_deta, dx_dxi, wgll, iglob, 'T')
 
-#     # Mass matrix at boundaries
-#     #  Mq = M[:]
-#     M[iBcL] .= M[iBcL] .+ half_dt*BcLC
-#     M[iBcT] .= M[iBcT] .+ half_dt*BcTC
-#     #  M[iBcR] .= M[iBcR] .+ half_dt*BcRC
+    # Mass matrix at boundaries
+    #  Mq = M[:]
+    M[iBcL] .= M[iBcL] .+ half_dt*BcLC
+    M[iBcT] .= M[iBcT] .+ half_dt*BcTC
+    #  M[iBcR] .= M[iBcR] .+ half_dt*BcRC
 
+    # kinematic fault at bottom boundary with plate motion rate
+    FltB::Vector{Float64}, iFlt::Vector{Int} = BoundaryMatrix!(NGLL, NelX, NelY, 
+                       rho1, vs1, rho2, vs2, dy_deta, dx_dxi, wgll, iglob, 'B')
 
-#     # Dynamic fault at bottom boundary
-#     FltB::Vector{Float64}, iFlt::Vector{Int} = BoundaryMatrix!(NGLL, NelX, NelY, rho1, vs1, rho2, vs2, dy_deta, dx_dxi, wgll, iglob, 'B')
+    FltZ::Vector{Float64} = M[iFlt]./FltB /half_dt * 0.5
+    FltX::Vector{Float64} = x[iFlt]
 
-#     FltZ::Vector{Float64} = M[iFlt]./FltB /half_dt * 0.5
-#     FltX::Vector{Float64} = x[iFlt]
+    #......................
+    # Initial Conditions
+    #......................
+    cca::Vector{Float64}, ccb::Vector{Float64} = fricDepth(FltX)   # rate-state friction parameters
+    Seff::Vector{Float64} = SeffDepth(FltX)       # effective normal stress
+    tauo::Vector{Float64} = tauDepth(FltX)        # initial shear stress
 
-#     #......................
-#     # Initial Conditions
-#     #......................
-#     cca::Vector{Float64}, ccb::Vector{Float64} = fricDepth(FltX)   # rate-state friction parameters
-#     Seff::Vector{Float64} = SeffDepth(FltX)       # effective normal stress
-#     tauo::Vector{Float64} = tauDepth(FltX)        # initial shear stress
+    # Kelvin-Voigt Viscosity
+    Nel_ETA::Int = 0
+    if ETA !=0
+        Nel_ETA = NelX
+        x1 = 0.5*(1 .+ xgll')
+        eta_taper = exp.(-pi*x1.^2)
+        eta = ETA*dt*repeat([eta_taper], NGLL)
 
-#     # Kelvin-Voigt Viscosity
-#     Nel_ETA::Int = 0
-#     if ETA !=0
-#         Nel_ETA = NelX
-#         x1 = 0.5*(1 .+ xgll')
-#         eta_taper = exp.(-pi*x1.^2)
-#         eta = ETA*dt*repeat([eta_taper], NGLL)
+    else
+        Nel_ETA = 0
+    end
 
-#     else
-#         Nel_ETA = 0
-#     end
+    # Compute XiLF used in timestep calculation
+    XiLf::Vector{Float64} = XiLfFunc!(LX, FltNglob, gamma_, xLf, muMax, cca, ccb, Seff)
 
-#     # Compute XiLF used in timestep calculation
-#     XiLf::Vector{Float64} = XiLfFunc!(LX, FltNglob, gamma_, xLf, muMax, cca, ccb, Seff)
-
-#     # Find nodes that do not belong to the fault
-#     FltNI::Vector{Int} = deleteat!(collect(1:nglob), iFlt)
+    # Find nodes that do not belong to the fault
+    FltNI::Vector{Int} = deleteat!(collect(1:nglob), iFlt)
 
 #     # Compute diagonal of K
 #     #  diagKnew::Vector{Float64} = KdiagFunc!(FltNglob, NelY, NGLL, Nel, coefint1, coefint2, iglob, W, H, Ht, FltNI)

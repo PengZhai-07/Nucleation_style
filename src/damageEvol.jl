@@ -3,6 +3,7 @@
 #####################################
 
 function damage_indx!(ThickX, ThickY, dxe, dye, NGLL, NelX, NelY, iglob)
+    # return the global index of fault zone elements
 
     ww::Matrix{Float64} = zeros(NGLL, NGLL)
     Ke2::Array{Float64,4} = zeros(NGLL,NGLL,NGLL,NGLL)
@@ -18,11 +19,11 @@ function damage_indx!(ThickX, ThickY, dxe, dye, NGLL, NelX, NelY, iglob)
             # Properties of heterogeneous medium
             for i in 1:NGLL, j in 1:NGLL
                 for k in 1:NGLL, l in 1:NGLL
-
+                    # damage zone
                     if ex*dxe >= ThickX && (dye <= ey*dye <= ThickY)
                         Ke2[i,j,k,l] = 1000.0
                         #  Ke3[i,j,k,l] = 0.0
-
+                    # host rock
                     else
                         Ke2[i,j,k,l] = -1000
                     end
