@@ -4,23 +4,25 @@ function Int1D(P1, P2, val)
 	return Line
 end
 
-
+# define the rate and state friction parameter in all 48km long fault 
 # Compute rate-state friciton with depth
 function fricDepth(FltX)
     
-    FltNglob = length(FltX)
+    FltNglob = length(FltX)    # number of GLL nodes on fault
     
     # Friction with depth
     cca::Array{Float64} = repeat([0.015], FltNglob)
     ccb::Array{Float64} = repeat([0.019], FltNglob)
 
     a_b = cca - ccb
-    fP1 = [-0.003, 0e3]
+    # [a-b, depth]   key points of friction coefficient change
+    fP1 = [-0.003, 0e3]   # fP1 = [0.012, 0e3]
     fP2 = [-0.0041, -2e3]
     fP3 = [-0.0041, -14e3]
     fP4 = [0.015, -17e3]
     fP5 = [0.024, -24e3]
 
+    # Return a vector I of the indices or keys of A
     fric_depth1 = findall(abs.(FltX) .<= abs(fP2[2]))
     fric_depth2 = findall(abs(fP2[2]) .< abs.(FltX) .<= abs(fP3[2]))
     fric_depth3 = findall(abs(fP3[2]) .< abs.(FltX) .<= abs(fP4[2]))
@@ -31,15 +33,15 @@ function fricDepth(FltX)
     a_b[fric_depth2] .= Int1D(fP2, fP3, FltX[fric_depth2])
     a_b[fric_depth3] .= Int1D(fP3, fP4, FltX[fric_depth3])
     a_b[fric_depth4] .= Int1D(fP4, fP5, FltX[fric_depth4])
-    a_b[fric_depth5] .= 0.0047
+    a_b[fric_depth5] .= 0.0047   # depth >=24 km
 
     #  cca[fric_depth4] .= Int1D(fP4, fP5, FltX[fric_depth4]) .+ 0.0001
     cca .= ccb .+ a_b
     #  ccb .= cca .- a_b
 
     return cca, ccb
-end
 
+end
 
 
 # Effective normal stress
@@ -49,11 +51,12 @@ function SeffDepth(FltX)
 
     Seff::Array{Float64} = repeat([50e6], FltNglob)
     sP1 = [10e6 0]
-    sP2 = [50e6 -2e3]
+    sP2 = [50e6 -2e3]         # constant normal stress below 24 km
     Seff_depth = findall(abs.(FltX) .<= abs(sP2[2]))
     Seff[Seff_depth] = Int1D(sP1, sP2, FltX[Seff_depth])
 
     return Seff
+
 end
 
 
