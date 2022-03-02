@@ -4,10 +4,10 @@
 
 function Massemble!(NGLL, NelX, NelY, dxe, dye, ThickX, 
                    ThickY, rho1, vs1, rho2, vs2, iglob, 
-                   M, x, y, jac, xgll, wgll)
+                   M, x, y, jac)
     # Get the informaton about GLL points
     # May can be displaced by the input
-    # xgll, wgll, H = GetGLL(NGLL)
+    xgll, wgll, H = GetGLL(NGLL)
     wgll2 = wgll*wgll';
 
     rho::Matrix{Float64} = zeros(NGLL, NGLL)    # density 
