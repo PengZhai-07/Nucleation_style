@@ -14,33 +14,33 @@ function BoundaryMatrix!(NGLL, NelX, NelY, rho1, vs1, rho2, vs2,
 	#		jac1D = line Jacobian
 	#		side = 'L', 'R', 'T', 'B'
 
-	if side == 'L'
-		eB = collect(0:NelX-1)*NelY .+ 1
+	if side == 'B'
+		eB = collect(0:NelY-1)*NelX .+ 1
 		igll = 1
 		jgll = collect(1:NGLL)
-        jac1D = dx_dxi
-        impedance = rho2*vs2
-
-	elseif side == 'R'
-		eB = collect(0:NelX-1)*NelY .+ NelY
-		igll = NGLL
-		jgll = collect(1:NGLL)
-        jac1D = dx_dxi
+        jac1D = dy_deta
         impedance = rho1*vs1
 
 	elseif side == 'T'
-		eB = (NelX-1)*NelY .+ collect(1:NelY)
-		igll = collect(1:NGLL)
-		jgll = NGLL
+		eB = collect(0:NelY-1)*NelX .+ NelY
+		igll = NGLL
+		jgll = collect(1:NGLL)
         jac1D = dy_deta
         impedance = rho1*vs1
+
+	elseif side == 'R'
+		eB = (NelY-1)*NelX .+ collect(1:NelX)
+		igll = collect(1:NGLL)
+		jgll = NGLL
+        jac1D = dx_dxi
+        impedance = rho1*vs1
 	
-	# bottom surface
+    # fault surface
 	else 
-		eB = collect(1:NelY)
+		eB = collect(1:NelX)
 		igll = collect(1:NGLL)
 		jgll = 1
-        jac1D = dy_deta
+        jac1D = dx_dxi
         impedance = 1
 	end
 
@@ -53,7 +53,7 @@ function BoundaryMatrix!(NGLL, NelX, NelY, rho1, vs1, rho2, vs2,
 	for e = 1:NelB
 		ip = (NGLL-1)*(e-1) .+ collect(1:NGLL)
 		iB[ip] = iglob[igll, jgll, eB[e]]   # global node index of boundary GLL nodes
-		# jB[:,e] = ip
+		jB[:,e] = ip
 		B[ip] .+= jac1D*wgll*impedance
 	end
 
