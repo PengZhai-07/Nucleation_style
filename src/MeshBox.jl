@@ -16,7 +16,11 @@
 #			Elements are numbered row by row from  bottom-left
 #			to top-right. The table iglob is needed to assemble 
 #			global data from local data.
-
+                
+                # 49 53 57 61 65
+                # 48 52 56 60 64
+				# 47 51 55 59 63 
+                # 46 50 54 58 62
 				# 29 33 37 41 45
   				# 28 32 36 40 44
 				# 27 31 35 39 43

@@ -13,7 +13,6 @@ include("$(@__DIR__)/src/BoundaryMatrix.jl")    #	Boundary matrices
 include("$(@__DIR__)/src/initialConditions/defaultInitialConditions.jl")
 
 
-
 function setParameters(FZdepth, res)
 
     LX::Int = 48e3  # depth dimension of rectangular domain
@@ -71,11 +70,13 @@ function setParameters(FZdepth, res)
     rho2::Float64 = 2670
     vs2::Float64 = 1.00*vs1
 
+    # without viscosity
     ETA = 0.
 
     # Low velocity layer dimensions
     ThickX::Float64 = LX - ceil(FZdepth/dxe)*dxe   # ~FZdepth m deep
-    ThickY::Float64 = ceil(0.25e3/dye)*dye     # ~ default halfwidth value: 0.25 km wide
+    ThickY::Float64 = ceil(1e3/dye)*dye     # ~ default halfwidth value: 0.25 km wide
+    # when the resolution is low, the halfwidth of fault damage zone can not be two small 
 
     #.......................
     # EARTHQUAKE PARAMETERS
@@ -99,7 +100,7 @@ function setParameters(FZdepth, res)
     #....................
     # 2D Mesh generation
     #....................
-    # global node index of the (i,j)th GLL node internal to the e-th element.
+    # global node index of the (i,j) th GLL node internal to the e-th element.
     iglob::Array{Int,3}, x::Vector{Float64}, y::Vector{Float64} =
                         MeshBox!(NGLL, Nel, NelX, NelY, FltNglob, dxe, dye)
     x = x .- LX     # +x direction is upward (-48km ~ 0km)
@@ -141,7 +142,7 @@ function setParameters(FZdepth, res)
     # Assemble mass and stiffness matrix
     # Mass Assembly
     M, dt::Float64, muMax = Massemble!(NGLL, NelX, NelY, dxe, dye,
-        ThickX, ThickY, rho1, vs1, rho2, vs2, iglob, M, x, y, jac, xgll, wgll)
+        ThickX, ThickY, rho1, vs1, rho2, vs2, iglob, M, x, y, jac)
 
     # Material properties for a narrow rectangular damaged zone of
     # half-thickness ThickY and depth ThickX
@@ -157,7 +158,7 @@ function setParameters(FZdepth, res)
     # Damage Indexed Kdam
     # fault damage zone evolution
     did = damage_indx!(ThickX, ThickY, dxe, dye, NGLL, NelX, NelY, iglob)
-    #println("index of nodes in fault damage zone: ", did) 
+    #println("index of GLL nodes in fault damage zone: ", did) 
 
     #  return Ksparse, Kdam, iglob
     #  Kdam[Kdam .> 1.0] .= 1.0
@@ -170,33 +171,35 @@ function setParameters(FZdepth, res)
     half_dt_sq = 0.5*dtmin^2
 
     #......................
-    # Boundary conditions :
+    # Boundary conditions :  L->B  R->T  T->R  B->L
     #......................
 
-    # Left boundary
-    BcLC::Vector{Float64}, iBcL::Vector{Int} = BoundaryMatrix!(NGLL, NelX, NelY, 
-                        rho1, vs1, rho2, vs2, dy_deta, dx_dxi, wgll, iglob, 'L')
+    # Bottom boundary
+    BcBC::Vector{Float64}, iBcB::Vector{Int} = BoundaryMatrix!(NGLL, NelX, NelY, 
+                        rho1, vs1, rho2, vs2, dy_deta, dx_dxi, wgll, iglob, 'B') 
+    
+    # Top Boundary = free surface: nothing to do
+    #  BcTC, iBcT = BoundaryMatrix(P, wgll, iglob, 'T')
 
-    # Right Boundary = free surface: nothing to do
-    #  BcRC, iBcR = BoundaryMatrix(P, wgll, iglob, 'R')
-
-    # Top Boundary
-    BcTC::Vector{Float64}, iBcT::Vector{Int} = BoundaryMatrix!(NGLL, NelX, NelY, 
-                        rho1, vs1, rho2, vs2, dy_deta, dx_dxi, wgll, iglob, 'T')
+    # Right Boundary
+    BcRC::Vector{Float64}, iBcR::Vector{Int} = BoundaryMatrix!(NGLL, NelX, NelY, 
+                        rho1, vs1, rho2, vs2, dy_deta, dx_dxi, wgll, iglob, 'R')
 
     # Mass matrix at boundaries
     #  Mq = M[:]
-    M[iBcL] .= M[iBcL] .+ half_dt*BcLC
-    M[iBcT] .= M[iBcT] .+ half_dt*BcTC
-    #  M[iBcR] .= M[iBcR] .+ half_dt*BcRC
+    M[iBcB] .= M[iBcB] .+ half_dt*BcBC
+    M[iBcR] .= M[iBcR] .+ half_dt*BcRC
+    #  M[iBcT] .= M[iBcT] .+ half_dt*BcRT
 
-    # kinematic fault at bottom boundary with plate motion rate
-    FltB::Vector{Float64}, iFlt::Vector{Int} = BoundaryMatrix!(NGLL, NelX, NelY, 
-                       rho1, vs1, rho2, vs2, dy_deta, dx_dxi, wgll, iglob, 'B')
-
-    FltZ::Vector{Float64} = M[iFlt]./FltB /half_dt * 0.5
-    FltX::Vector{Float64} = x[iFlt]
-
+    # for initial conditions on fault line   : 'L' 
+    FltL::Vector{Float64}, iFlt::Vector{Int} = BoundaryMatrix!(NGLL, NelX, NelY, 
+                       rho1, vs1, rho2, vs2, dy_deta, dx_dxi, wgll, iglob, 'L')
+    # iFlt: index of GLL nodes on the fault!!
+    FltZ::Vector{Float64} = M[iFlt]./FltL /half_dt * 0.5   # specific meanings?
+    # X(vertical) of all GLL nodes at fault surface
+    FltX::Vector{Float64} = x[iFlt]   
+    #println("# X(vertical) of all GLL nodes at fault surface: ", FltX)    
+    
     #......................
     # Initial Conditions
     #......................
@@ -204,7 +207,7 @@ function setParameters(FZdepth, res)
     Seff::Vector{Float64} = SeffDepth(FltX)       # effective normal stress
     tauo::Vector{Float64} = tauDepth(FltX)        # initial shear stress
 
-    # Kelvin-Voigt Viscosity
+    # Kelvin-Voigt Viscosity : one kind of initial condition?
     Nel_ETA::Int = 0
     if ETA !=0
         Nel_ETA = NelX
@@ -216,135 +219,138 @@ function setParameters(FZdepth, res)
         Nel_ETA = 0
     end
 
-    # Compute XiLF used in timestep calculation
+    # Compute XiLF(largest slip in one timestep!!) used in timestep calculation
     XiLf::Vector{Float64} = XiLfFunc!(LX, FltNglob, gamma_, xLf, muMax, cca, ccb, Seff)
 
-    # Find nodes that do not belong to the fault
+    # Find nodes that do not belong to the fault (off-fault GLL nodes )
     FltNI::Vector{Int} = deleteat!(collect(1:nglob), iFlt)
 
-#     # Compute diagonal of K
-#     #  diagKnew::Vector{Float64} = KdiagFunc!(FltNglob, NelY, NGLL, Nel, coefint1, coefint2, iglob, W, H, Ht, FltNI)
+    # Compute diagonal of K
+    #  diagKnew::Vector{Float64} = KdiagFunc!(FltNglob, NelY, NGLL, Nel, coefint1, coefint2, iglob, W, H, Ht, FltNI)
 
-#     # Fault boundary: indices where fault within 24 km
-#     fbc = reshape(iglob[:,1,:], length(iglob[:,1,:]))
-#     idx = findall(fbc .== findall(x .== -24e3)[1] - 1)[1]
-#     FltIglobBC::Vector{Int} = fbc[1:idx]
-
-#     # Display important parameters
-#     println("Total number of nodes on fault: ", FltNglob)
-#     println("Average node spacing: ", LX/(FltNglob-1), " m")
-#     println("ThickY: ", ThickY, " m")
-#     @printf("dt: %1.09f s\n", dt)
+    # Fault boundary: indices where fault within 24 km 
+    fbc = reshape(iglob[:,1,:], length(iglob[:,1,:]))    # convert the index of all left boundasy GLL nodes in all elements  into 1-D vector
+    idx = findall(fbc .== findall(x .== -24e3)[1] - 1)[1]
+    FltIglobBC::Vector{Int} = fbc[1:idx]
+    # println("Number of GLL nodes on fault boundary: ", FltIglobBC)  ?
 
 
-#     return params_int(Nel, FltNglob, yr2sec, Total_time, IDstate, nglob),
-#             params_float(ETA, Vpl, Vthres, Vevne, dt),
-#             params_farray(fo, Vo, xLf, M, BcLC, BcTC, FltB, FltZ, FltX, cca, ccb, Seff, tauo, XiLf, x_out, y_out),
-#             params_iarray(iFlt, iBcL, iBcT, FltIglobBC, FltNI, out_seis), Ksparse, iglob, NGLL, wgll2, nglob, did
+    # Display important parameters
+    println("Total number of GLL nodes on fault: ", FltNglob)
+    println("Average node spacing: ", LX/(FltNglob-1), " m")
+    println("ThickY: ", ThickY, " m")
+    @printf("dt: %1.09f s\n", dt)
 
-# end
+    return params_int(Nel, FltNglob, yr2sec, Total_time, IDstate, nglob),
+            params_float(ETA, Vpl, Vthres, Vevne, dt),
+            params_farray(fo, Vo, xLf, M, BcBC, BcRC, FltL, FltZ, FltX, cca, ccb, Seff, tauo, XiLf, x_out, y_out),
+            params_iarray(iFlt, iBcB, iBcR, FltIglobBC, FltNI, out_seis), 
+            Ksparse, iglob, NGLL, wgll2, nglob, did
 
-
-
-# struct params_int{T<:Int}
-#     # Domain size
-#     Nel::T
-#     FltNglob::T
-
-#     # Time parameters
-#     yr2sec::T
-#     Total_time::T
-#     IDstate::T
-
-#     # Fault setup parameters
-#     nglob::T
-
-# end
-
-# struct params_float{T<:AbstractFloat}
-#     # Jacobian for global -> local coordinate conversion
-#     #  jac::T
-#     #  coefint1::T
-#     #  coefint2::T
-
-#     ETA::T
-
-#     # Earthquake parameters
-#     Vpl::T
-#     Vthres::T
-#     Vevne::T
-
-#     # Setup parameters
-#     dt0::T
-# end
-
-# struct params_farray{T<:Vector{Float64}}
-#     fo::T
-#     Vo::T
-#     xLf::T
-
-#     M::T
-
-#     BcLC::T
-#     BcTC::T
-
-#     FltB::T
-#     FltZ::T
-#     FltX::T
-
-#     cca::T
-#     ccb::T
-#     Seff::T
-#     tauo::T
-
-#     XiLf::T
-#     #  diagKnew::T
-
-#     xout::T
-#     yout::T
-# end
-
-# struct params_iarray{T<:Vector{Int}}
-#     iFlt::T
-#     iBcL::T
-#     iBcT::T
-#     FltIglobBC::T
-#     FltNI::T
-#     out_seis::T
-# end
-
-# # Calculate XiLf used in computing the timestep
-# function XiLfFunc!(LX, FltNglob, gamma_, xLf, muMax, cca, ccb, Seff)
-
-#     hcell = LX/(FltNglob-1)
-#     Ximax = 0.5
-#     Xithf = 1
-
-#     Xith:: Vector{Float64} = zeros(FltNglob)
-#     XiLf::Vector{Float64} = zeros(FltNglob)
-
-#     #  @inbounds for j = 1:FltNglob
-#     @inbounds for j = 1:FltNglob
-
-#         # Compute time restricting parameters
-#         expr1 = -(cca[j] - ccb[j])/cca[j]
-#         expr2 = gamma_*muMax/hcell*xLf[j]/(cca[j]*Seff[j])
-#         ro = expr2 - expr1
-
-#         if (0.25*ro*ro - expr2) >= 0
-#             Xith[j] = 1/ro
-#         else
-#             Xith[j] = 1 - expr1/expr2
-#         end
-
-#         # For each node, compute slip that node cannot exceed in one timestep
-#         if Xithf*Xith[j] > Ximax
-#             XiLf[j] = Ximax*xLf[j]
-#         else
-#             XiLf[j] = Xithf*Xith[j]*xLf[j]
-#         end
-#     end
-
-
-#     return XiLf
 end
+
+struct params_int{T<:Int}
+    # Domain size
+    Nel::T
+    FltNglob::T
+
+    # Time parameters
+    yr2sec::T
+    Total_time::T
+    IDstate::T
+
+    # Fault setup parameters
+    nglob::T
+
+end
+
+struct params_float{T<:AbstractFloat}
+    # Jacobian for global -> local coordinate conversion
+    #  jac::T
+    #  coefint1::T
+    #  coefint2::T
+
+    ETA::T
+
+    # Earthquake parameters
+    Vpl::T
+    Vthres::T
+    Vevne::T
+
+    # Setup parameters
+    dt0::T
+end
+
+struct params_farray{T<:Vector{Float64}}
+    fo::T
+    Vo::T
+    xLf::T
+
+    M::T
+
+    BcBC::T
+    BcRC::T
+
+    FltL::T
+    FltZ::T
+    FltX::T
+
+    cca::T
+    ccb::T
+    Seff::T
+    tauo::T
+
+    XiLf::T
+    #  diagKnew::T
+
+    xout::T
+    yout::T
+end
+struct params_iarray{T<:Vector{Int}}
+    iFlt::T
+    iBcB::T
+    iBcR::T
+    FltIglobBC::T
+    FltNI::T
+    out_seis::T
+end
+
+# Calculate XiLf used in computing the timestep
+function XiLfFunc!(LX, FltNglob, gamma_, xLf, muMax, cca, ccb, Seff)
+
+    hcell = LX/(FltNglob-1)   # average interval of GLL nodes on fault
+    Ximax = 0.5
+    Xithf = 1
+
+    Xith:: Vector{Float64} = zeros(FltNglob)
+    XiLf::Vector{Float64} = zeros(FltNglob)
+
+    #  @inbounds for j = 1:FltNglob
+    @inbounds for j = 1:FltNglob
+
+        # Compute time restricting parameters
+        expr1 = -(cca[j] - ccb[j])/cca[j]
+        expr2 = gamma_*muMax/hcell*xLf[j]/(cca[j]*Seff[j])  
+
+        ro = expr2 - expr1
+
+        if (0.25*ro*ro - expr2) >= 0
+            Xith[j] = 1/ro
+        else
+            Xith[j] = 1 - expr1/expr2
+        end
+
+        # For each node, compute slip that node cannot exceed in one timestep
+        # slip during one time step could not exceed 0.5*DC, so that we can restrict the length of the timestep!!
+
+        if Xithf*Xith[j] > Ximax
+            XiLf[j] = Ximax*xLf[j]
+        else
+            XiLf[j] = Xithf*Xith[j]*xLf[j]
+        end
+    end
+
+    return XiLf
+end
+
+
