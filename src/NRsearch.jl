@@ -1,5 +1,5 @@
 ####################################
-#   NEWTON RHAPSON SEARCH METHOD
+#   fault slip behavior
 ####################################
 
 # Fault Boundary function
@@ -42,7 +42,9 @@ function FBC!(IDstate, P::params_farray, NFBC, FltNglob, psi1, Vf1, tau1, psi2, 
     return psi1, Vf1, tau1, psi2, Vf2, tau2
 end
 
-
+####################################
+#   NEWTON RHAPSON SEARCH METHOD
+####################################
 # Newton Rhapson search method
 function NRsearch!(fo, Vo, cca, ccb, Seff, tau, tauo, psi, FltZ, FltVfree)
 

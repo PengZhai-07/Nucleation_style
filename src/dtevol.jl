@@ -4,7 +4,7 @@
 
 function dtevol!(dt, dtmin, XiLf, FaultNglob, NFBC, Vf, isolver)
     
-    dtmax::Int = 50 * 24 * 60*60		# 5 days
+    dtmax::Int = 50 * 24 * 60*60		# 50 days
     dtincf::Float64 = 1.2
 
     if isolver == 1
