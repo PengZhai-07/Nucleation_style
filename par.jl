@@ -13,7 +13,7 @@ include("$(@__DIR__)/src/BoundaryMatrix.jl")    #	Boundary matrices
 include("$(@__DIR__)/src/initialConditions/defaultInitialConditions.jl")
 
 
-function setParameters(FZdepth, res)
+function setParameters(FZdepth, halfwidth, res)
 
     LX::Int = 48e3  # depth dimension of rectangular domain
     LY::Int = 30e3 # off fault dimenstion of rectangular domain
@@ -75,7 +75,7 @@ function setParameters(FZdepth, res)
 
     # Low velocity layer dimensions
     ThickX::Float64 = LX - ceil(FZdepth/dxe)*dxe   # ~FZdepth m deep
-    ThickY::Float64 = ceil(1e3/dye)*dye     # ~ default halfwidth value: 0.25 km wide
+    ThickY::Float64 = ceil(halfwidth/dye)*dye     # ~ default halfwidth value: 0.25 km wide
     # when the resolution is low, the halfwidth of fault damage zone can not be two small 
 
     #.......................
@@ -198,7 +198,7 @@ function setParameters(FZdepth, res)
     FltZ::Vector{Float64} = M[iFlt]./FltL /half_dt * 0.5   # specific meanings?
     # X(vertical) of all GLL nodes at fault surface
     FltX::Vector{Float64} = x[iFlt]   
-    #println("# X(vertical) of all GLL nodes at fault surface: ", FltX)    
+    #println("# X(vertical) of all GLL nodes at dynamic fault surface: ", FltX)    
     
     #......................
     # Initial Conditions
@@ -238,6 +238,7 @@ function setParameters(FZdepth, res)
     # Display important parameters
     println("Total number of GLL nodes on fault: ", FltNglob)
     println("Average node spacing: ", LX/(FltNglob-1), " m")
+    println("ThickX: ", ThickX, " m")
     println("ThickY: ", ThickY, " m")
     @printf("dt: %1.09f s\n", dt)
 
