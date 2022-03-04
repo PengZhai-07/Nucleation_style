@@ -82,7 +82,7 @@ function setParameters(FZdepth, halfwidth, res)
     # EARTHQUAKE PARAMETERS
     #.......................
 
-    Vpl::Float64 = 35e-3/yr2sec	#	Plate loading rate
+    Vpl::Float64 = 35e-3/yr2sec	#	Plate loading rate   unit: m/seconds
     # frictional parameters along the fault (X direction)
     fo::Vector{Float64} = repeat([0.6], FltNglob)       #	Reference friction coefficient
     Vo::Vector{Float64} = repeat([1e-6], FltNglob)		#	Reference velocity 'Vo'  unit: m/s
@@ -232,15 +232,15 @@ function setParameters(FZdepth, halfwidth, res)
     fbc = reshape(iglob[:,1,:], length(iglob[:,1,:]))    # convert the index of all left boundasy GLL nodes in all elements  into 1-D vector
     idx = findall(fbc .== findall(x .== -24e3)[1] - 1)[1]
     FltIglobBC::Vector{Int} = fbc[1:idx]
-    # println("Number of GLL nodes on fault boundary: ", FltIglobBC)  ?
-
-
+    println("Total number of GLL nodes on fault boundary: ", length(FltIglobBC)) # ?
+    
     # Display important parameters
     println("Total number of GLL nodes on fault: ", FltNglob)
+    println("Total number of GLL nodes on fault: ", length(iFlt))
     println("Average node spacing: ", LX/(FltNglob-1), " m")
     println("ThickX: ", ThickX, " m")
     println("ThickY: ", ThickY, " m")
-    @printf("dt: %1.09f s\n", dt)
+    @printf("dt: %1.09f s\n", dt)   # minimal timestep during coseismic stage
 
     return params_int(Nel, FltNglob, yr2sec, Total_time, IDstate, nglob),
             params_float(ETA, Vpl, Vthres, Vevne, dt),
@@ -279,7 +279,7 @@ struct params_float{T<:AbstractFloat}
     Vevne::T
 
     # Setup parameters
-    dt0::T
+    dt::T
 end
 
 struct params_farray{T<:Vector{Float64}}

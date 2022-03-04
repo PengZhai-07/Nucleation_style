@@ -22,16 +22,16 @@ resolution = 4
 out_dir = "$(@__DIR__)/data/immature_heal_10yr/"    # healing time : 10yr
 mkpath(out_dir)
 
-P = setParameters(24e3,1e3, resolution)      # args = fault zone depth, fault zone halfwidth, resolution
+P = setParameters(24e3, 0.25e3, resolution)      # args = fault zone depth, fault zone halfwidth, resolution
 
-include("$(@__DIR__)/src/dtevol.jl")
-include("$(@__DIR__)/src/NRsearch.jl")
-include("$(@__DIR__)/src/otherFunctions.jl")
+# include("$(@__DIR__)/src/dtevol.jl")
+# include("$(@__DIR__)/src/NRsearch.jl")
+# include("$(@__DIR__)/src/otherFunctions.jl")
 
-include("$(@__DIR__)/src/main.jl")
+# include("$(@__DIR__)/src/main.jl")
 
-simulation_time = @elapsed @time main(P)
+# simulation_time = @elapsed @time main(P)
 
-println("\n")
+# println("\n")
 
-@info("Simulation Complete!");
+# @info("Simulation Complete!");

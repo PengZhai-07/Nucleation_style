@@ -4,7 +4,7 @@
 #
 #   Written in: Julia 1.0
 #
-#	Created: 09/18/2022
+#	Created: 09/18/2020
 #   Author: Prithvi Thakur (Original code by Kaneko et al. 2011)
 #
 #	Adapted from Kaneko et al. (2011)
@@ -15,72 +15,82 @@
 # Healing exponential function
 function healing2(t,tStart,dam)
     """ hmax: coseismic damage amplitude
-        r: healing rate (0.05 => 80 years to heal completely)
-                        (0.5 => 15 years to heal completely)
-                        (0.8 => 8 years to heal completely)
+        r: healing rate (0.05 => 138 years to heal completely)
+                        (0.5 => 13.81 years to heal completely)
+                        (0.7 => 9.87 years to heal completely)
+                        (0.8 => 8.63 years to heal completely)
     """
     hmax = 0.05
     r =  0.7   # 1/1.5
-
+    # t: current time of all simulation unit: seconds
+    # tStart: time when earthquake happens  unit: seconds
+    # dam : current ratio of damage zone and host rock(after coseismic rigidity reduction) 
+    # 65% -> 60% -> 65%
+    # when there is only 0.1% bias, we think the healing process finishes
+    # log(0.001)=-6.9078
     hmax*(1 .- exp.(-r*(t .- tStart)/P[1].yr2sec)) .+ dam
 end
 
 function main(P)
+    # please refer to par.jl to see the specific meaning of P
+    # P[1] = integer  Nel, FltNglob, yr2sec, Total_time, IDstate, nglob
+    # P[2] = float    ETA, Vpl, Vthres, Vevne, dt
+    # P[3] = float array   fo, Vo, xLf, M, BcBC, BcRC, FltL, FltZ, FltX, cca, ccb, Seff, tauo, XiLf, x_out, y_out
+    # P[4] = integer array   iFlt, iBcB, iBcR, FltIglobBC, FltNI, out_seis
+    # P[5] = ksparse   
 
-    # P[1] = integer
-    # P[2] = float
-    # P[3] = float array
-    # P[4] = integer array
-    # P[5] = ksparse
-    # P[6] = damage_idx
-
-
+    #  ??? 
     #  W_orig = W[:,:,damage_idx]
     #  damage_amount::Float64 = 1.0
 
-    # Shear modulus ratio of damage/host rock
-    alphaa = 0.80
+    # initial Shear modulus ratio of damage/host rock
+    # mature fault: 80-85%
+    # immature fault: 40%-45%
+    alphaa = 0.40
 
     # Time solver variables
-    dt::Float64 = P[2].dt0
-    dtmin::Float64 = dt
+    dt::Float64 = P[2].dt   # dt is variable at different time of earthquake cycle
+    dtmin::Float64 = dt    
     half_dt::Float64 = 0.5*dtmin
     half_dt_sq::Float64 = 0.5*dtmin^2
 
-    # dt modified slightly for damping
+    # dt modified slightly for damping (if with viscosity, the timestep is smaller)
     if P[2].ETA != 0
         dt = dt/sqrt(1 + 2*P[2].ETA)
     end
 
     # Initialize kinematic field: global arrays
-    d::Vector{Float64} = zeros(P[1].nglob)
+    d::Vector{Float64} = zeros(P[1].nglob)   # initial displacement
     v::Vector{Float64} = zeros(P[1].nglob)
-    v .= 0.5e-3
-    a::Vector{Float64} = zeros(P[1].nglob)
+    v .= 0.5e-3         # half of Vthres(1e-3 m/second)  ??? intial velocity??
+    a::Vector{Float64} = zeros(P[1].nglob)  ???
 
     #.....................................
-    # Stresses and time related variables
+    # Stresses and time related variables on fault
     #.....................................
-    tau::Vector{Float64} = zeros(P[1].FltNglob)
+    # specific meanings
+    
     FaultC::Vector{Float64} = zeros(P[1].FltNglob)
+    FltVfree::Vector{Float64} = zeros(length(P[4].iFlt))
     Vf::Vector{Float64} =  zeros(P[1].FltNglob)
+    Vf0::Vector{Float64} = zeros(length(P[4].iFlt))   # length(P[4].iFlt) = P[1].FltNglob
     Vf1::Vector{Float64} = zeros(P[1].FltNglob)
     Vf2::Vector{Float64} = zeros(P[1].FltNglob)
-    Vf0::Vector{Float64} = zeros(length(P[4].iFlt))
-    FltVfree::Vector{Float64} = zeros(length(P[4].iFlt))
+    # state variables
     psi::Vector{Float64} = zeros(P[1].FltNglob)
-    psi0::Vector{Float64} = zeros(P[1].FltNglob)
+    psi0::Vector{Float64} = zeros(P[1].FltNglob)   # intial state
     psi1::Vector{Float64} = zeros(P[1].FltNglob)
     psi2::Vector{Float64} = zeros(P[1].FltNglob)
+    # stress variables
+    tau::Vector{Float64} = zeros(P[1].FltNglob)
     tau1::Vector{Float64} = zeros(P[1].FltNglob)
     tau2::Vector{Float64} = zeros(P[1].FltNglob)
     tau3::Vector{Float64} = zeros(P[1].FltNglob)
 
-
     # Initial state variable
     psi = P[3].tauo./(P[3].Seff.*P[3].ccb) - P[3].fo./P[3].ccb - (P[3].cca./P[3].ccb).*log.(2*v[P[4].iFlt]./P[3].Vo)
     psi0 .= psi[:]
-
+  # which kind of solver to use
     isolver::Int = 1
 
     # Some more initializations
@@ -92,10 +102,9 @@ function main(P)
     dPre::Vector{Float64} = zeros(P[1].nglob)
     vPre::Vector{Float64} = zeros(P[1].nglob)
     dd::Vector{Float64} = zeros(P[1].nglob)
-    dnew::Vector{Float64} = zeros(length(P[4].FltNI))
+    dnew::Vector{Float64} = zeros(length(P[4].FltNI))  # off-fault GLL nodes
 
-
-    # Save output variables at certain timesteps: define those timesteps
+    # Save output variables at certain timesteps: define output frequency
     tvsx::Float64 = 2e-0*P[1].yr2sec  # 2 years for interseismic period
     tvsxinc::Float64 = tvsx
 
@@ -113,14 +122,13 @@ function main(P)
     it_s = 0; it_e = 0
     rit = 0
 
-    v = v[:] .- 0.5*P[2].Vpl
-    Vf = 2*v[P[4].iFlt]
-    iFBC::Vector{Int64} = findall(abs.(P[3].FltX) .> 24e3)
+    v = v[:] .- 0.5*P[2].Vpl   # ???
+    # Vf = 2*v[P[4].iFlt]  # Plate motion rate?
+    iFBC::Vector{Int64} = findall(abs.(P[3].FltX) .> 24e3)   # index for points below the damage zone
     NFBC::Int64 = length(iFBC) + 1
-    Vf[iFBC] .= 0.
+    Vf[iFBC] .= 0.   # set the initial fault slip rate(below the damage zone) to be zero
 
-
-    v[P[4].FltIglobBC] .= 0.
+    v[P[4].FltIglobBC] .= 0.   # Reset the initial velocity to be zero ???
 
     # on fault and off fault stiffness
     Ksparse = P[5]
@@ -129,7 +137,7 @@ function main(P)
     Korig = copy(Ksparse)   # K original
 
     # Linear solver stuff
-    kni = -Ksparse[P[4].FltNI, P[4].FltNI]
+    kni = -Ksparse[P[4].FltNI, P[4].FltNI]   # stiffness of off-fault GLL nodes
     nKsparse = -Ksparse
     
     # algebraic multigrid preconditioner
@@ -146,21 +154,19 @@ function main(P)
     #  nKsparse = ThreadedMul(nKsparse)
     #  kni = ThreadedMul(kni)
 
-
     # Damage evolution stuff
-    did = P[10]
-    dam = alphaa
+    did = P[10]   # index of GLL nodes in fault damage zone
+    dam = alphaa   # initial damage ratio
 
-    # Save parameters to file
+    # Save parameters to file: from depth(48km) to shallow(0km)
     open(string(out_dir,"params.out"), "w") do io
-        write(io, join(P[3].Seff/1e6, " "), "\n")
-        write(io, join(P[3].tauo/1e6, " "), "\n")
-        write(io, join(-P[3].FltX/1e3, " "), "\n")
+        write(io, join(P[3].Seff/1e6, " "), "\n")  # unit: MPa
+        write(io, join(P[3].tauo/1e6, " "), "\n")   # unit: MPa
+        write(io, join(-P[3].FltX/1e3, " "), "\n")  # depth  unit: km   
         write(io, join(P[3].cca, " "), "\n")
         write(io, join(P[3].ccb, " "), "\n")
         write(io, join(P[3].xLf, " "), "\n")
     end
-
 
     # Open files to begin writing
     open(string(out_dir,"stress.out"), "w") do stress
@@ -176,30 +182,32 @@ function main(P)
     #....................
     # Start of time loop
     #....................
-    it = 0
-    t = 0.
-    Vfmax = 0.
+    it = 0  # current the number of timesteps
+    t = 0.  # current time
+    Vfmax = 0.    # max slip rate of the fault
     
     tStart2 = dt
     tStart = dt
     tEnd = dt
-    taubefore = P[3].tauo
+    # stress drop before and after earthquake
+    taubefore = P[3].tauo      
     tauafter = P[3].tauo
-    delfafter = 2*d[P[4].iFlt] .+ P[2].Vpl*t 
-    hypo = 0.
+    # background loading rate
+    delfafter = 2*d[P[4].iFlt] .+ P[2].Vpl*t  
+    hypo = 0.    # earthquake location
 
     while t < P[1].Total_time
         it = it + 1
-        t = t + dt
-
+        t = t + dt   # dt is the initial smallest timestep
+        
         if isolver == 1
-
             vPre .= v
             dPre .= d
 
-            Vf0 .= 2*v[P[4].iFlt] .+ P[2].Vpl
+            Vf0 .= 2*v[P[4].iFlt] .+ P[2].Vpl   # initial fault slip rate
             Vf  .= Vf0
 
+            # first two steps
             for p1 = 1:2
 
                 # Compute the on-Fault displacement
@@ -234,26 +242,30 @@ function main(P)
                 # Enforce K*d to be zero for velocity boundary
                 a[P[4].FltIglobBC] .= 0.
 
-                tau1 .= -a[P[4].iFlt]./P[3].FltB
+                tau1 .= -a[P[4].iFlt]./P[3].FltL
 
                 # Function to calculate on-fault sliprate
                 psi1, Vf1 = slrFunc!(P[3], NFBC, P[1].FltNglob, psi, psi1, Vf, Vf1, P[1].IDstate, tau1, dt)   # from other functions
-
-                Vf1[iFBC] .= P[2].Vpl
-                Vf .= (Vf0 + Vf1)/2
-                v[P[4].iFlt] .= 0.5*(Vf .- P[2].Vpl)
+                
+                # set the initial fault slip rate(below the damage zone) to be plate motion rate
+                Vf1[iFBC] .= P[2].Vpl   
+                Vf .= (Vf0 + Vf1)/2   # v[P[4].iFlt] .+ P[2].Vpl   # initial fault slip rate
+                v[P[4].iFlt] .= 0.5*(Vf .- P[2].Vpl)  # 0.5 * v[P[4].iFlt]
 
             end
 
             psi .= psi1[:]
             tau .= tau1[:]
+            # kinematic fault
             tau[iFBC] .= 0.
             Vf1[iFBC] .= P[2].Vpl
-
+            # on fault GLL nodes
             v[P[4].iFlt] .= 0.5*(Vf1 .- P[2].Vpl)
+            # off-fault GLL nodes
             v[P[4].FltNI] .= (d[P[4].FltNI] .- dPre[P[4].FltNI])/dt
 
             # Line 731: P_MA: Omitted
+            # specific meaning??
             a .= 0.
             d[P[4].FltIglobBC] .= 0.
             v[P[4].FltIglobBC] .= 0.
@@ -261,13 +273,14 @@ function main(P)
             #---------------
             # Healing stuff: Ignore for now
             # --------------
-            if it > 3
-            #  if t > 12*P[1].yr2sec
-                alphaa = healing2(t, tStart2, dam)
+            # Normal calculation from 3rd step!!!
+            if  it > 3
+            #   if t > 12*P[1].yr2sec
+                #alphaa = healing2(t, tStart2, dam)
                 #  alphaa[it] = αD(t, tStart2, dam)
 
                 for id in did
-                    Ksparse[id] = alphaa*Korig[id]
+                    Ksparse[id] = alphaa*Korig[id]   # define the stiffness of fault damage zone
                 end
 
                 #  println("alpha healing = ", alphaa[it])
@@ -286,7 +299,8 @@ function main(P)
             end
 
         
-        # If isolver != 1, or max slip rate is < 10^-2 m/s
+        # If isolver != 1, or max slip rate is < 10^-2 m/s , interseismic phase
+        # quasi-static simulations??
         else
 
             dPre .= d
@@ -307,8 +321,8 @@ function main(P)
             a[P[4].FltIglobBC] .= 0.
 
             # Absorbing boundaries
-            a[P[4].iBcL] .= a[P[4].iBcL] .- P[3].BcLC.*v[P[4].iBcL]
-            a[P[4].iBcT] .= a[P[4].iBcT] .- P[3].BcTC.*v[P[4].iBcT]
+            a[P[4].iBcB] .= a[P[4].iBcB] .- P[3].BcBC.*v[P[4].iBcB]
+            a[P[4].iBcR] .= a[P[4].iBcR] .- P[3].BcRC.*v[P[4].iBcR]
 
             ###### Fault Boundary Condition: Rate and State #############
             FltVfree .= 2*v[P[4].iFlt] .+ 2*half_dt*a[P[4].iFlt]./P[3].M[P[4].iFlt]
@@ -321,7 +335,7 @@ function main(P)
             tau .= tau2 .- P[3].tauo
             tau[iFBC] .= 0.
             psi .= psi2
-            a[P[4].iFlt] .= a[P[4].iFlt] .- P[3].FltB.*tau
+            a[P[4].iFlt] .= a[P[4].iFlt] .- P[3].FltL.*tau
             ########## End of fault boundary condition ##############
 
 
@@ -339,16 +353,17 @@ function main(P)
 
         end # of isolver if loop
 
-        Vfmax = 2*maximum(v[P[4].iFlt]) .+ P[2].Vpl
+        Vfmax = 2*maximum(v[P[4].iFlt]) .+ P[2].Vpl   # background plate motion rate: P[2].Vpl
 
         #-----
         # Output the variables before and after events
         #-----
-        if Vfmax > 1.01*P[2].Vthres && slipstart == 0
+        # coseismic rupture!!
+        if  Vfmax > 1.01*P[2].Vthres && slipstart == 0
             it_s = it_s + 1
             delfref = 2*d[P[4].iFlt] .+ P[2].Vpl*t
             
-            slipstart = 1
+            slipstart = 1   # sign for new earthquake!!
 
             tStart = t
             taubefore = (tau +P[3].tauo)./1e6
@@ -357,6 +372,8 @@ function main(P)
             hypo = P[3].FltX[indx]
 
         end
+
+        # slip rate is lower than Vthres(When earthquake ends or at the beginning )
         if Vfmax < 0.99*P[2].Vthres && slipstart == 1
             it_e = it_e + 1
             delfafter = 2*d[P[4].iFlt] .+ P[2].Vpl*t .- delfref
@@ -377,8 +394,8 @@ function main(P)
                 #  if t > 10*P[1].yr2sec
 
                     #  use this for no permanent damage
-                    alphaa = 0.8
-                    dam = alphaa
+                      alphaa = 0.4
+                      dam = alphaa
 
 
                     #  Use this for permanent damage
@@ -410,10 +427,8 @@ function main(P)
 
         end
         
-
-
         #-----
-        # Output the variables certain timesteps: 2yr interseismic, 1 sec dynamic
+        # Output the variables certain timesteps: 2yr interseismic, 1 sec coseismic
         #-----
         if t > tvsx
             ntvsx = ntvsx + 1
@@ -450,7 +465,7 @@ function main(P)
 
         current_sliprate = 2*v[P[4].iFlt] .+ P[2].Vpl
 
-        # Output timestep info on screen
+        # Output timestep info on screen: every 500 timesteps
         if mod(it,500) == 0
             @printf("Time (yr) = %1.5g\n", t/P[1].yr2sec) 
             #  println("Vfmax = ", maximum(current_sliprate))
@@ -464,11 +479,12 @@ function main(P)
         end
 
         # Determine quasi-static or dynamic regime based on max-slip velocity
-        #  if isolver == 1 && Vfmax < 5e-3 || isolver == 2 && Vfmax < 2e-3
-        if isolver == 1 && Vfmax < 5e-3 || isolver == 2 && Vfmax < 2e-3
-            isolver = 1
+        #  if isolver == 1 && Vfmax < 5e-3 || isolver == 2 && Vfmax > 2e-3
+        # when to change the solver
+        if isolver == 1 && Vfmax < 5e-3 || isolver == 2 && Vfmax > 2e-3   
+            isolver = 1   # dynamic
         else
-            isolver = 2
+            isolver = 2   # quasi-static
         end
 
         # Write max sliprate and time
@@ -491,6 +507,4 @@ function main(P)
     end
     end
 
-
 end
-
