@@ -44,9 +44,9 @@ function main(P)
     #  damage_amount::Float64 = 1.0
 
     # initial Shear modulus ratio of damage/host rock
-    # mature fault: 80-85%
-    # immature fault: 40%-45%
-    alphaa = 0.40
+    # immature fault: 80-85%
+    # mature fault: 40%-45%
+    alphaa = 0.80
 
     # Time solver variables
     dt::Float64 = P[2].dt   # dt is variable at different time of earthquake cycle
@@ -63,7 +63,7 @@ function main(P)
     d::Vector{Float64} = zeros(P[1].nglob)   # initial displacement
     v::Vector{Float64} = zeros(P[1].nglob)
     v .= 0.5e-3         # half of Vthres(1e-3 m/second)  ??? intial velocity??
-    a::Vector{Float64} = zeros(P[1].nglob)  ???
+    a::Vector{Float64} = zeros(P[1].nglob)  #???
 
     #.....................................
     # Stresses and time related variables on fault
@@ -169,15 +169,15 @@ function main(P)
     end
 
     # Open files to begin writing
-    open(string(out_dir,"stress.out"), "w") do stress
-    open(string(out_dir,"sliprate.out"), "w") do sliprate
-    open(string(out_dir,"slip.out"), "w") do slip
-    open(string(out_dir,"delfsec.out"), "w") do dfsec
-    open(string(out_dir,"delfyr.out"), "w") do dfyr
-    open(string(out_dir,"event_time.out"), "w") do event_time
-    open(string(out_dir,"event_stress.out"), "w") do event_stress
-    open(string(out_dir,"coseismic_slip.out"), "w") do dfafter
-    open(string(out_dir,"time_velocity.out"), "w") do Vf_time
+    open(string(out_dir,"stress.out"), "w") do stress    # shear stress 
+    open(string(out_dir,"sliprate.out"), "w") do sliprate   # fault sliprate (Vpl+sliprate controlled by RSF)
+    #open(string(out_dir,"slip.out"), "w") do slip   
+    open(string(out_dir,"delfsec.out"), "w") do dfsec   # cultivate displacement(coseismic)
+    open(string(out_dir,"delfyr.out"), "w") do dfyr   # cultivate displacement(interseismic)
+    open(string(out_dir,"event_time.out"), "w") do event_time    # start and end time and hypocenter of earthquake event
+    open(string(out_dir,"event_stress.out"), "w") do event_stress  # shear stress before and after 
+    # time/max slip rate on fault/slip rate near ground/rigidity ratio
+    open(string(out_dir,"time_velocity.out"), "w") do Vf_time  
 
     #....................
     # Start of time loop
@@ -200,7 +200,7 @@ function main(P)
         it = it + 1
         t = t + dt   # dt is the initial smallest timestep
         
-        if isolver == 1
+        if isolver == 1    # quasi-static phase at the beginning!!!
             vPre .= v
             dPre .= d
 
@@ -226,7 +226,7 @@ function main(P)
                 #  dnew = -(kni\rhs)
 
                 # mgcg
-                dnew = cg!(dnew, kni, rhs, Pl=p, abstol=1e-6)
+                dnew = cg!(dnew, kni, rhs, Pl=p, abstol=1e-6)    # note: in new version of julia, there is only abstol  
 
                 # update displacement on the medium
                 d[P[4].FltNI] .= dnew
@@ -299,8 +299,7 @@ function main(P)
             end
 
         
-        # If isolver != 1, or max slip rate is < 10^-2 m/s , interseismic phase
-        # quasi-static simulations??
+        # If isolver != 1, or max slip rate is > 10^-3 m/s , dynamic phase
         else
 
             dPre .= d
@@ -358,7 +357,7 @@ function main(P)
         #-----
         # Output the variables before and after events
         #-----
-        # coseismic rupture!!
+        # record the coseismic event!!
         if  Vfmax > 1.01*P[2].Vthres && slipstart == 0
             it_s = it_s + 1
             delfref = 2*d[P[4].iFlt] .+ P[2].Vpl*t
@@ -367,7 +366,7 @@ function main(P)
 
             tStart = t
             taubefore = (tau +P[3].tauo)./1e6
-
+            # hypocenter: fault location where slip rate exceed threshold value firstly!!
             vhypo, indx = findmax(2*v[P[4].iFlt] .+ P[2].Vpl)
             hypo = P[3].FltX[indx]
 
@@ -393,9 +392,9 @@ function main(P)
                 # Time condition of 10 years
                 #  if t > 10*P[1].yr2sec
 
-                    #  use this for no permanent damage
-                      alphaa = 0.4
-                      dam = alphaa
+                    #  use this for no permanent damage (not change the rigidity)
+                      # alphaa = 0.8
+                      # dam = alphaa
 
 
                     #  Use this for permanent damage
@@ -406,18 +405,18 @@ function main(P)
                         #  dam = 0.60
                     #  end
 
-                    tStart2 = t
+                    # tStart2 = t
 
-                    for id in did
-                        Ksparse[id] = alphaa*Korig[id]
-                    end
+                    # for id in did
+                    #     Ksparse[id] = alphaa*Korig[id]
+                    # end
 
-                    # Linear solver stuff
-                    kni = -Ksparse[P[4].FltNI, P[4].FltNI]
-                    nKsparse = -Ksparse
-                    # multigrid
-                    ml = ruge_stuben(kni)
-                    p = aspreconditioner(ml)
+                    # # Linear solver stuff
+                    # kni = -Ksparse[P[4].FltNI, P[4].FltNI]
+                    # nKsparse = -Ksparse
+                    # # multigrid
+                    # ml = ruge_stuben(kni)
+                    # p = aspreconditioner(ml)
 
                 #  end
 
@@ -479,18 +478,24 @@ function main(P)
         end
 
         # Determine quasi-static or dynamic regime based on max-slip velocity
-        #  if isolver == 1 && Vfmax < 5e-3 || isolver == 2 && Vfmax > 2e-3
+        #  if isolver == 1 && Vfmax < 5e-3 || isolver == 2 && Vfmax < 2e-3
         # when to change the solver
-        if isolver == 1 && Vfmax < 5e-3 || isolver == 2 && Vfmax > 2e-3   
-            isolver = 1   # dynamic
+        if isolver == 1 && Vfmax < 0.5e-3 || isolver == 2 && Vfmax < 2e-3    
+            # 0.5e-3 is the initial slip rate, so that there is an initial earthquake at zero time!!
+            # in addition, 5e-3 is half of the vthres, if it necessary to convert to dynamic regime in advance??
+            isolver = 1   # quasi-static
         else
-            isolver = 2   # quasi-static
+            isolver = 2   # dynamic
         end
 
         # Write max sliprate and time
-        write(Vf_time, join(hcat(t,Vfmax,Vf[end], alphaa), " "), "\n")
+            # t: simulation time (seconds)
+            # Vfmax: max slip rate on the fault
+            # Vf[end] is fault slip rate on the surface!!
+            # alphaa: current rigidity ratio of fault damage zone
+        write(Vf_time, join(hcat(t, Vfmax, Vf[end], alphaa), " "), "\n")
 
-        # Compute next timestep dt
+        # Compute next timestep dt: adaptive!!
         dt = dtevol!(dt , dtmin, P[3].XiLf, P[1].FltNglob, NFBC, current_sliprate, isolver)
 
 

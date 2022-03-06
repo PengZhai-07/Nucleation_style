@@ -51,7 +51,7 @@ function setParameters(FZdepth, halfwidth, res)
     # Some other time variables used in the loop
     dtincf::Float64 = 1.2
     gamma_::Float64 = pi/4
-    dtmax::Int = 400 * 24 * 60*60		# 100 days   Total simulation time
+    dtmax::Int = 400 * 24 * 60*60		# 400 days   
 
 
     #...................
