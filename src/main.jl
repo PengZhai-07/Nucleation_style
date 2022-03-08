@@ -46,7 +46,7 @@ function main(P)
     # initial Shear modulus ratio of damage/host rock
     # immature fault: 80-85%
     # mature fault: 40%-45%
-    alphaa = 0.80
+    alphaa = 0.40
 
     # Time solver variables
     dt::Float64 = P[2].dt   # dt is variable at different time of earthquake cycle
@@ -62,7 +62,7 @@ function main(P)
     # Initialize kinematic field: global arrays
     d::Vector{Float64} = zeros(P[1].nglob)   # initial displacement
     v::Vector{Float64} = zeros(P[1].nglob)
-    v .= 0.5e-3         # half of Vthres(1e-3 m/second)  ??? intial velocity??
+    v .= 0.5e-3         # half of Vthres(1e-3 m/second)   intial velocity(but not enough to lead to a earthquake)
     a::Vector{Float64} = zeros(P[1].nglob)  #???
 
     #.....................................
@@ -176,7 +176,8 @@ function main(P)
     open(string(out_dir,"delfyr.out"), "w") do dfyr   # cultivate displacement(interseismic)
     open(string(out_dir,"event_time.out"), "w") do event_time    # start and end time and hypocenter of earthquake event
     open(string(out_dir,"event_stress.out"), "w") do event_stress  # shear stress before and after 
-    # time/max slip rate on fault/slip rate near ground/rigidity ratio
+    open(string(out_dir,"coseismic_slip.out"), "w") do dfafter
+        # time/max slip rate on fault/slip rate near ground/rigidity ratio
     open(string(out_dir,"time_velocity.out"), "w") do Vf_time  
 
     #....................
@@ -375,7 +376,7 @@ function main(P)
         # slip rate is lower than Vthres(When earthquake ends or at the beginning )
         if Vfmax < 0.99*P[2].Vthres && slipstart == 1
             it_e = it_e + 1
-            delfafter = 2*d[P[4].iFlt] .+ P[2].Vpl*t .- delfref
+            delfafter = 2*d[P[4].iFlt] .+ P[2].Vpl*t .- delfref     # coseismic slip
             
             tEnd = t 
             tauafter = (tau +P[3].tauo)./1e6
@@ -393,22 +394,22 @@ function main(P)
                 #  if t > 10*P[1].yr2sec
 
                     #  use this for no permanent damage (not change the rigidity)
-                      # alphaa = 0.8
-                      # dam = alphaa
+                    #    alphaa = 0.8
+                    #    dam = alphaa      # rigidity ratio before healing 
 
 
                     #  Use this for permanent damage
                     #  alphaa = alphaa - 0.05
                     #  dam = alphaa
-                    #  if dam < 0.60
+                    #  if dam < 0.60     # lowest rigidity ratio
                         #  alphaa = 0.60
                         #  dam = 0.60
                     #  end
 
-                    # tStart2 = t
+                    # tStart2 = t            # used for healing!
 
                     # for id in did
-                    #     Ksparse[id] = alphaa*Korig[id]
+                    #     Ksparse[id] = alphaa*Korig[id]      # calculate the stiffness of fault damage zone again
                     # end
 
                     # # Linear solver stuff
@@ -480,7 +481,7 @@ function main(P)
         # Determine quasi-static or dynamic regime based on max-slip velocity
         #  if isolver == 1 && Vfmax < 5e-3 || isolver == 2 && Vfmax < 2e-3
         # when to change the solver
-        if isolver == 1 && Vfmax < 0.5e-3 || isolver == 2 && Vfmax < 2e-3    
+        if isolver == 1 && Vfmax < 5e-3 || isolver == 2 && Vfmax < 2e-3    
             # 0.5e-3 is the initial slip rate, so that there is an initial earthquake at zero time!!
             # in addition, 5e-3 is half of the vthres, if it necessary to convert to dynamic regime in advance??
             isolver = 1   # quasi-static
@@ -502,14 +503,14 @@ function main(P)
     end # end of time loop
 
     # close files
-    end
-    end
-    end
-    end
-    end
-    end
-    end
-    end
-    end
+# end of writing data into files
+end
+end
+end
+end
+end
+end
+end
+end
 
 end

@@ -4,10 +4,10 @@ include("$(@__DIR__)/post/event_details.jl")
 include("$(@__DIR__)/post/plotting_script.jl")
 
 # path to save files
-global path = "$(@__DIR__)/plots/immature_heal_10yr/"
+global path = "$(@__DIR__)/plots/mature_40/"
 mkpath(path)
 
-global out_path = "$(@__DIR__)/data/immature_heal_10yr/"
+global out_path = "$(@__DIR__)/data/mature_40/"
 
 # Global variables
 yr2sec = 365*24*60*60
@@ -23,6 +23,7 @@ indx = Int(length(event_stress[1,:])/2)
 taubefore = event_stress[:,1:indx]
 tauafter = event_stress[:,indx+1:end]
 
+# coseismic slip
 delfafter = readdlm(string(out_path, "coseismic_slip.out"), header=false)
 #  slip = readdlm(string(out_path, "slip.out"), header=false)
 #  sliprate = readdlm(string(out_path, "sliprate.out"), header=false)
@@ -56,6 +57,7 @@ mu = rho2*vs2^2
 delfsec = readdlm(string(out_path, "delfsec.out"))
 delfyr = readdlm(string(out_path, "delfyr.out"))
 stress = readdlm(string(out_path, "stress.out"), header=false)
+
 
 start_index = get_index(stress', taubefore')
 stressdrops = taubefore .- tauafter

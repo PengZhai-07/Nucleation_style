@@ -18,10 +18,10 @@ include("$(@__DIR__)/par.jl")	    #	Set Parameters
 resolution = 4
 
 # Output directory to save data
-out_dir = "$(@__DIR__)/data/immature_heal_10yr/"    # healing time : 10yr
+out_dir = "$(@__DIR__)/data/mature_40/"    # healing time : 10yr
 mkpath(out_dir)
 
-P = setParameters(24e3, 2e3, resolution)      # args = fault zone depth, fault zone halfwidth, resolution
+P = setParameters(24e3, 2e3, resolution, 100)      # args = fault zone depth, fault zone halfwidth, resolution
 
 include("$(@__DIR__)/src/dtevol.jl")
 include("$(@__DIR__)/src/NRsearch.jl")

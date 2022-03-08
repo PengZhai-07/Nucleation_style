@@ -13,7 +13,7 @@ include("$(@__DIR__)/src/BoundaryMatrix.jl")    #	Boundary matrices
 include("$(@__DIR__)/src/initialConditions/defaultInitialConditions.jl")
 
 
-function setParameters(FZdepth, halfwidth, res)
+function setParameters(FZdepth, halfwidth, res, T)
 
     LX::Int = 48e3  # depth dimension of rectangular domain
     LY::Int = 30e3 # off fault dimenstion of rectangular domain
@@ -42,7 +42,7 @@ function setParameters(FZdepth, halfwidth, res)
 
     yr2sec::Int = 365*24*60*60
 
-    Total_time::Int = 300*yr2sec     # Set the total time for simulation here
+    Total_time::Int = T*yr2sec     # Set the total time for simulation here
 
     CFL::Float64 = 0.6	#	Courant stability number     c*(dt/dx) <= 1
 
@@ -88,7 +88,7 @@ function setParameters(FZdepth, halfwidth, res)
     Vo::Vector{Float64} = repeat([1e-6], FltNglob)		#	Reference velocity 'Vo'  unit: m/s
     xLf::Vector{Float64} = repeat([0.008], FltNglob)    #	Dc (Lc) = 8 mm
 
-    Vthres::Float64 = 0.001     # unit: m/s  if slip rate is higher than this value, earthquake happens
+    Vthres::Float64 = 0.005     # unit: m/s  if slip rate is higher than this value, earthquake happens
     Vevne::Float64 = Vthres     #??
 
     #-----------#
