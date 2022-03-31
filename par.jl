@@ -61,12 +61,13 @@ function setParameters(FZdepth, halfwidth, res, T)
     # default
     rho1::Float64 = 2670
     vs1::Float64 = 3464
+    mu = rho1*vs1^2
 
     # The entire medium has low rigidity
     #  rho1::Float64 = 2500
     #  vs1::Float64 = 0.6*3464
 
-    # elastic parameters of damage zone?
+    # the initial property of fualt damage zone
     rho2::Float64 = 2670
     vs2::Float64 = 1.00*vs1
 
@@ -232,10 +233,10 @@ function setParameters(FZdepth, halfwidth, res, T)
     fbc = reshape(iglob[:,1,:], length(iglob[:,1,:]))    # convert the index of all left boundasy GLL nodes in all elements  into 1-D vector
     idx = findall(fbc .== findall(x .== -24e3)[1] - 1)[1]
     FltIglobBC::Vector{Int} = fbc[1:idx]
-    println("Total number of GLL nodes on fault boundary: ", length(FltIglobBC)) # ?
+    #println("Total number of GLL nodes on fault boundary: ", length(FltIglobBC)) # ?
     
     # Display important parameters
-    println("Total number of GLL nodes on fault: ", FltNglob)
+    #println("Total number of GLL nodes on fault: ", FltNglob)
     println("Total number of GLL nodes on fault: ", length(iFlt))
     println("Average node spacing: ", LX/(FltNglob-1), " m")
     println("ThickX: ", ThickX, " m")
@@ -243,7 +244,7 @@ function setParameters(FZdepth, halfwidth, res, T)
     @printf("dt: %1.09f s\n", dt)   # minimal timestep during coseismic stage
 
     return params_int(Nel, FltNglob, yr2sec, Total_time, IDstate, nglob),
-            params_float(ETA, Vpl, Vthres, Vevne, dt),
+            params_float(ETA, Vpl, Vthres, Vevne, dt, mu, ThickY),
             params_farray(fo, Vo, xLf, M, BcBC, BcRC, FltL, FltZ, FltX, cca, ccb, Seff, tauo, XiLf, x_out, y_out),
             params_iarray(iFlt, iBcB, iBcR, FltIglobBC, FltNI, out_seis), 
             Ksparse, iglob, NGLL, wgll2, nglob, did
@@ -270,7 +271,9 @@ struct params_float{T<:AbstractFloat}
     #  jac::T
     #  coefint1::T
     #  coefint2::T
-
+    # shear modulus
+     
+    
     ETA::T
 
     # Earthquake parameters
@@ -280,6 +283,9 @@ struct params_float{T<:AbstractFloat}
 
     # Setup parameters
     dt::T
+
+    mu::T  
+    ThickY::T
 end
 
 struct params_farray{T<:Vector{Float64}}

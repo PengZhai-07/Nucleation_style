@@ -53,8 +53,8 @@ function healing_analysis(Vf, alphaa, t, yr2sec)
     lab2 = "Shear modulus ratio"
     ax.set_xlabel("Time (years)")
     ax2.set_ylabel("Shear Modulus (% of host rock)")
-    ax2.set_ylim([35, 60])
-    #  ax2.set_ylim([75, 100])
+    #ax2.set_ylim([35, 60])
+    ax2.set_ylim([55, 80])
     ax2.get_xaxis().set_tick_params(color=col)
     ax2.tick_params(axis="x", labelcolor=col)
 
@@ -116,6 +116,7 @@ function shear_stress_comp(shear1b, shear1a, shear2b, shear2a, FltX1, FltX2)
 end
 
 # Plot rupture_length vs event time
+# the effect of healing time??
 function stem_plot(rl1, rl2, rl3, rl4)
     plot_params()
     fig = PyPlot.figure(figsize=(7.2, 4.45))
@@ -142,8 +143,10 @@ function slipPlot(delfafter2, rupture_len, FltX, Mw, tStart)
     plot_params()
     fig, ax = PyPlot.subplots(nrows=1, ncols=4, sharex="all", sharey="all", figsize=(9.2, 5.00))
 
-    xaxis = tStart[Mw .>2.8]
+    xaxis = tStart[Mw .>2.8]   
+    println(xaxis)   # choose seismic event larger than Mw2.8 
     delfafter = delfafter2[:,Mw .> 2.8]
+    println(delfafter[end-1,:])
     Mw2 = Mw[Mw .> 2.8]
 
     # Normalize colorbar
@@ -151,36 +154,38 @@ function slipPlot(delfafter2, rupture_len, FltX, Mw, tStart)
                                        vmax=maximum(Mw2)) 
     colors = matplotlib.cm.inferno_r(norm(Mw2))
 
-    ax[1].barh(xaxis, delfafter[end-1,:], height=6, 
-              color=colors, align="center"); 
-    ax[1].set_ylabel("Time (yr)")
-    ax[1].invert_yaxis()
-    ax[1].set_title("At 60 m depth")
+    #ax[1].barh([0,0.2,0.4,0.6,0.8,1], delfafter[end-1,:], height=6,        # coseismic slip at 60 m 
+              #color=colors, align="center"); 
+    ax[1].barh(xaxis, delfafter[end-1,:], height=6,        # coseismic slip at 60 m 
+                color=colors, align="center");        # how to understand the function of xaxis
+    # ax[1].set_ylabel("Time (yr)")
+    # ax[1].invert_yaxis()
+    # ax[1].set_title("At 60 m depth")
 
-    trench_depth1 = findall(abs.(FltX) .< 4.0e3)[1]
-    trench_depth2 = findall(abs.(FltX) .< 6.0e3)[1]
-    trench_depth3 = findall(abs.(FltX) .< 8.0e3)[1]
+    # trench_depth1 = findall(abs.(FltX) .< 4.0e3)[1]
+    # trench_depth2 = findall(abs.(FltX) .< 6.0e3)[1]
+    # trench_depth3 = findall(abs.(FltX) .< 8.0e3)[1]
     
-    ax[2].barh(xaxis, delfafter[trench_depth1,:], height=6, 
-              color=colors, align="center"); 
-    ax[2].invert_yaxis()
-    ax[2].set_title("At 4 km depth")
+    # ax[2].barh(xaxis, delfafter[trench_depth1,:], height=6, 
+    #           color=colors, align="center"); 
+    # ax[2].invert_yaxis()
+    # ax[2].set_title("At 4 km depth")
     
-    ax[3].barh(xaxis, delfafter[trench_depth2,:], height=6, 
-              color=colors, align="center"); 
-    ax[3].invert_yaxis()
-    ax[3].set_title("At 6 km depth")
+    # ax[3].barh(xaxis, delfafter[trench_depth2,:], height=6, 
+    #           color=colors, align="center"); 
+    # ax[3].invert_yaxis()
+    # ax[3].set_title("At 6 km depth")
     
-    ax[4].barh(xaxis, delfafter[trench_depth3,:], height=6, 
-              color=colors, align="center"); 
-    ax[4].invert_yaxis()
-    ax[4].set_title("At 8 km depth")
+    # ax[4].barh(xaxis, delfafter[trench_depth3,:], height=6, 
+    #           color=colors, align="center"); 
+    # ax[4].invert_yaxis()
+    # ax[4].set_title("At 8 km depth")
     
-    sm = matplotlib.cm.ScalarMappable(norm=norm, cmap="inferno_r")
-    sm.set_array([])
-    fig.colorbar(sm, shrink=0.9, label="Mw")
-    plt.xlabel("Coseismic Slip (m)")
-    plt.tight_layout()
+    # sm = matplotlib.cm.ScalarMappable(norm=norm, cmap="inferno_r")
+    # sm.set_array([])
+    # fig.colorbar(sm, shrink=0.9, label="Mw")
+    # plt.xlabel("Coseismic Slip (m)")
+    # plt.tight_layout()
     show()
     
     figname = string(path, "coseismic_slip.png")
@@ -318,8 +323,8 @@ function cumSlipPlot(delfsec, delfyr, FltX)
     ax.set_xlabel("Accumulated Slip (m)")
     ax.set_ylabel("Depth (km)")
     ax.set_ylim([0,24])
-    ax.set_xlim([0,maximum(delfsec2)])
-    ax.set_xlim([0,9.0])
+    ax.set_xlim([0,maximum(delfyr2)])
+    #ax.set_xlim([0,9.0])
     
     ax.invert_yaxis()
     

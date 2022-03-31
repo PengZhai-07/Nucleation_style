@@ -28,10 +28,10 @@ function healing2(t,tStart,dam)
     # 65% -> 60% -> 65%
     # when there is only 0.1% bias, we think the healing process finishes
     # log(0.001)=-6.9078
-    hmax*(1 .- exp.(-r*(t .- tStart)/P[1].yr2sec)) .+ dam
+    hmax*(1 .- exp.(-r*(t .- tStart)/P[1].yr2sec)) .+ dam     # hmax*(1 .- exp.(-r*(t .- tStart)/P[1].yr2sec)) > 0, when time is 10years, alphaa = dam + 0.05
 end
 
-function main(P)
+function main(P,alphaa)
     # please refer to par.jl to see the specific meaning of P
     # P[1] = integer  Nel, FltNglob, yr2sec, Total_time, IDstate, nglob
     # P[2] = float    ETA, Vpl, Vthres, Vevne, dt
@@ -44,9 +44,9 @@ function main(P)
     #  damage_amount::Float64 = 1.0
 
     # initial Shear modulus ratio of damage/host rock
+    # pure elastic model: alphaa=1.0
     # immature fault: 80-85%
     # mature fault: 40%-45%
-    alphaa = 0.40
 
     # Time solver variables
     dt::Float64 = P[2].dt   # dt is variable at different time of earthquake cycle
@@ -93,10 +93,10 @@ function main(P)
   # which kind of solver to use
     isolver::Int = 1
 
-    # Some more initializations
-    r::Vector{Float64} = zeros(P[1].nglob)
-    beta_::Vector{Float64} = zeros(P[1].nglob)
-    alpha_::Vector{Float64} = zeros(P[1].nglob)
+    # # Some more initializations
+    # r::Vector{Float64} = zeros(P[1].nglob)
+    # beta_::Vector{Float64} = zeros(P[1].nglob)
+    # alpha_::Vector{Float64} = zeros(P[1].nglob)
 
     F::Vector{Float64} = zeros(P[1].nglob)
     dPre::Vector{Float64} = zeros(P[1].nglob)
@@ -122,7 +122,7 @@ function main(P)
     it_s = 0; it_e = 0
     rit = 0
 
-    v = v[:] .- 0.5*P[2].Vpl   # ???
+    v = v[:] .- 0.5*P[2].Vpl   # initial slip rate
     # Vf = 2*v[P[4].iFlt]  # Plate motion rate?
     iFBC::Vector{Int64} = findall(abs.(P[3].FltX) .> 24e3)   # index for points below the damage zone
     NFBC::Int64 = length(iFBC) + 1
@@ -206,9 +206,9 @@ function main(P)
             dPre .= d
 
             Vf0 .= 2*v[P[4].iFlt] .+ P[2].Vpl   # initial fault slip rate
-            Vf  .= Vf0
+            Vf  .= Vf0    # 1e-3
 
-            # first two steps
+            # first two adjustation every time step during interseismic phase
             for p1 = 1:2
 
                 # Compute the on-Fault displacement
@@ -249,8 +249,8 @@ function main(P)
                 psi1, Vf1 = slrFunc!(P[3], NFBC, P[1].FltNglob, psi, psi1, Vf, Vf1, P[1].IDstate, tau1, dt)   # from other functions
                 
                 # set the initial fault slip rate(below the damage zone) to be plate motion rate
-                Vf1[iFBC] .= P[2].Vpl   
-                Vf .= (Vf0 + Vf1)/2   # v[P[4].iFlt] .+ P[2].Vpl   # initial fault slip rate
+                Vf1[iFBC] .= P[2].Vpl     # slip rate on kinematic fault
+                Vf .= (Vf0 + Vf1)/2   # >24km: v[P[4].iFlt] .+ P[2].Vpl  
                 v[P[4].iFlt] .= 0.5*(Vf .- P[2].Vpl)  # 0.5 * v[P[4].iFlt]
 
             end
@@ -261,7 +261,7 @@ function main(P)
             tau[iFBC] .= 0.
             Vf1[iFBC] .= P[2].Vpl
             # on fault GLL nodes
-            v[P[4].iFlt] .= 0.5*(Vf1 .- P[2].Vpl)
+            v[P[4].iFlt] .= 0.5*(Vf1 .- P[2].Vpl)   # keep the slip rate of kinematic fault as a constant!!
             # off-fault GLL nodes
             v[P[4].FltNI] .= (d[P[4].FltNI] .- dPre[P[4].FltNI])/dt
 
@@ -276,15 +276,16 @@ function main(P)
             # --------------
             # Normal calculation from 3rd step!!!
             if  it > 3
-            #   if t > 12*P[1].yr2sec
-                #alphaa = healing2(t, tStart2, dam)
-                #  alphaa[it] = αD(t, tStart2, dam)
+                #if t > 10*P[1].yr2sec     # healing after 10 year, neglect the first event
+                    #alphaa = healing2(t, tStart2, dam)
+                    #  alphaa[it] = αD(t, tStart2, dam)
+                #end
 
                 for id in did
                     Ksparse[id] = alphaa*Korig[id]   # define the stiffness of fault damage zone
                 end
 
-                #  println("alpha healing = ", alphaa[it])
+                #println("alpha healing = ", alphaa[it])
 
                 # Linear solver stuff
                 kni = -Ksparse[P[4].FltNI, P[4].FltNI]
@@ -320,7 +321,7 @@ function main(P)
             # Enforce K*d to be zero for velocity boundary
             a[P[4].FltIglobBC] .= 0.
 
-            # Absorbing boundaries
+            # Absorbing boundaries(Bottom and right)
             a[P[4].iBcB] .= a[P[4].iBcB] .- P[3].BcBC.*v[P[4].iBcB]
             a[P[4].iBcR] .= a[P[4].iBcR] .- P[3].BcRC.*v[P[4].iBcR]
 
@@ -388,40 +389,40 @@ function main(P)
             
             slipstart = 0
             
-            # at the end of each earthquake, the shear wave velocity in the damaged zone reduces by 10%
+            # # at the end of each earthquake, the shear wave velocity in the damaged zone reduces by 5%
 
-                # Time condition of 10 years
-                #  if t > 10*P[1].yr2sec
+            #     # Time condition of 10 years
+            #     #if t > 10*P[1].yr2sec 
+            #         #  use this for no permanent damage    65-60-65%
+            #             alphaa = 0.60
+            #             dam = alphaa      # rigidity ratio before healing 
 
-                    #  use this for no permanent damage (not change the rigidity)
-                    #    alphaa = 0.8
-                    #    dam = alphaa      # rigidity ratio before healing 
 
+            #         #  Use this for permanent damage
+            #         #  alphaa = alphaa - 0.05
+            #         #  dam = alphaa
+            #         #  if dam < 0.60     # lowest rigidity ratio
+            #             #  alphaa = 0.60
+            #             #  dam = 0.60
+            #         #  end
+                
+            #     # it's necessary to change the stiffness matrix if the rigidity ratio is changed 
+            #         tStart2 = t            # used for healing!
 
-                    #  Use this for permanent damage
-                    #  alphaa = alphaa - 0.05
-                    #  dam = alphaa
-                    #  if dam < 0.60     # lowest rigidity ratio
-                        #  alphaa = 0.60
-                        #  dam = 0.60
-                    #  end
+            #         for id in did
+            #             Ksparse[id] = alphaa*Korig[id]      # calculate the stiffness of fault damage zone again
+            #         end
 
-                    # tStart2 = t            # used for healing!
+            #         # Linear solver stuff
+            #         kni = -Ksparse[P[4].FltNI, P[4].FltNI]
+            #         nKsparse = -Ksparse
+            #         # multigrid
+            #         ml = ruge_stuben(kni)
+            #         p = aspreconditioner(ml)
 
-                    # for id in did
-                    #     Ksparse[id] = alphaa*Korig[id]      # calculate the stiffness of fault damage zone again
-                    # end
+                #end
 
-                    # # Linear solver stuff
-                    # kni = -Ksparse[P[4].FltNI, P[4].FltNI]
-                    # nKsparse = -Ksparse
-                    # # multigrid
-                    # ml = ruge_stuben(kni)
-                    # p = aspreconditioner(ml)
-
-                #  end
-
-                println("alphaa = ", alphaa)
+                println("alphaa = ", alphaa)   # output the rigidity ratio after every earthquake 
 
             #  end
 

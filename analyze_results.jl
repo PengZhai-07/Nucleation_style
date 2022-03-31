@@ -1,13 +1,15 @@
 using DelimitedFiles
 
+FILE = "immature_65_2km_full_healing"
+
 include("$(@__DIR__)/post/event_details.jl")
 include("$(@__DIR__)/post/plotting_script.jl")
 
 # path to save files
-global path = "$(@__DIR__)/plots/mature_40/"
+global path = "$(@__DIR__)/plots/$(FILE)/"
 mkpath(path)
 
-global out_path = "$(@__DIR__)/data/mature_40/"
+global out_path = "$(@__DIR__)/data/$(FILE)/"
 
 # Global variables
 yr2sec = 365*24*60*60
@@ -15,18 +17,23 @@ yr2sec = 365*24*60*60
 # Read data
 event_time = readdlm(string(out_path, "event_time.out"), header=false)
 tStart = event_time[:,1]
+#println(tStart)
 tEnd = event_time[:,2]
 hypo = event_time[:,3]
 
 event_stress = readdlm(string(out_path, "event_stress.out"), header=false)
 indx = Int(length(event_stress[1,:])/2)
+# println(length(event_stress[1,:]))  # 962
+# println(indx)          # 481
 taubefore = event_stress[:,1:indx]
 tauafter = event_stress[:,indx+1:end]
 
 # coseismic slip
 delfafter = readdlm(string(out_path, "coseismic_slip.out"), header=false)
 #  slip = readdlm(string(out_path, "slip.out"), header=false)
-#  sliprate = readdlm(string(out_path, "sliprate.out"), header=false)
+sliprate = readdlm(string(out_path, "sliprate.out"), header=false)
+# println(size(delfafter,1))
+# println(size(delfafter,2))
 
 # Order of storage: Seff, tauo, FltX, cca, ccb, xLf
 params = readdlm(string(out_path, "params.out"), header=false)
@@ -36,6 +43,7 @@ tauo = params[2,:]
 FltX = params[3,:]
 cca = params[4,:]
 ccb = params[5,:]
+a_b = cca .- ccb
 Lc = params[6,:]
 
 # Index of fault from 0 to 18 km
