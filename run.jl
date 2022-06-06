@@ -10,6 +10,7 @@
 
 using Printf, LinearAlgebra, DelimitedFiles, SparseArrays, AlgebraicMultigrid, StaticArrays, IterativeSolvers, FEMSparse
 using Base.Threads
+using PyPlot
 #  BLAS.set_num_threads(1)
 
 include("$(@__DIR__)/par.jl")	    #	Set Parameters
@@ -18,27 +19,29 @@ include("$(@__DIR__)/par.jl")	    #	Set Parameters
 resolution = 4
 
 # Output directory to save data
-out_dir = "$(@__DIR__)/data/immature_65_1.5km_no_healing/"    # healing time : 10yr
+out_dir = "$(@__DIR__)/data/immature_65_500m_no_healing/"    # healing time : 10yr
 mkpath(out_dir)
 
-P = setParameters(24e3, 1.5e3, resolution, 300)      # args = fault zone depth(m), fault zone halfwidth(m), resolution, total simulation time (years)
-include("$(@__DIR__)/NucleationSize.jl") 
-# calculate the nucleation size of initial rigidity ratio!!
-h_hom = NucleationSize(P)
-h_dam = h_hom/3           # with alphaa = 0.60
-CZone = CohesiveZoneSize(P)
-println("The nucleation size of homogeneous medium:", h_hom, " m")
-println("The approximate nucleation size of damage zone medium:", h_dam, " m")
-println("The Cohesive zone size of homogeneous medium:", CZone, " m")
+P = setParameters(24e3, 500, resolution, 300)      # args = fault zone depth(m), fault zone halfwidth(m), resolution, total simulation time (years)
+# println(P[3].M)
 
-include("$(@__DIR__)/src/dtevol.jl")
-include("$(@__DIR__)/src/NRsearch.jl")
-include("$(@__DIR__)/src/otherFunctions.jl")
+# include("$(@__DIR__)/NucleationSize.jl") 
+# # calculate the nucleation size of initial rigidity ratio!!
+# h_hom = NucleationSize(P)
+# h_dam = h_hom/3           # with alphaa = 0.60
+# CZone = CohesiveZoneSize(P)
+# println("The nucleation size of homogeneous medium:", h_hom, " m")
+# println("The approximate nucleation size of damage zone medium:", h_dam, " m")
+# println("The Cohesive zone size of homogeneous medium:", CZone, " m")
 
-include("$(@__DIR__)/src/main.jl")
+# include("$(@__DIR__)/src/dtevol.jl")
+# include("$(@__DIR__)/src/NRsearch.jl")
+# include("$(@__DIR__)/src/otherFunctions.jl")
 
-#simulation_time = @elapsed @time main(P, 0.65)    # all parameters, rigidity ratio 
+# include("$(@__DIR__)/src/main.jl")
 
-println("\n")
+# #simulation_time = @elapsed @time main(P, 0.65)    # all parameters, rigidity ratio 
 
-@info("Simulation Complete!");
+# println("\n")
+
+# @info("Simulation Complete!");

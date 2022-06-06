@@ -16,7 +16,7 @@ function fricDepth(FltX)
 
     a_b = cca - ccb
     # [a-b, depth]   key points of friction coefficient change
-    fP1 = [-0.003, 0e3]   # fP1 = [0.012, 0e3]
+    fP1 = [0.012, 0e3]   # fP1 = [0.012, 0e3]
     fP2 = [-0.0041, -2e3]
     fP3 = [-0.0041, -14e3]
     fP4 = [0.015, -17e3]
@@ -39,10 +39,9 @@ function fricDepth(FltX)
     cca .= ccb .+ a_b
     #  ccb .= cca .- a_b
     # ccb is a constant
-    return cca, ccb
+    return cca, ccb, a_b
 
 end
-
 
 # Effective normal stress
 function SeffDepth(FltX)

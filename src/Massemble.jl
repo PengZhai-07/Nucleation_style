@@ -29,7 +29,7 @@ function Massemble!(NGLL, NelX, NelY, dxe, dye, ThickX,
             ig = iglob[:,:,eo]       # 2D index of No.eo element
 
             # Properties of heterogeneous medium
-            if ex*dxe >= ThickX && (dye <= ey*dye <= ThickY)   #range of damage zone
+            if ex*dxe >= ThickX && (dye <= ey*dye <= ThickY)   #range of damage zone: shallow near fault LVZ
                 #  damage_idx[eo] = eo
                 rho[:,:] .= rho2
                 mu[:,:] .= rho2*vs2^2
@@ -43,7 +43,7 @@ function Massemble!(NGLL, NelX, NelY, dxe, dye, ThickX,
             end
 
             # Diagonal Mass Matrix
-            M[ig] .+= wgll2.*rho*jac
+            M[ig] .+= wgll2.*rho*jac            # not diagonal?
 
             # Local contributions to the stiffness matrix
             #  W[:,:,eo] .= wgll2.*mu;
@@ -53,18 +53,25 @@ function Massemble!(NGLL, NelX, NelY, dxe, dye, ThickX,
             
             if dxe < dye   # row
                 vs .= max.(vso[1:NGLL-1,:], vso[2:NGLL,:])    # largest row
-                dx .= repeat( diff(xgll)*0.5*dxe, 1, NGLL)    # diff: get the difference : vso(i+1) - vso(i)
+                dx .= repeat(diff(xgll)*0.5*dxe, 1, NGLL)    # diff: get the difference : vso(i+1) - vso(i)
             else       # column
                 vs .= max.(vso[:,1:NGLL-1], vso[:,2:NGLL])'    # largest column
-                dx .= repeat( diff(xgll)*0.5*dye, 1, NGLL)
+                dx .= repeat(diff(xgll)*0.5*dye, 1, NGLL)
             end
-            
+
             dtloc = dx./vs      # min(dx)/max(vs) : upper limit
             dt = minimum( push!(dtloc[1:end], dt) )    # minimum of all upper limits for all elements
 
         end
     end
-
+    # println(vso)
+    # println(vs)
+    # println(dx)
+#  [3464.0 3464.0 3464.0 3464.0 3464.0; 3464.0 3464.0 3464.0 3464.0 3464.0; 3464.0 3464.0 3464.0 3464.0 3464.0; 3464.0 3464.0 3464.0 3464.0 3464.0]
+# [64.75243674225428 64.75243674225428 64.75243674225428 64.75243674225428 64.75243674225428; 
+# 122.74756325774572 122.74756325774572 122.74756325774572 122.74756325774572 122.74756325774572; 
+# 122.74756325774571 122.74756325774571 122.74756325774571 122.74756325774571 122.74756325774571; 
+# 64.75243674225429 64.75243674225429 64.75243674225429 64.75243674225429 64.75243674225429]
     return M, dt, muMax 
 
 end

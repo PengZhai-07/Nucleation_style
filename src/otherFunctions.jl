@@ -2,7 +2,7 @@ exp1(x::Float64) = ccall(:exp, Float64, (Float64,), x)
 log1(x::Float64) = ccall(:log, Float64, (Float64,), x)
 
 # IDstate functions
-function IDS!(xLf, Vo, psi, dt, Vf, cnd, IDstate = 2)   # default value is 2, aging law
+function IDS!(xLf, Vo, psi, dt, Vf, cnd, IDstate = 2)   # default value is 2, aging law?
     #= compute slip-rates on fault based on different
        formulations =#
 
@@ -20,7 +20,7 @@ function IDS!(xLf, Vo, psi, dt, Vf, cnd, IDstate = 2)   # default value is 2, ag
 
     elseif IDstate == 3
         psi1 = exp1(-abs(Vf)*dt/xLf) * log1(abs(Vf)/Vo) + 
-        exp1(-abs(Vf)*dt/xLf)*psi + log1(Vo/abs(Vf))
+            exp1(-abs(Vf)*dt/xLf)*psi + log1(Vo/abs(Vf))
 
         if ~any(imag(psi1)) == 0
             return

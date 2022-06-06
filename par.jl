@@ -12,7 +12,6 @@ include("$(@__DIR__)/src/damageEvol.jl")   #    Stiffness index of damaged mediu
 include("$(@__DIR__)/src/BoundaryMatrix.jl")    #	Boundary matrices
 include("$(@__DIR__)/src/initialConditions/defaultInitialConditions.jl")
 
-
 function setParameters(FZdepth, halfwidth, res, T)
 
     LX::Int = 48e3  # depth dimension of rectangular domain
@@ -49,10 +48,9 @@ function setParameters(FZdepth, halfwidth, res, T)
     IDstate::Int = 2    #   State variable equation type: aging law
 
     # Some other time variables used in the loop
-    dtincf::Float64 = 1.2
+    dtincf::Float64 = 1.2      # useless
     gamma_::Float64 = pi/4
     dtmax::Int = 400 * 24 * 60*60		# 400 days   
-
 
     #...................
     # MEDIUM PROPERTIES
@@ -84,13 +82,13 @@ function setParameters(FZdepth, halfwidth, res, T)
     #.......................
 
     Vpl::Float64 = 35e-3/yr2sec	#	Plate loading rate   unit: m/seconds
-    # frictional parameters along the fault (X direction)
+    # frictional parameters along the fault line (X direction)
     fo::Vector{Float64} = repeat([0.6], FltNglob)       #	Reference friction coefficient
     Vo::Vector{Float64} = repeat([1e-6], FltNglob)		#	Reference velocity 'Vo'  unit: m/s
     xLf::Vector{Float64} = repeat([0.008], FltNglob)    #	Dc (Lc) = 8 mm
 
-    Vthres::Float64 = 0.005     # unit: m/s  if slip rate is higher than this value, earthquake happens
-    Vevne::Float64 = Vthres     #??
+    Vthres::Float64 = 0.01     # unit: m/s  if slip rate is higher than this value, earthquake happens
+    Vevne::Float64 = Vthres     # redefine the velocity threshold!!
 
     #-----------#
     #-----------#
@@ -108,11 +106,11 @@ function setParameters(FZdepth, halfwidth, res, T)
     nglob::Int = length(x)    # no. of all GLL nodes  
 
     # The derivatives of the Lagrange Polynomials were pre-tabulated
-    # xgll = location of the GLL nodes inside the reference segment [-1,1]   same to XGLL in MeshBox.jl
+    # xgll = location of the GLL nodes inside the reference segment [-1,1] : same to XGLL in MeshBox.jl
     # Using the GetGLL function
     xgll::Vector{Float64}, wgll::Vector{Float64}, H::Matrix{Float64} = GetGLL(NGLL)
     wgll2::SMatrix{NGLL,NGLL,Float64} = wgll*wgll'       # define a sparse Matrix from FEMSparse
-    
+    # println(wgll2)
     #.............................
     #   OUTPUT RECEIVER LOCATIONS
     #.............................
@@ -121,6 +119,9 @@ function setParameters(FZdepth, halfwidth, res, T)
     # x coordinate = along dip fault length (always -ve(value) below the free surface)   upward is positive
     # y coordinate = off-fault distance (+ve)     right is positive              
 
+
+    ## we could output the theoretical seismogram on this points: only SH waves
+    ## and SH waves will only affect the shear stress on the fault line 
     x_out = [6.0, 6.0, 6.0, 6.0, 6.0, 6.0].*(-1e3)  # x coordinate of receiver
     y_out = [66.0, 130.0, 198.0, 250.0, 330.0, 396.0]     # y coordinate of receiver   # 
     #  n_receiver = length(x_receiver) # number of receivers
@@ -192,7 +193,7 @@ function setParameters(FZdepth, halfwidth, res, T)
     M[iBcR] .= M[iBcR] .+ half_dt*BcRC
     #  M[iBcT] .= M[iBcT] .+ half_dt*BcRT
 
-    # for initial conditions on fault line   : 'L' 
+    # for boundary conditions on fault line   : 'L' 
     FltL::Vector{Float64}, iFlt::Vector{Int} = BoundaryMatrix!(NGLL, NelX, NelY, 
                        rho1, vs1, rho2, vs2, dy_deta, dx_dxi, wgll, iglob, 'L')
     # iFlt: index of GLL nodes on the fault!!
@@ -204,23 +205,24 @@ function setParameters(FZdepth, halfwidth, res, T)
     #......................
     # Initial Conditions
     #......................
-    cca::Vector{Float64}, ccb::Vector{Float64} = fricDepth(FltX)   # rate-state friction parameters
+    cca::Vector{Float64}, ccb::Vector{Float64}, a_b = fricDepth(FltX)   # rate-state friction parameters
+    println(a_b ,length(a_b))
     Seff::Vector{Float64} = SeffDepth(FltX)       # effective normal stress
     tauo::Vector{Float64} = tauDepth(FltX)        # initial shear stress
 
-    # Kelvin-Voigt Viscosity : one kind of initial condition?
-    Nel_ETA::Int = 0
+    # Kelvin-Voigt Viscosity : one technical method to increase the convergence rate
+    Nel_ETA::Int = 0   # not used! 
     if ETA !=0
         Nel_ETA = NelX
         x1 = 0.5*(1 .+ xgll')
         eta_taper = exp.(-pi*x1.^2)
         eta = ETA*dt*repeat([eta_taper], NGLL)
-
     else
         Nel_ETA = 0
     end
 
-    # Compute XiLF(largest slip in one timestep!!) used in timestep calculation
+    # Compute XiLF(largest slip in one timestep!!) used in timestep calculation: constrained by friction law!
+    # by the way, I think the CFL creterion is more strict!!!
     XiLf::Vector{Float64} = XiLfFunc!(LX, FltNglob, gamma_, xLf, muMax, cca, ccb, Seff)
 
     # Find nodes that do not belong to the fault (off-fault GLL nodes )
@@ -233,7 +235,6 @@ function setParameters(FZdepth, halfwidth, res, T)
     fbc = reshape(iglob[:,1,:], length(iglob[:,1,:]))    # convert the index of all left boundasy GLL nodes in all elements  into 1-D vector
     idx = findall(fbc .== findall(x .== -24e3)[1] - 1)[1]
     FltIglobBC::Vector{Int} = fbc[1:idx]
-    #println("Total number of GLL nodes on fault boundary: ", length(FltIglobBC)) # ?
     
     # Display important parameters
     #println("Total number of GLL nodes on fault: ", FltNglob)
@@ -253,16 +254,16 @@ end
 
 struct params_int{T<:Int}
     # Domain size
-    Nel::T
-    FltNglob::T
+    Nel::T          # total number of elements in the  2D model
+    FltNglob::T     # total number of GLL nodes on the fault line  
 
     # Time parameters
-    yr2sec::T
-    Total_time::T
-    IDstate::T
+    yr2sec::T       # how many seconds in a year
+    Total_time::T   # Total simulation time
+    IDstate::T      # the type of the friction law
 
     # Fault setup parameters
-    nglob::T
+    nglob::T        # total number of GLL nodes in the 2D model
 
 end
 
@@ -273,56 +274,55 @@ struct params_float{T<:AbstractFloat}
     #  coefint2::T
     # shear modulus
      
-    
-    ETA::T
+    ETA::T    # do not use the 
 
     # Earthquake parameters
-    Vpl::T
-    Vthres::T
-    Vevne::T
+    Vpl::T     # plate motion rate used in this model
+    Vthres::T   # velocity threshold for coseismic phase
+    Vevne::T    # same meaning with Vthres
 
     # Setup parameters
-    dt::T
-
-    mu::T  
-    ThickY::T
+    dt::T        # timestep based on CFL creterion   
+    mu::T        # shear modulus
+    ThickY::T     # real halfwidth of damage zone
 end
 
 struct params_farray{T<:Vector{Float64}}
-    fo::T
-    Vo::T
-    xLf::T
+    fo::T         # reference friction coefficient on the whole fault 
+    Vo::T         # reference velocity on the whole fault
+    xLf::T          # characteristic slip distance Dc
 
-    M::T
+    M::T      # mass vector of the whole model
 
-    BcBC::T
-    BcRC::T
+    BcBC::T    # boundary condition on the Bottom(mass)
+    BcRC::T    # boundary condition on the right(mass)
 
-    FltL::T
-    FltZ::T
-    FltX::T
+    FltL::T    # boundary condition on the fault(mass)
+    FltZ::T     # 
+    FltX::T   # real depth of all nodes on the fault 
 
-    cca::T
-    ccb::T
-    Seff::T
-    tauo::T
-
-    XiLf::T
+    cca::T    # a of RSF 
+    ccb::T    # b of RSF 
+    Seff::T   # effective normal stress
+    tauo::T    # intial shear stress
+ 
+    XiLf::T    # maximum timestep in a timestep to constrain the length of timestep (based on friction law)
     #  diagKnew::T
 
-    xout::T
-    yout::T
-end
-struct params_iarray{T<:Vector{Int}}
-    iFlt::T
-    iBcB::T
-    iBcR::T
-    FltIglobBC::T
-    FltNI::T
-    out_seis::T
+    xout::T   # output the seismogram
+    yout::T   # output the seismogram
 end
 
-# Calculate XiLf used in computing the timestep
+struct params_iarray{T<:Vector{Int}}
+    iFlt::T      # index of GLL nodes on the fault
+    iBcB::T      # index of GLL nodes on the bottom boundary
+    iBcR::T      # index of GLL nodes on the right boundary
+    FltIglobBC::T  # index of GLL nodes within the fault zone(twice of the shared nodes)
+    FltNI::T     # index of off-fault GLL nodes
+    out_seis::T   # index of off-fault GLL nodes which are nearest to the predefined output locations
+end
+
+# Calculate XiLf used in computing the final timestep
 function XiLfFunc!(LX, FltNglob, gamma_, xLf, muMax, cca, ccb, Seff)
 
     hcell = LX/(FltNglob-1)   # average interval of GLL nodes on fault
@@ -348,7 +348,7 @@ function XiLfFunc!(LX, FltNglob, gamma_, xLf, muMax, cca, ccb, Seff)
         end
 
         # For each node, compute slip that node cannot exceed in one timestep
-        # slip during one time step could not exceed 0.5*DC, so that we can restrict the length of the timestep!!
+        # slip during one time step could not exceed 0.5*DC, so that we can restrict the length of the timestep further!!
 
         if Xithf*Xith[j] > Ximax
             XiLf[j] = Ximax*xLf[j]

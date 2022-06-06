@@ -62,7 +62,7 @@ function main(P,alphaa)
     # Initialize kinematic field: global arrays
     d::Vector{Float64} = zeros(P[1].nglob)   # initial displacement
     v::Vector{Float64} = zeros(P[1].nglob)
-    v .= 0.5e-3         # half of Vthres(1e-3 m/second)   intial velocity(but not enough to lead to a earthquake)
+    v .= 0.5e-3         # half of Vthres(1e-3 m/second)   intial velocity(but not enough to lead to a earthquake) on whole model
     a::Vector{Float64} = zeros(P[1].nglob)  #???
 
     #.....................................
@@ -91,7 +91,7 @@ function main(P,alphaa)
     psi = P[3].tauo./(P[3].Seff.*P[3].ccb) - P[3].fo./P[3].ccb - (P[3].cca./P[3].ccb).*log.(2*v[P[4].iFlt]./P[3].Vo)
     psi0 .= psi[:]
   # which kind of solver to use
-    isolver::Int = 1
+    isolver::Int = 1         # quasi-static
 
     # # Some more initializations
     # r::Vector{Float64} = zeros(P[1].nglob)
@@ -122,13 +122,13 @@ function main(P,alphaa)
     it_s = 0; it_e = 0
     rit = 0
 
-    v = v[:] .- 0.5*P[2].Vpl   # initial slip rate
-    # Vf = 2*v[P[4].iFlt]  # Plate motion rate?
+    v = v[:] .- 0.5*P[2].Vpl   # initial slip rate on the whole model
+    # Vf = 2*v[P[4].iFlt]  # Plate motion rate?  
     iFBC::Vector{Int64} = findall(abs.(P[3].FltX) .> 24e3)   # index for points below the damage zone
     NFBC::Int64 = length(iFBC) + 1
-    Vf[iFBC] .= 0.   # set the initial fault slip rate(below the damage zone) to be zero
+    Vf[iFBC] .= 0.   # set the initial fault slip rate(below fault damage zone) to be zero
 
-    v[P[4].FltIglobBC] .= 0.   # Reset the initial velocity to be zero ???
+    v[P[4].FltIglobBC] .= 0.   # Reset the initial velocity(within fault damage zone) to be zero
 
     # on fault and off fault stiffness
     Ksparse = P[5]
@@ -167,7 +167,9 @@ function main(P,alphaa)
         write(io, join(P[3].ccb, " "), "\n")
         write(io, join(P[3].xLf, " "), "\n")
     end
-
+    open(string(out_dir,"mass_matrix.out"), "w") do io
+        write(io, join(P[3].M, " "), "\n")  # unit: MPa
+    end
     # Open files to begin writing
     open(string(out_dir,"stress.out"), "w") do stress    # shear stress 
     open(string(out_dir,"sliprate.out"), "w") do sliprate   # fault sliprate (Vpl+sliprate controlled by RSF)
@@ -261,7 +263,7 @@ function main(P,alphaa)
             tau[iFBC] .= 0.
             Vf1[iFBC] .= P[2].Vpl
             # on fault GLL nodes
-            v[P[4].iFlt] .= 0.5*(Vf1 .- P[2].Vpl)   # keep the slip rate of kinematic fault as a constant!!
+            v[P[4].iFlt] .= 0.5*(Vf1 .- P[2].Vpl)   # keep the slip rate of kinematic fault as zero!!
             # off-fault GLL nodes
             v[P[4].FltNI] .= (d[P[4].FltNI] .- dPre[P[4].FltNI])/dt
 

@@ -10,7 +10,7 @@
 # OUTPUT:
 #		x[n]: coordinates of GLL points in the reference segment [-1,1]
 #		w[n]: quadrature weights
-#		h[n,n]: derivatives of Lagrange polynomials at the GLL nodes
+#		h[n,n]: derivatives of Lagrange polynomials at the GLL nodes (stiffness matrix)
 #		h[i,j] = h'_i (x[j])
 using DelimitedFiles
 
