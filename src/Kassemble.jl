@@ -10,7 +10,7 @@ function Kassemble(NGLL, NelX, NelY, dxe,dye, nglob, iglob, W)
     #  W = material_properties(NelX, NelY,NGLL,dxe, dye, ThickX, ThickY, wgll2, rho1, rho2, vs1, vs2)
     Ke = K_element(W, dxe, dye, NGLL, H, NelX*NelY)  # completed stiffness Matrix
     #  Ks22 = assembley(Ke, iglob, NelX*NelY, nglob)
-    K = FEsparse(NelX*NelY, Ke, iglob)    # Sparse matrix K!!
+    K = FEsparse(NelX*NelY, Ke, iglob)    # change into Sparse matrix K!!
     return dropzeros!(K)
     #  return rcmpermute(dropzeros!(K))
 end
@@ -48,7 +48,7 @@ function K_element(W, dxe, dye, NGLL, H, Nel)
             for i in 1:NGLL, j in 1:NGLL
                 for k in 1:NGLL, l in 1:NGLL
                     term1 = 0.; term2 = 0.
-                    for p in 1:NGLL
+                    for p in 1:NGLL      # degree of lagrange polynomial
                         term1 += del[i,k]*ww[k,p]*(jac/dy_deta^2)*H[j,p]*H[l,p]
                         term2 += del[j,l]*ww[p,j]*(jac/dx_dxi^2)*H[i,p]*H[k,p]
                     end

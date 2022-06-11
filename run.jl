@@ -24,19 +24,20 @@ mkpath(out_dir)
 
 P = setParameters(24e3, 500, resolution, 300)      # args = fault zone depth(m), fault zone halfwidth(m), resolution, total simulation time (years)
 # println(P[3].M)
+# println(size(P[4].FltNI))
 
-# include("$(@__DIR__)/NucleationSize.jl") 
-# # calculate the nucleation size of initial rigidity ratio!!
-# h_hom = NucleationSize(P)
-# h_dam = h_hom/3           # with alphaa = 0.60
-# CZone = CohesiveZoneSize(P)
-# println("The nucleation size of homogeneous medium:", h_hom, " m")
-# println("The approximate nucleation size of damage zone medium:", h_dam, " m")
-# println("The Cohesive zone size of homogeneous medium:", CZone, " m")
+include("$(@__DIR__)/NucleationSize.jl") 
+# calculate the nucleation size of initial rigidity ratio!!
+h_hom = NucleationSize(P)
+h_dam = h_hom/3           # with alphaa = 0.60
+CZone = CohesiveZoneSize(P)
+println("The nucleation size of homogeneous medium:", h_hom, " m")
+println("The approximate nucleation size of damage zone medium:", h_dam, " m")
+println("The Cohesive zone size of homogeneous medium:", CZone, " m")
 
-# include("$(@__DIR__)/src/dtevol.jl")
-# include("$(@__DIR__)/src/NRsearch.jl")
-# include("$(@__DIR__)/src/otherFunctions.jl")
+include("$(@__DIR__)/src/dtevol.jl")
+include("$(@__DIR__)/src/NRsearch.jl")
+include("$(@__DIR__)/src/otherFunctions.jl")
 
 # include("$(@__DIR__)/src/main.jl")
 

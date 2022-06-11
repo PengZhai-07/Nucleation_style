@@ -38,6 +38,11 @@ function main(P,alphaa)
     # P[3] = float array   fo, Vo, xLf, M, BcBC, BcRC, FltL, FltZ, FltX, cca, ccb, Seff, tauo, XiLf, x_out, y_out
     # P[4] = integer array   iFlt, iBcB, iBcR, FltIglobBC, FltNI, out_seis
     # P[5] = ksparse   
+    # P[6] = iglob, 
+    # P[7] = NGLL
+    # P[8] = wgll2
+    # P[9] = nglob
+    # P[10] = did
 
     #  ??? 
     #  W_orig = W[:,:,damage_idx]
@@ -49,7 +54,7 @@ function main(P,alphaa)
     # mature fault: 40%-45%
 
     # Time solver variables
-    dt::Float64 = P[2].dt   # dt is variable at different time of earthquake cycle
+    dt::Float64 = P[2].dt   # minimum timestep
     dtmin::Float64 = dt    
     half_dt::Float64 = 0.5*dtmin
     half_dt_sq::Float64 = 0.5*dtmin^2
@@ -62,23 +67,23 @@ function main(P,alphaa)
     # Initialize kinematic field: global arrays
     d::Vector{Float64} = zeros(P[1].nglob)   # initial displacement
     v::Vector{Float64} = zeros(P[1].nglob)
-    v .= 0.5e-3         # half of Vthres(1e-3 m/second)   intial velocity(but not enough to lead to a earthquake) on whole model
-    a::Vector{Float64} = zeros(P[1].nglob)  #???
+    v .= 0.5e-3         # half of Vthres(1e-3 m/second)   intial velocity on whole model
+    a::Vector{Float64} = zeros(P[1].nglob)   #???
 
     #.....................................
     # Stresses and time related variables on fault
     #.....................................
-    # specific meanings
     
-    FaultC::Vector{Float64} = zeros(P[1].FltNglob)
-    FltVfree::Vector{Float64} = zeros(length(P[4].iFlt))
-    Vf::Vector{Float64} =  zeros(P[1].FltNglob)
-    Vf0::Vector{Float64} = zeros(length(P[4].iFlt))   # length(P[4].iFlt) = P[1].FltNglob
+    FaultC::Vector{Float64} = zeros(P[1].FltNglob)     
+    FltVfree::Vector{Float64} = zeros(length(P[4].iFlt))   # index of GLL nodes on the fault
+    # velocity variables
+    Vf::Vector{Float64} =  zeros(P[1].FltNglob)         # total number of GLL nodes on the fault line  
+    Vf0::Vector{Float64} = zeros(length(P[4].iFlt))      # length(P[4].iFlt) = P[1].FltNglob
     Vf1::Vector{Float64} = zeros(P[1].FltNglob)
     Vf2::Vector{Float64} = zeros(P[1].FltNglob)
     # state variables
     psi::Vector{Float64} = zeros(P[1].FltNglob)
-    psi0::Vector{Float64} = zeros(P[1].FltNglob)   # intial state
+    psi0::Vector{Float64} = zeros(P[1].FltNglob)       # intial state
     psi1::Vector{Float64} = zeros(P[1].FltNglob)
     psi2::Vector{Float64} = zeros(P[1].FltNglob)
     # stress variables
@@ -88,9 +93,10 @@ function main(P,alphaa)
     tau3::Vector{Float64} = zeros(P[1].FltNglob)
 
     # Initial state variable
+    # log.(P[3].Vo.*theta./xLf)
     psi = P[3].tauo./(P[3].Seff.*P[3].ccb) - P[3].fo./P[3].ccb - (P[3].cca./P[3].ccb).*log.(2*v[P[4].iFlt]./P[3].Vo)
     psi0 .= psi[:]
-  # which kind of solver to use
+    # which kind of solver to use
     isolver::Int = 1         # quasi-static
 
     # # Some more initializations
@@ -98,17 +104,18 @@ function main(P,alphaa)
     # beta_::Vector{Float64} = zeros(P[1].nglob)
     # alpha_::Vector{Float64} = zeros(P[1].nglob)
 
+    # intial values on whole models!!!
     F::Vector{Float64} = zeros(P[1].nglob)
     dPre::Vector{Float64} = zeros(P[1].nglob)
     vPre::Vector{Float64} = zeros(P[1].nglob)
     dd::Vector{Float64} = zeros(P[1].nglob)
-    dnew::Vector{Float64} = zeros(length(P[4].FltNI))  # off-fault GLL nodes
+    dnew::Vector{Float64} = zeros(length(P[4].FltNI))  # save displacements for off-fault GLL nodes
 
     # Save output variables at certain timesteps: define output frequency
     tvsx::Float64 = 2e-0*P[1].yr2sec  # 2 years for interseismic period
     tvsxinc::Float64 = tvsx
 
-    tevneinc::Float64 = 0.1    # 0.5 second for seismic period
+    tevneinc::Float64 = 0.1    # 0.1 second for seismic period
     delfref = zeros(P[1].FltNglob)
 
     # Iterators
@@ -121,14 +128,14 @@ function main(P,alphaa)
     idd::Int = 0
     it_s = 0; it_e = 0
     rit = 0
-
+    # Here v is not zero!!!  0.5e-3 m/s
     v = v[:] .- 0.5*P[2].Vpl   # initial slip rate on the whole model
     # Vf = 2*v[P[4].iFlt]  # Plate motion rate?  
     iFBC::Vector{Int64} = findall(abs.(P[3].FltX) .> 24e3)   # index for points below the damage zone
     NFBC::Int64 = length(iFBC) + 1
     Vf[iFBC] .= 0.   # set the initial fault slip rate(below fault damage zone) to be zero
 
-    v[P[4].FltIglobBC] .= 0.   # Reset the initial velocity(within fault damage zone) to be zero
+    v[P[4].FltIglobBC] .= 0.   # Reset the initial fault slip rate(within fault damage zone) to be zero
 
     # on fault and off fault stiffness
     Ksparse = P[5]
@@ -137,8 +144,8 @@ function main(P,alphaa)
     Korig = copy(Ksparse)   # K original
 
     # Linear solver stuff
+   
     kni = -Ksparse[P[4].FltNI, P[4].FltNI]   # stiffness of off-fault GLL nodes
-    nKsparse = -Ksparse
     
     # algebraic multigrid preconditioner
     ml = ruge_stuben(kni)
@@ -220,9 +227,8 @@ function main(P,alphaa)
                 # Assign previous displacement field as initial guess
                 dnew .= d[P[4].FltNI]
 
-
-                # Solve d = K^-1F by MGCG
-                rhs = (mul!(tmp,Ksparse,F))[P[4].FltNI]
+                # Solve d = K^-1 F by MGCG
+                rhs = (mul!(tmp,Ksparse,F))[P[4].FltNI]   # However comparing this to LinearAlgebra.mul! shows that the later is much faster.
                 #  rhs = (Ksparse*F)[P[4].FltNI]
 
                 # direct inversion

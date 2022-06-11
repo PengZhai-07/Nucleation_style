@@ -15,7 +15,7 @@ include("$(@__DIR__)/src/initialConditions/defaultInitialConditions.jl")
 function setParameters(FZdepth, halfwidth, res, T)
 
     LX::Int = 48e3  # depth dimension of rectangular domain
-    LY::Int = 30e3 # off fault dimenstion of rectangular domain
+    LY::Int = 32e3 # off fault dimenstion of rectangular domain
 
     NelX::Int = 30*res # no. of elements in x
     NelY::Int = 20*res # no. of elements in y
@@ -56,7 +56,7 @@ function setParameters(FZdepth, halfwidth, res, T)
     # MEDIUM PROPERTIES
     #...................
 
-    # default
+    # default: host rock!!
     rho1::Float64 = 2670
     vs1::Float64 = 3464
     mu = rho1*vs1^2
@@ -65,7 +65,7 @@ function setParameters(FZdepth, halfwidth, res, T)
     #  rho1::Float64 = 2500
     #  vs1::Float64 = 0.6*3464
 
-    # the initial property of fualt damage zone
+    # the initial property of fualt damage zone: fault zone evolution!!!
     rho2::Float64 = 2670
     vs2::Float64 = 1.00*vs1
 
@@ -102,7 +102,11 @@ function setParameters(FZdepth, halfwidth, res, T)
     # global node index of the (i,j) th GLL node internal to the e-th element.
     iglob::Array{Int,3}, x::Vector{Float64}, y::Vector{Float64} =
                         MeshBox!(NGLL, Nel, NelX, NelY, FltNglob, dxe, dye)
+    gg = iglob[:,:,1];    # 2D matrix
+    println(gg)
     x = x .- LX     # +x direction is upward (-48km ~ 0km)
+    println("size of x=", size(x))
+    println("size of iglob=", size(iglob))
     nglob::Int = length(x)    # no. of all GLL nodes  
 
     # The derivatives of the Lagrange Polynomials were pre-tabulated
@@ -137,22 +141,26 @@ function setParameters(FZdepth, halfwidth, res, T)
 
     # Global Mass Matrix
     M::Vector{Float64} = zeros(nglob)
+    println("Dimension of M=", size(M))
 
     # Mass + Damping matrix
     #  MC::Vector{Float64} = zeros(nglob)
 
     # Assemble mass and stiffness matrix
     # Mass Assembly
-    M, dt::Float64, muMax = Massemble!(NGLL, NelX, NelY, dxe, dye,
+    a , M, dt::Float64, muMax = Massemble!(NGLL, NelX, NelY, dxe, dye,
         ThickX, ThickY, rho1, vs1, rho2, vs2, iglob, M, x, y, jac)
-
+    
+    #println(M[1:100])
+    println(a)
     # Material properties for a narrow rectangular damaged zone of
-    # half-thickness ThickY and depth ThickX
+    # half-thickness ThickY and depth ThickX: shear modulus
     W = MaterialProperties(NelX, NelY, NGLL, dxe, dye, 
         ThickX, ThickY, wgll2, rho1, vs1, rho2, vs2)
 
-    # Material properties for trapezoid damaged zone
-    #  M, W =  mat_trap(NelX, NelY, NGLL, iglob, M, dxe, dye, x, y, wgll2)
+    # Material properties for trapezoid damaged zone: need to calculate mass matrix again!! may not calculate the dt again,
+    # because the velocity of host rock(vs1: the bigger value) decides the timestep!!!(without change of mesh!!!) 
+    # M, W =  mat_trap(NelX, NelY, NGLL, iglob, M, dxe, dye, x, y, wgll2)
 
     # Stiffness Assembly
     Ksparse::SparseMatrixCSC{Float64} = Kassemble(NGLL, NelX, NelY, dxe,dye, nglob, iglob, W)
@@ -170,7 +178,7 @@ function setParameters(FZdepth, halfwidth, res, T)
     dt = CFL*dt
     dtmin = dt
     half_dt = 0.5*dtmin
-    half_dt_sq = 0.5*dtmin^2
+    # half_dt_sq = 0.5*dtmin^2
 
     #......................
     # Boundary conditions :  L->B  R->T  T->R  B->L
@@ -194,10 +202,12 @@ function setParameters(FZdepth, halfwidth, res, T)
     #  M[iBcT] .= M[iBcT] .+ half_dt*BcRT
 
     # for boundary conditions on fault line   : 'L' 
+    # iFlt: index of GLL nodes on the fault!!
     FltL::Vector{Float64}, iFlt::Vector{Int} = BoundaryMatrix!(NGLL, NelX, NelY, 
                        rho1, vs1, rho2, vs2, dy_deta, dx_dxi, wgll, iglob, 'L')
-    # iFlt: index of GLL nodes on the fault!!
+
     FltZ::Vector{Float64} = M[iFlt]./FltL /half_dt * 0.5   # specific meanings?
+    
     # X(vertical) of all GLL nodes at fault surface
     FltX::Vector{Float64} = x[iFlt]   
     #println("# X(vertical) of all GLL nodes at dynamic fault surface: ", FltX)    
@@ -206,7 +216,7 @@ function setParameters(FZdepth, halfwidth, res, T)
     # Initial Conditions
     #......................
     cca::Vector{Float64}, ccb::Vector{Float64}, a_b = fricDepth(FltX)   # rate-state friction parameters
-    println(a_b ,length(a_b))
+    # println(a_b ,length(a_b))
     Seff::Vector{Float64} = SeffDepth(FltX)       # effective normal stress
     tauo::Vector{Float64} = tauDepth(FltX)        # initial shear stress
 
@@ -231,10 +241,13 @@ function setParameters(FZdepth, halfwidth, res, T)
     # Compute diagonal of K
     #  diagKnew::Vector{Float64} = KdiagFunc!(FltNglob, NelY, NGLL, Nel, coefint1, coefint2, iglob, W, H, Ht, FltNI)
 
-    # Fault boundary: indices where fault within 24 km 
-    fbc = reshape(iglob[:,1,:], length(iglob[:,1,:]))    # convert the index of all left boundasy GLL nodes in all elements  into 1-D vector
-    idx = findall(fbc .== findall(x .== -24e3)[1] - 1)[1]
-    FltIglobBC::Vector{Int} = fbc[1:idx]
+    # Fault boundary: global indices where fault within 24 km 
+    fbc = reshape(iglob[:,1,:], length(iglob[:,1,:]))    # convert the index of all left(fault) boundary GLL nodes in all elements into 1-D vector
+    println("fbc=", fbc[1:10])
+    println(findall(x .== -24e3)[1])    # the point on the fault at the depth of 24km
+    idx = findall(fbc .== findall(x .== -24e3)[1] - 1)[1]   # what function?
+    #println("idx=", idx)
+    FltIglobBC::Vector{Int} = fbc[1:idx]     # GLL nodes within fault damage zone(<24 km)  with repeated nodes
     
     # Display important parameters
     #println("Total number of GLL nodes on fault: ", FltNglob)
@@ -243,6 +256,7 @@ function setParameters(FZdepth, halfwidth, res, T)
     println("ThickX: ", ThickX, " m")
     println("ThickY: ", ThickY, " m")
     @printf("dt: %1.09f s\n", dt)   # minimal timestep during coseismic stage
+    
 
     return params_int(Nel, FltNglob, yr2sec, Total_time, IDstate, nglob),
             params_float(ETA, Vpl, Vthres, Vevne, dt, mu, ThickY),
@@ -251,6 +265,8 @@ function setParameters(FZdepth, halfwidth, res, T)
             Ksparse, iglob, NGLL, wgll2, nglob, did
 
 end
+
+
 
 struct params_int{T<:Int}
     # Domain size
@@ -314,12 +330,12 @@ struct params_farray{T<:Vector{Float64}}
 end
 
 struct params_iarray{T<:Vector{Int}}
-    iFlt::T      # index of GLL nodes on the fault
-    iBcB::T      # index of GLL nodes on the bottom boundary
-    iBcR::T      # index of GLL nodes on the right boundary
+    iFlt::T        # index of GLL nodes on the fault
+    iBcB::T        # index of GLL nodes on the bottom boundary
+    iBcR::T        # index of GLL nodes on the right boundary
     FltIglobBC::T  # index of GLL nodes within the fault zone(twice of the shared nodes)
-    FltNI::T     # index of off-fault GLL nodes
-    out_seis::T   # index of off-fault GLL nodes which are nearest to the predefined output locations
+    FltNI::T       # index of off-fault GLL nodes
+    out_seis::T    # index of off-fault GLL nodes which are nearest to the predefined output locations
 end
 
 # Calculate XiLf used in computing the final timestep
@@ -348,7 +364,7 @@ function XiLfFunc!(LX, FltNglob, gamma_, xLf, muMax, cca, ccb, Seff)
         end
 
         # For each node, compute slip that node cannot exceed in one timestep
-        # slip during one time step could not exceed 0.5*DC, so that we can restrict the length of the timestep further!!
+        # slip during one time step can not exceed 0.5*DC, so that we can restrict the length of the timestep further!!
 
         if Xithf*Xith[j] > Ximax
             XiLf[j] = Ximax*xLf[j]

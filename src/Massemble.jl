@@ -9,6 +9,7 @@ function Massemble!(NGLL, NelX, NelY, dxe, dye, ThickX,
     # May can be displaced by the input
     xgll, wgll, H = GetGLL(NGLL)
     wgll2 = wgll*wgll';
+    print(wgll2)
 
     rho::Matrix{Float64} = zeros(NGLL, NGLL)    # density 
     mu::Matrix{Float64} = zeros(NGLL, NGLL)     # shear modulus
@@ -18,17 +19,17 @@ function Massemble!(NGLL, NelX, NelY, dxe, dye, ThickX,
     dx = zeros(NGLL-1, NGLL)
     muMax = 0
     dt = Inf
-    
+    a = 0
     #  # damage zone index
     #  damage_idx = zeros(Int, NelX*NelY)
 
     @inbounds @fastmath for ey = 1:NelY
         @inbounds @fastmath for ex = 1:NelX
-
+            a = a+1
             eo = (ey-1)*NelX + ex
-            ig = iglob[:,:,eo]       # 2D index of No.eo element
-
-            # Properties of heterogeneous medium
+            ig = iglob[:,:,eo]       # 2D matrix: Global index of No. eo element
+            
+            # Properties of heterogeneous medium: long narrow fault damage zone
             if ex*dxe >= ThickX && (dye <= ey*dye <= ThickY)   #range of damage zone: shallow near fault LVZ
                 #  damage_idx[eo] = eo
                 rho[:,:] .= rho2
@@ -37,13 +38,17 @@ function Massemble!(NGLL, NelX, NelY, dxe, dye, ThickX,
                 rho[:,:] .= rho1
                 mu[:,:] .= rho1*vs1^2
             end
+            
             # get the largest value of mu in all elements: the bigger one
             if  muMax < maximum(maximum(mu))
                 muMax = maximum(maximum(mu))
             end
 
             # Diagonal Mass Matrix
-            M[ig] .+= wgll2.*rho*jac            # not diagonal?
+            M[ig] .+= wgll2.*rho*jac            # not diagonal? how to make the matrix doubled at the shared nodes?
+            # if a == 1
+            #     print(M[1:50])
+            # end
 
             # Local contributions to the stiffness matrix
             #  W[:,:,eo] .= wgll2.*mu;
@@ -72,6 +77,6 @@ function Massemble!(NGLL, NelX, NelY, dxe, dye, ThickX,
 # 122.74756325774572 122.74756325774572 122.74756325774572 122.74756325774572 122.74756325774572; 
 # 122.74756325774571 122.74756325774571 122.74756325774571 122.74756325774571 122.74756325774571; 
 # 64.75243674225429 64.75243674225429 64.75243674225429 64.75243674225429 64.75243674225429]
-    return M, dt, muMax 
+    return a, M, dt, muMax 
 
 end
