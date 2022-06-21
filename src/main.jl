@@ -13,23 +13,23 @@
 ###############################################################################
 
 # Healing exponential function
-function healing2(t,tStart,dam)
-    """ hmax: coseismic damage amplitude
-        r: healing rate (0.05 => 138 years to heal completely)
-                        (0.5 => 13.81 years to heal completely)
-                        (0.7 => 9.87 years to heal completely)
-                        (0.8 => 8.63 years to heal completely)
-    """
-    hmax = 0.05
-    r =  0.7   # 1/1.5
-    # t: current time of all simulation unit: seconds
-    # tStart: time when earthquake happens  unit: seconds
-    # dam : current ratio of damage zone and host rock(after coseismic rigidity reduction) 
-    # 65% -> 60% -> 65%
-    # when there is only 0.1% bias, we think the healing process finishes
-    # log(0.001)=-6.9078
-    hmax*(1 .- exp.(-r*(t .- tStart)/P[1].yr2sec)) .+ dam     # hmax*(1 .- exp.(-r*(t .- tStart)/P[1].yr2sec)) > 0, when time is 10years, alphaa = dam + 0.05
-end
+# function healing2(t,tStart,dam)
+#     """ hmax: coseismic damage amplitude
+#         r: healing rate (0.05 => 138 years to heal completely)
+#                         (0.5 => 13.81 years to heal completely)
+#                         (0.7 => 9.87 years to heal completely)
+#                         (0.8 => 8.63 years to heal completely)
+#     """
+#     hmax = 0.05
+#     r =  0.7   # 1/1.5
+#     # t: current time of all simulation unit: seconds
+#     # tStart: time when earthquake happens  unit: seconds
+#     # dam : current ratio of damage zone and host rock(after coseismic rigidity reduction) 
+#     # 65% -> 60% -> 65%
+#     # when there is only 0.1% bias, we think the healing process finishes
+#     # log(0.001)=-6.9078
+#     hmax*(1 .- exp.(-r*(t .- tStart)/P[1].yr2sec)) .+ dam     # hmax*(1 .- exp.(-r*(t .- tStart)/P[1].yr2sec)) > 0, when time is 10years, alphaa = dam + 0.05
+# end
 
 function main(P,alphaa)
     # please refer to par.jl to see the specific meaning of P
@@ -68,7 +68,7 @@ function main(P,alphaa)
     d::Vector{Float64} = zeros(P[1].nglob)   # initial displacement
     v::Vector{Float64} = zeros(P[1].nglob)
     v .= 0.5e-3         # half of Vthres(1e-3 m/second)   intial velocity on whole model
-    a::Vector{Float64} = zeros(P[1].nglob)   #???
+    a::Vector{Float64} = zeros(P[1].nglob)   # relation between fault stress and acceleration?
 
     #.....................................
     # Stresses and time related variables on fault
@@ -77,7 +77,7 @@ function main(P,alphaa)
     FaultC::Vector{Float64} = zeros(P[1].FltNglob)     
     FltVfree::Vector{Float64} = zeros(length(P[4].iFlt))   # index of GLL nodes on the fault
     # velocity variables
-    Vf::Vector{Float64} =  zeros(P[1].FltNglob)         # total number of GLL nodes on the fault line  
+    Vf::Vector{Float64} =  zeros(P[1].FltNglob)      
     Vf0::Vector{Float64} = zeros(length(P[4].iFlt))      # length(P[4].iFlt) = P[1].FltNglob
     Vf1::Vector{Float64} = zeros(P[1].FltNglob)
     Vf2::Vector{Float64} = zeros(P[1].FltNglob)
@@ -129,24 +129,24 @@ function main(P,alphaa)
     it_s = 0; it_e = 0
     rit = 0
     # Here v is not zero!!!  0.5e-3 m/s
-    v = v[:] .- 0.5*P[2].Vpl   # initial slip rate on the whole model
-    # Vf = 2*v[P[4].iFlt]  # Plate motion rate?  
+    v = v[:] .- 0.5*P[2].Vpl   # initial slip rate on the whole model    ???
+    Vf = 2*v[P[4].iFlt]      # 1e-3
     iFBC::Vector{Int64} = findall(abs.(P[3].FltX) .> 24e3)   # index for points below the damage zone
     NFBC::Int64 = length(iFBC) + 1
-    Vf[iFBC] .= 0.   # set the initial fault slip rate(below fault damage zone) to be zero
-
-    v[P[4].FltIglobBC] .= 0.   # Reset the initial fault slip rate(within fault damage zone) to be zero
+    Vf[iFBC] .= 0.             # set the initial fault slip rate (within creeping fault) to be zero
+    v[P[4].FltIglobBC] .= 0.   # set the initial fault slip rate (within creeping fault) to be zero
+    # but intial slip rate on dynamic fault is not zero!!
 
     # on fault and off fault stiffness
     Ksparse = P[5]
 
     # Intact rock stiffness
-    Korig = copy(Ksparse)   # K original
+    Korig = copy(Ksparse)   # K original： using with healing
 
     # Linear solver stuff
-   
     kni = -Ksparse[P[4].FltNI, P[4].FltNI]   # stiffness of off-fault GLL nodes
-    
+    nKsparse = -Ksparse
+
     # algebraic multigrid preconditioner
     ml = ruge_stuben(kni)
     p = aspreconditioner(ml)
@@ -161,7 +161,7 @@ function main(P,alphaa)
     #  nKsparse = ThreadedMul(nKsparse)
     #  kni = ThreadedMul(kni)
 
-    # Damage evolution stuff
+    # Damage evolution stuff: using with healing 
     did = P[10]   # index of GLL nodes in fault damage zone
     dam = alphaa   # initial damage ratio
 
@@ -193,41 +193,50 @@ function main(P,alphaa)
     # Start of time loop
     #....................
     it = 0  # current the number of timesteps
-    t = 0.  # current time
+    t = 0.  # current simualtion time
     Vfmax = 0.    # max slip rate of the fault
     
-    tStart2 = dt
+    # evolution of timesteps
+    tStart2 = dt          # using with healing
     tStart = dt
     tEnd = dt
-    # stress drop before and after earthquake
+    # stress drop of earthquakes
     taubefore = P[3].tauo      
     tauafter = P[3].tauo
-    # background loading rate
+    # total dislocation(displacement) of dynamic fault after earthquake
     delfafter = 2*d[P[4].iFlt] .+ P[2].Vpl*t  
-    hypo = 0.    # earthquake location
-
+    hypo = 0.    # earthquake hypocenter
+    d_hypo = 0.   # # cumulative slip at earthquake hypocenter
+ 
     while t < P[1].Total_time
         it = it + 1
-        t = t + dt   # dt is the initial smallest timestep
-        
-        if isolver == 1    # quasi-static phase at the beginning!!!
-            vPre .= v
-            dPre .= d
 
-            Vf0 .= 2*v[P[4].iFlt] .+ P[2].Vpl   # initial fault slip rate
-            Vf  .= Vf0    # 1e-3
+        
+        t = t + dt   # dt is the initial smallest timestep: dtmin
+        
+
+        if isolver == 1    # quasi-static phase at the beginning!!!
+            # intial velocity and displacement field for all GLL nodes
+            vPre .= v     # non-zero
+            dPre .= d     # Culmulative slip (zero) 
+
+            Vf0 .= 2*v[P[4].iFlt] .+ P[2].Vpl   #  
+            Vf  .= Vf0    # 0 m/s on kinematic fault segment while 1e-3 m/s on dynamic fault!
 
             # first two adjustation every time step during interseismic phase
             for p1 = 1:2
-
-                # Compute the on-Fault displacement
+                
+                # step 1: predict displacement on the fault
+                # v[P[4].iFlt]: initial slip rate on fault, large velocity on kinematic fault 
                 F .= 0.
                 F[P[4].iFlt] .= dPre[P[4].iFlt] .+ v[P[4].iFlt]*dt
 
-                # Assign previous displacement field as initial guess
-                dnew .= d[P[4].FltNI]
-
+                # Assign previous displacement field as initial guess for off-fault nodes
+                dnew .= d[P[4].FltNI]    # zero
+                
+                # step 2: solve for displacement in the medium
                 # Solve d = K^-1 F by MGCG
+                # stiffness matrix on the fault 
                 rhs = (mul!(tmp,Ksparse,F))[P[4].FltNI]   # However comparing this to LinearAlgebra.mul! shows that the later is much faster.
                 #  rhs = (Ksparse*F)[P[4].FltNI]
 
@@ -236,77 +245,86 @@ function main(P,alphaa)
 
                 # mgcg
                 dnew = cg!(dnew, kni, rhs, Pl=p, abstol=1e-6)    # note: in new version of julia, there is only abstol  
-
+  
                 # update displacement on the medium
                 d[P[4].FltNI] .= dnew
 
-                # make d = F on the fault
+                # make d = F on the fault: update displacement on fault
                 d[P[4].iFlt] .= F[P[4].iFlt]
 
-                # Compute on-fault stress
+                # step3: Compute on-fault stress: f
                 a .= 0.
                 mul!(a,Ksparse,d)
                 #   a = Ksparse*d
 
-                # Enforce K*d to be zero for velocity boundary
-                a[P[4].FltIglobBC] .= 0.
+                # step4: compute traction on the fault
+                # Enforce K*d to be zero for velocity boundary (0-24 km)
+                # there is no traction on creeping fault 
+                a[P[4].FltIglobBC] .= 0.       # creeping fault 
 
+                # step4
                 tau1 .= -a[P[4].iFlt]./P[3].FltL
-
-                # Function to calculate on-fault sliprate
+                
+                # step5
+                # Function to calculate on-fault sliprate on whole fault line
                 psi1, Vf1 = slrFunc!(P[3], NFBC, P[1].FltNglob, psi, psi1, Vf, Vf1, P[1].IDstate, tau1, dt)   # from other functions
                 
-                # set the initial fault slip rate(below the damage zone) to be plate motion rate
-                Vf1[iFBC] .= P[2].Vpl     # slip rate on kinematic fault
-                Vf .= (Vf0 + Vf1)/2   # >24km: v[P[4].iFlt] .+ P[2].Vpl  
-                v[P[4].iFlt] .= 0.5*(Vf .- P[2].Vpl)  # 0.5 * v[P[4].iFlt]
+                # step6: correct slip rate on the fault
+                Vf1[iFBC] .= P[2].Vpl     # set slip rate on creep fault to be plate motion rate
+                # current slip rate 
+                Vf .= (Vf0 + Vf1)/2   # slip rate on creeping fault:  P[2].Vpl  
+                v[P[4].iFlt] .= 0.5*(Vf .- P[2].Vpl)   # slip rate on creeping fault:  0 
 
             end
 
             psi .= psi1[:]
             tau .= tau1[:]
-            # kinematic fault
-            tau[iFBC] .= 0.
-            Vf1[iFBC] .= P[2].Vpl
+            
+            # # creeping fault
+            # tau[iFBC] .= 0.
+            # Vf1[iFBC] .= P[2].Vpl
+
             # on fault GLL nodes
-            v[P[4].iFlt] .= 0.5*(Vf1 .- P[2].Vpl)   # keep the slip rate of kinematic fault as zero!!
+            # v[P[4].iFlt] .= 0.5*(Vf .- P[2].Vpl)   
+
             # off-fault GLL nodes
             v[P[4].FltNI] .= (d[P[4].FltNI] .- dPre[P[4].FltNI])/dt
 
             # Line 731: P_MA: Omitted
-            # specific meaning??
+            # reset the fault stress(or acceleration) to be zero
             a .= 0.
-            d[P[4].FltIglobBC] .= 0.
+            # reset the culmulative displacement and velocity within creeping fault to be zero
+            # d[P[4].FltIglobBC] .= 0.
             v[P[4].FltIglobBC] .= 0.
 
             #---------------
             # Healing stuff: Ignore for now
             # --------------
-            # Normal calculation from 3rd step!!!
-            if  it > 3
-                #if t > 10*P[1].yr2sec     # healing after 10 year, neglect the first event
-                    #alphaa = healing2(t, tStart2, dam)
-                    #  alphaa[it] = αD(t, tStart2, dam)
-                #end
+            # 
+            # if  it > 3
+            #     #if t > 10*P[1].yr2sec     # healing after 10 year, neglect the first event
+            #         #  alphaa = healing2(t, tStart2, dam)
+            #         #  alphaa[it] = αD(t, tStart2, dam)
+            #     #end
 
-                for id in did
-                    Ksparse[id] = alphaa*Korig[id]   # define the stiffness of fault damage zone
-                end
+            #     for id in did
+            #         Ksparse[id] = alphaa*Korig[id]   # define the stiffness of fault damage zone
+            #     end
 
-                #println("alpha healing = ", alphaa[it])
+            #     #println("alpha healing = ", alphaa[it])
 
-                # Linear solver stuff
-                kni = -Ksparse[P[4].FltNI, P[4].FltNI]
-                nKsparse = -Ksparse
-                # multigrid
-                ml = ruge_stuben(kni)
-                p = aspreconditioner(ml)
+            #     # Linear solver stuff
+            #     kni = -Ksparse[P[4].FltNI, P[4].FltNI]
+            #     nKsparse = -Ksparse
+            #     # multigrid
+            #     ml = ruge_stuben(kni)
+            #     p = aspreconditioner(ml)
 
-                # faster matrix multiplication
-                #  Ksparse = Ksparse'
-                #  nKsparse = nKsparse'
-                #  kni = kni'
-            end
+            #     # faster matrix multiplication
+            #     #  Ksparse = Ksparse'
+            #     #  nKsparse = nKsparse'
+            #     #  kni = kni'
+            # end
 
         
         # If isolver != 1, or max slip rate is > 10^-3 m/s , dynamic phase
@@ -315,21 +333,22 @@ function main(P,alphaa)
             dPre .= d
             vPre .= v
 
-            # Update
+            # step1: Update displacement and partial velocity
             d .= d .+ dt.*v .+ (half_dt_sq).*a
 
             # Prediction
             v .= v .+ half_dt.*a
             a .= 0.
 
-            # Internal forces -K*d[t+1] stored in global array 'a'
+            # step2: computing the internal forces -K*d[t+1] stored in global array 'a'
             mul!(a,nKsparse,d)
             #   a = nKsparse*d
 
+            # step3 computing the 'stick' traction
             # Enforce K*d to be zero for velocity boundary
-            a[P[4].FltIglobBC] .= 0.
+            a[P[4].FltIglobBC] .= 0.     # creeping fault
 
-            # Absorbing boundaries(Bottom and right)
+            # Absorbing boundaries(Bottom and right)    ??? no stress or acceleration
             a[P[4].iBcB] .= a[P[4].iBcB] .- P[3].BcBC.*v[P[4].iBcB]
             a[P[4].iBcR] .= a[P[4].iBcR] .- P[3].BcRC.*v[P[4].iBcR]
 
@@ -337,21 +356,23 @@ function main(P,alphaa)
             FltVfree .= 2*v[P[4].iFlt] .+ 2*half_dt*a[P[4].iFlt]./P[3].M[P[4].iFlt]
             Vf .= 2*vPre[P[4].iFlt] .+ P[2].Vpl
 
-
+            # step4: find fault traction and slip velocity satisfying a friction law and the relation
             # Sliprate and NR search
             psi1, Vf1, tau1, psi2, Vf2, tau2 = FBC!(P[1].IDstate, P[3], NFBC, P[1].FltNglob, psi1, Vf1, tau1, psi2, Vf2, tau2, psi, Vf, FltVfree, dt)
 
+            # step5: add the fault boundary term to the sum of internal forces
             tau .= tau2 .- P[3].tauo
             tau[iFBC] .= 0.
             psi .= psi2
+            # 
             a[P[4].iFlt] .= a[P[4].iFlt] .- P[3].FltL.*tau
             ########## End of fault boundary condition ##############
 
 
-            # Solve for a_new
+            # step6: Solve for a_new acceleration 
             a .= a./P[3].M
 
-            # Correction
+            # step7: Correction
             v .= v .+ half_dt*a
 
             v[P[4].FltIglobBC] .= 0.
@@ -379,6 +400,7 @@ function main(P,alphaa)
             # hypocenter: fault location where slip rate exceed threshold value firstly!!
             vhypo, indx = findmax(2*v[P[4].iFlt] .+ P[2].Vpl)
             hypo = P[3].FltX[indx]
+            d_hypo = delfref[indx]
 
         end
 
@@ -391,7 +413,7 @@ function main(P,alphaa)
             tauafter = (tau +P[3].tauo)./1e6
             
             # Save start and end time and stress
-            write(event_time, join(hcat(tStart,tEnd, -hypo), " "), "\n")
+            write(event_time, join(hcat(tStart,tEnd, -hypo, d_hypo), " "), "\n")
             write(event_stress, join(hcat(taubefore, tauafter), " "), "\n")
             write(dfafter, join(delfafter, " "), "\n")
             
@@ -428,9 +450,9 @@ function main(P,alphaa)
             #         ml = ruge_stuben(kni)
             #         p = aspreconditioner(ml)
 
-                #end
+                # end
 
-                println("alphaa = ", alphaa)   # output the rigidity ratio after every earthquake 
+                # println("alphaa = ", alphaa)   # output the rigidity ratio after every earthquake 
 
             #  end
 

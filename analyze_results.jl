@@ -1,10 +1,13 @@
 using DelimitedFiles
 
-FILE = "immature_65_2km_full_healing"
+# FILE = "1000_4_1"          # 2.43h: 8735.684543 seconds (1.31 G allocations: 253.616 GiB, 0.09% gc time, 0.15% compilation time)
+FILE = "1000_6_1"          # 6.5h: 23304.773837 seconds (3.43 G allocations: 675.554 GiB, 0.10% gc time, 0.04% compilation time)
+# FILE = "48000.0_1000_6_0.9"      # 6.5h: 22120.908916 seconds (2.75 G allocations: 608.486 GiB, 0.08% gc time, 0.29% compilation time)
+alpha = 1.0
 
 include("$(@__DIR__)/post/event_details.jl")
 include("$(@__DIR__)/post/plotting_script.jl")
-
+ 
 # path to save files
 global path = "$(@__DIR__)/plots/$(FILE)/"
 mkpath(path)
@@ -19,7 +22,11 @@ event_time = readdlm(string(out_path, "event_time.out"), header=false)
 tStart = event_time[:,1]
 #println(tStart)
 tEnd = event_time[:,2]
+
 hypo = event_time[:,3]
+d_hypo = event_time[:,4]    # unit: m 
+print(d_hypo) 
+print(hypo)
 
 event_stress = readdlm(string(out_path, "event_stress.out"), header=false)
 indx = Int(length(event_stress[1,:])/2)
@@ -28,8 +35,9 @@ indx = Int(length(event_stress[1,:])/2)
 taubefore = event_stress[:,1:indx]
 tauafter = event_stress[:,indx+1:end]
 
-# coseismic slip
+# coseismic slip on fault for all different events(row)
 delfafter = readdlm(string(out_path, "coseismic_slip.out"), header=false)
+# print(size(delfafter))
 #  slip = readdlm(string(out_path, "slip.out"), header=false)
 sliprate = readdlm(string(out_path, "sliprate.out"), header=false)
 # println(size(delfafter,1))
@@ -59,11 +67,14 @@ alphaa = time_vel[:,4]
 rho1 = 2670
 vs1 = 3464
 rho2 = 2500
-vs2 = 0.6*vs1
+vs2 = alpha*vs1
 mu = rho2*vs2^2
 
+# displacement on fault line for different time 
 delfsec = readdlm(string(out_path, "delfsec.out"))
+# print(size(delfsec))
 delfyr = readdlm(string(out_path, "delfyr.out"))
+# print(size(delfyr))
 stress = readdlm(string(out_path, "stress.out"), header=false)
 
 

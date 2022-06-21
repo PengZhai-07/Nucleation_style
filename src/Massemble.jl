@@ -9,7 +9,7 @@ function Massemble!(NGLL, NelX, NelY, dxe, dye, ThickX,
     # May can be displaced by the input
     xgll, wgll, H = GetGLL(NGLL)
     wgll2 = wgll*wgll';
-    print(wgll2)
+    # print(wgll2)
 
     rho::Matrix{Float64} = zeros(NGLL, NGLL)    # density 
     mu::Matrix{Float64} = zeros(NGLL, NGLL)     # shear modulus
@@ -22,7 +22,7 @@ function Massemble!(NGLL, NelX, NelY, dxe, dye, ThickX,
     a = 0
     #  # damage zone index
     #  damage_idx = zeros(Int, NelX*NelY)
-
+    #  遍历所有单元，公共节点加倍， the index of shared nodes are the same!!!!
     @inbounds @fastmath for ey = 1:NelY
         @inbounds @fastmath for ex = 1:NelX
             a = a+1

@@ -16,33 +16,44 @@ using PyPlot
 include("$(@__DIR__)/par.jl")	    #	Set Parameters
 
 # Put the resolution for the simulation here: should be an integer
-resolution = 4
+
+FZdepth = 48e3   # depth of fault zone
+halfwidth = 1000
+res = 6   # resolution of mesh
+# 4: 481 GLL nodes, average 100m on fault  
+# 6: 721 GLL nodes, average 67m on fault
+# 8: 961 GLL nodes, average 50m on fault
+# 10: 1201 GLL nodes, average 40m on fault
+# 12: 1441 GLL nodes,  average 33m on fault
+# 16: 1921 GLL nodes, average 25m on fault
+T = 600    # total simulation years 
+alpha = 0.9    # velocity ratio: fault zone/host rock
 
 # Output directory to save data
-out_dir = "$(@__DIR__)/data/immature_65_500m_no_healing/"    # healing time : 10yr
+out_dir = "$(@__DIR__)/data/$(FZdepth)_$(halfwidth)_$(res)_$(alpha)/"    
 mkpath(out_dir)
 
-P = setParameters(24e3, 500, resolution, 300)      # args = fault zone depth(m), fault zone halfwidth(m), resolution, total simulation time (years)
-# println(P[3].M)
+P = setParameters(FZdepth, halfwidth, res, T , alpha)   
 # println(size(P[4].FltNI))
 
 include("$(@__DIR__)/NucleationSize.jl") 
 # calculate the nucleation size of initial rigidity ratio!!
 h_hom = NucleationSize(P)
-h_dam = h_hom/3           # with alphaa = 0.60
-CZone = CohesiveZoneSize(P)
 println("The nucleation size of homogeneous medium:", h_hom, " m")
-println("The approximate nucleation size of damage zone medium:", h_dam, " m")
-println("The Cohesive zone size of homogeneous medium:", CZone, " m")
+# h_dam = h_hom/3           # with alphaa = 0.60
+# println("The approximate nucleation size of damage zone medium:", h_dam, " m")
+CZone = CohesiveZoneSize(P, alpha)
+println("The Cohesive zone size:", CZone, " m")
 
 include("$(@__DIR__)/src/dtevol.jl")
 include("$(@__DIR__)/src/NRsearch.jl")
 include("$(@__DIR__)/src/otherFunctions.jl")
 
-# include("$(@__DIR__)/src/main.jl")
+include("$(@__DIR__)/src/main.jl")
 
-# #simulation_time = @elapsed @time main(P, 0.65)    # all parameters, rigidity ratio 
+simulation_time = @elapsed @time main(P, alpha)    # all parameters, rigidity ratio 
 
-# println("\n")
+println("\n")
 
-# @info("Simulation Complete!");
+@info("Simulation Complete!");
+

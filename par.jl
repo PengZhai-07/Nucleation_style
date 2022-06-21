@@ -12,7 +12,7 @@ include("$(@__DIR__)/src/damageEvol.jl")   #    Stiffness index of damaged mediu
 include("$(@__DIR__)/src/BoundaryMatrix.jl")    #	Boundary matrices
 include("$(@__DIR__)/src/initialConditions/defaultInitialConditions.jl")
 
-function setParameters(FZdepth, halfwidth, res, T)
+function setParameters(FZdepth, halfwidth, res, T, alpha)
 
     LX::Int = 48e3  # depth dimension of rectangular domain
     LY::Int = 32e3 # off fault dimenstion of rectangular domain
@@ -67,7 +67,7 @@ function setParameters(FZdepth, halfwidth, res, T)
 
     # the initial property of fualt damage zone: fault zone evolution!!!
     rho2::Float64 = 2670
-    vs2::Float64 = 1.00*vs1
+    vs2::Float64 = alpha*vs1
 
     # without viscosity
     ETA = 0.
@@ -102,11 +102,11 @@ function setParameters(FZdepth, halfwidth, res, T)
     # global node index of the (i,j) th GLL node internal to the e-th element.
     iglob::Array{Int,3}, x::Vector{Float64}, y::Vector{Float64} =
                         MeshBox!(NGLL, Nel, NelX, NelY, FltNglob, dxe, dye)
-    gg = iglob[:,:,1];    # 2D matrix
-    println(gg)
+    # gg = iglob[:,:,1];    # 2D matrix
+    # println(gg)
     x = x .- LX     # +x direction is upward (-48km ~ 0km)
-    println("size of x=", size(x))
-    println("size of iglob=", size(iglob))
+    # println("size of x=", size(x))
+    # println("size of iglob=", size(iglob))
     nglob::Int = length(x)    # no. of all GLL nodes  
 
     # The derivatives of the Lagrange Polynomials were pre-tabulated
@@ -141,7 +141,7 @@ function setParameters(FZdepth, halfwidth, res, T)
 
     # Global Mass Matrix
     M::Vector{Float64} = zeros(nglob)
-    println("Dimension of M=", size(M))
+    # println("Dimension of M=", size(M))
 
     # Mass + Damping matrix
     #  MC::Vector{Float64} = zeros(nglob)
@@ -151,8 +151,8 @@ function setParameters(FZdepth, halfwidth, res, T)
     a , M, dt::Float64, muMax = Massemble!(NGLL, NelX, NelY, dxe, dye,
         ThickX, ThickY, rho1, vs1, rho2, vs2, iglob, M, x, y, jac)
     
-    #println(M[1:100])
-    println(a)
+    # println(M[1:100])
+    # println(a)          # total number of elements
     # Material properties for a narrow rectangular damaged zone of
     # half-thickness ThickY and depth ThickX: shear modulus
     W = MaterialProperties(NelX, NelY, NGLL, dxe, dye, 
@@ -208,7 +208,7 @@ function setParameters(FZdepth, halfwidth, res, T)
 
     FltZ::Vector{Float64} = M[iFlt]./FltL /half_dt * 0.5   # specific meanings?
     
-    # X(vertical) of all GLL nodes at fault surface
+    # X (vertical) of all GLL nodes at fault surface
     FltX::Vector{Float64} = x[iFlt]   
     #println("# X(vertical) of all GLL nodes at dynamic fault surface: ", FltX)    
     
@@ -232,7 +232,7 @@ function setParameters(FZdepth, halfwidth, res, T)
     end
 
     # Compute XiLF(largest slip in one timestep!!) used in timestep calculation: constrained by friction law!
-    # by the way, I think the CFL creterion is more strict!!!
+    # quasi-static scheme
     XiLf::Vector{Float64} = XiLfFunc!(LX, FltNglob, gamma_, xLf, muMax, cca, ccb, Seff)
 
     # Find nodes that do not belong to the fault (off-fault GLL nodes )
@@ -243,14 +243,14 @@ function setParameters(FZdepth, halfwidth, res, T)
 
     # Fault boundary: global indices where fault within 24 km 
     fbc = reshape(iglob[:,1,:], length(iglob[:,1,:]))    # convert the index of all left(fault) boundary GLL nodes in all elements into 1-D vector
-    println("fbc=", fbc[1:10])
-    println(findall(x .== -24e3)[1])    # the point on the fault at the depth of 24km
-    idx = findall(fbc .== findall(x .== -24e3)[1] - 1)[1]   # what function?
+    # println("fbc=", fbc[1:10])
+    # println(findall(x .== -24e3)[1])    # the point on the fault at the depth of 24km
+    idx = findall(fbc .== findall(x .== -24e3)[1] - 1)[1]   
     #println("idx=", idx)
-    FltIglobBC::Vector{Int} = fbc[1:idx]     # GLL nodes within fault damage zone(<24 km)  with repeated nodes
+    FltIglobBC::Vector{Int} = fbc[1:idx]     # GLL nodes within creeping fault (>24 km)  with repeated nodes
     
     # Display important parameters
-    #println("Total number of GLL nodes on fault: ", FltNglob)
+    # println("Total number of GLL nodes on fault: ", FltNglob)
     println("Total number of GLL nodes on fault: ", length(iFlt))
     println("Average node spacing: ", LX/(FltNglob-1), " m")
     println("ThickX: ", ThickX, " m")
@@ -299,14 +299,14 @@ struct params_float{T<:AbstractFloat}
 
     # Setup parameters
     dt::T        # timestep based on CFL creterion   
-    mu::T        # shear modulus
+    mu::T        # shear modulus of host rock
     ThickY::T     # real halfwidth of damage zone
 end
 
 struct params_farray{T<:Vector{Float64}}
     fo::T         # reference friction coefficient on the whole fault 
     Vo::T         # reference velocity on the whole fault
-    xLf::T          # characteristic slip distance Dc
+    xLf::T        # characteristic slip distance Dc
 
     M::T      # mass vector of the whole model
 
@@ -322,7 +322,7 @@ struct params_farray{T<:Vector{Float64}}
     Seff::T   # effective normal stress
     tauo::T    # intial shear stress
  
-    XiLf::T    # maximum timestep in a timestep to constrain the length of timestep (based on friction law)
+    XiLf::T    # maximum slip in a timestep to constrain the length of timestep (based on friction law)
     #  diagKnew::T
 
     xout::T   # output the seismogram
@@ -333,11 +333,12 @@ struct params_iarray{T<:Vector{Int}}
     iFlt::T        # index of GLL nodes on the fault
     iBcB::T        # index of GLL nodes on the bottom boundary
     iBcR::T        # index of GLL nodes on the right boundary
-    FltIglobBC::T  # index of GLL nodes within the fault zone(twice of the shared nodes)
+    FltIglobBC::T  # index of GLL nodes within the creep fault (twice of the shared nodes)
     FltNI::T       # index of off-fault GLL nodes
     out_seis::T    # index of off-fault GLL nodes which are nearest to the predefined output locations
 end
 
+# required timestepping for low slip velocities
 # Calculate XiLf used in computing the final timestep
 function XiLfFunc!(LX, FltNglob, gamma_, xLf, muMax, cca, ccb, Seff)
 
@@ -363,17 +364,14 @@ function XiLfFunc!(LX, FltNglob, gamma_, xLf, muMax, cca, ccb, Seff)
             Xith[j] = 1 - expr1/expr2
         end
 
-        # For each node, compute slip that node cannot exceed in one timestep
-        # slip during one time step can not exceed 0.5*DC, so that we can restrict the length of the timestep further!!
+        # For each node, compute slip that node cannot exceed in one timestep 
 
         if Xithf*Xith[j] > Ximax
-            XiLf[j] = Ximax*xLf[j]
+            XiLf[j] = Ximax*xLf[j]          # 0.5*DC
         else
             XiLf[j] = Xithf*Xith[j]*xLf[j]
         end
     end
-
+    
     return XiLf
 end
-
-

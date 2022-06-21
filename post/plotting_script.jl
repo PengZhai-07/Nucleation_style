@@ -44,7 +44,7 @@ function healing_analysis(Vf, alphaa, t, yr2sec)
     lab1 = "Max. slip rate"
     ax.set_ylabel("Max. Slip rate (m/s)")
     ax.set_yscale("log")
-    ax.set_xlim([0, 250])
+    ax.set_xlim([0, 600])
     
     col="tab:red"
     ax2 = ax.twinx()
@@ -54,7 +54,7 @@ function healing_analysis(Vf, alphaa, t, yr2sec)
     ax.set_xlabel("Time (years)")
     ax2.set_ylabel("Shear Modulus (% of host rock)")
     #ax2.set_ylim([35, 60])
-    ax2.set_ylim([55, 80])
+    ax2.set_ylim([55, 110])
     ax2.get_xaxis().set_tick_params(color=col)
     ax2.tick_params(axis="x", labelcolor=col)
 
@@ -143,10 +143,10 @@ function slipPlot(delfafter2, rupture_len, FltX, Mw, tStart)
     plot_params()
     fig, ax = PyPlot.subplots(nrows=1, ncols=4, sharex="all", sharey="all", figsize=(9.2, 5.00))
 
-    xaxis = tStart[Mw .>2.8]   
-    println(xaxis)   # choose seismic event larger than Mw2.8 
-    delfafter = delfafter2[:,Mw .> 2.8]
-    println(delfafter[end-1,:])
+    xaxis = tStart[Mw .>2.8]    # choose seismic event larger than Mw2.8 
+    println(xaxis)     # time for events
+    delfafter = delfafter2[:,Mw .> 2.8]   # coseismic slip on fault for different events
+
     Mw2 = Mw[Mw .> 2.8]
 
     # Normalize colorbar
@@ -192,7 +192,7 @@ function slipPlot(delfafter2, rupture_len, FltX, Mw, tStart)
     fig.savefig(figname, dpi = 300)
 end
 
-# Cumulative sliprate plot
+# sliprate plot
 function eqCyclePlot(sliprate, FltX)
     indx = findall(abs.(FltX) .<= 16)[1]
     value = sliprate[indx:end,:]
@@ -307,7 +307,7 @@ function alphaComp(a1, t1, a2, t2, a3, t3, yr2sec)
 end
 
 # Plot cumulative slip
-function cumSlipPlot(delfsec, delfyr, FltX)
+function cumSlipPlot(delfsec, delfyr, FltX, hypo, d_hypo)
     indx = findall(abs.(FltX) .<= 18)[1]
 
     delfsec2 = transpose(delfsec[:,indx:end])
@@ -320,7 +320,8 @@ function cumSlipPlot(delfsec, delfyr, FltX)
 
     ax.plot(delfyr2, FltX, color="royalblue", lw=1.0)
     ax.plot(delfsec2, FltX[indx:end], color="chocolate", lw=1.0)
-    ax.set_xlabel("Accumulated Slip (m)")
+    ax.plot(d_hypo, hypo./1000 , "*", color="saddlebrown", markersize=20)
+    #ax.set_xlabel("Accumulated Slip (m)")
     ax.set_ylabel("Depth (km)")
     ax.set_ylim([0,24])
     ax.set_xlim([0,maximum(delfyr2)])
@@ -341,20 +342,21 @@ function icsPlot(a_b, Seff, tauo, FltX)
     fig = PyPlot.figure(figsize=(7.2, 4.45))
     ax = fig.add_subplot(111)
     
-    ax.plot(Seff, FltX, "k-", label="Normal Stress")
-    ax.plot(tauo, FltX, "k--", label="Shear Stress")
+    ax.plot(Seff, FltX, "b", label="Normal Stress")
+    ax.plot(tauo, FltX, "orange", label="Shear Stress")
     ax.set_xlabel("Stresses (MPa)")
     ax.set_ylabel("Depth (km)")
     plt.legend(loc="lower right") 
     
-    col="tab:blue"
+    col="tab:green"
     ax2 = ax.twiny()
-    ax2.plot(a_b, FltX, label="(a-b)")
+    ax2.plot(a_b, FltX, "g",label="(a-b)")
     ax2.set_xlabel("Rate-state friction value", color=col)
     ax2.get_xaxis().set_tick_params(color=col)
-    ax2.tick_params(axis="x", labelcolor=col)
+    ax2.tick_params(axis="x", labelcolor=col)  
+    ax2.set_xlim([-0.010,0.040])
     
-    ax.set_ylim([0,16])
+    ax.set_ylim([0,24])
     ax.invert_yaxis()
     show()
     
