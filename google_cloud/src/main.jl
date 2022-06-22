@@ -526,7 +526,7 @@ function main(P,alphaa)
             # Vf[end] is fault slip rate on the surface!!
             # alphaa: current rigidity ratio of fault damage zone
         write(Vf_time, join(hcat(t, Vfmax, Vf[end], alphaa), " "), "\n")
-        
+
         # Compute next timestep dt: adaptive!!
         dt = dtevol!(dt , dtmin, P[3].XiLf, P[1].FltNglob, NFBC, current_sliprate, isolver)
 
