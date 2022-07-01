@@ -1,11 +1,12 @@
 using DelimitedFiles
 
 # FILE = "1000_4_1"          # 2.43h: 8735.684543 seconds (1.31 G allocations: 253.616 GiB, 0.09% gc time, 0.15% compilation time)
-# FILE = "1000_6_1"          # 6.5h: 23304.773837 seconds (3.43 G allocations: 675.554 GiB, 0.10% gc time, 0.04% compilation time)
+# FILE = "1000_6_1"          # 6.5h: 23304.773837 seconds (3.43 G allocations: 675.554 GiB, 0.10% gc time, 0.04% compilation time) 
 # FILE = "48000.0_1000_6_0.9_0.01"      # 6.5h: 22120.908916 seconds (2.75 G allocations: 608.486 GiB, 0.08% gc time, 0.29% compilation time)
 # FILE = "48000.0_1000_6_0.8"      # 8h: 28651.685314 seconds (4.84 G allocations: 847.386 GiB, 0.11% gc time, 0.03% compilation time)
-FILE = "48000.0_1000_6_0.9"      # 6.2h: 22461.485130 seconds (2.76 G allocations: 609.411 GiB, 0.09% gc time, 0.10% compilation time)
-alpha = 0.9
+# FILE = "48000.0_1000_6_0.9"      # 6.2h: 22461.485130 seconds (2.76 G allocations: 609.411 GiB, 0.09% gc time, 0.10% compilation time)
+FILE = "10000.0_1000_6_0.8"          #10.8h 38095.389985 seconds (6.11 G allocations: 1.118 TiB, 0.10% gc time, 0.03% compilation time)
+alpha = 0.8
 
 include("$(@__DIR__)/post/event_details.jl")
 include("$(@__DIR__)/post/plotting_script.jl")

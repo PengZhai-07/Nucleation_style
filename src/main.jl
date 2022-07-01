@@ -13,23 +13,27 @@
 ###############################################################################
 
 # Healing exponential function
-# function healing2(t,tStart,dam)
-#     """ hmax: coseismic damage amplitude
-#         r: healing rate (0.05 => 138 years to heal completely)
-#                         (0.5 => 13.81 years to heal completely)
-#                         (0.7 => 9.87 years to heal completely)
-#                         (0.8 => 8.63 years to heal completely)
-#     """
-#     hmax = 0.05
-#     r =  0.7   # 1/1.5
-#     # t: current time of all simulation unit: seconds
-#     # tStart: time when earthquake happens  unit: seconds
-#     # dam : current ratio of damage zone and host rock(after coseismic rigidity reduction) 
-#     # 65% -> 60% -> 65%
-#     # when there is only 0.1% bias, we think the healing process finishes
-#     # log(0.001)=-6.9078
-#     hmax*(1 .- exp.(-r*(t .- tStart)/P[1].yr2sec)) .+ dam     # hmax*(1 .- exp.(-r*(t .- tStart)/P[1].yr2sec)) > 0, when time is 10years, alphaa = dam + 0.05
-# end
+function healing2(t,tStart,dam)
+    """ hmax: coseismic damage amplitude
+        r: healing rate (0.3454 => 20 years to heal completely)
+                        (0.4605 => 15 years to heal completely)
+                        (0.5756 => 12 years to heal completely)
+                        (0.6908 => 10 years to heal completely)
+                        (0.8635 => 8 years to heal completely)
+                        (1.7269 => 4 years to heal completely)
+                    """
+    hmax = 0.05
+    r =  0.8635   
+    # t: current time of all simulation unit: seconds
+    # tStart: time when earthquake happens  unit: seconds
+    # dam : current ratio of damage zone and host rock(after coseismic rigidity reduction) 
+    # 85% -> 80% -> 85%
+    # when there is only 0.1% bias, we think the healing process finishes
+    # ln(0.001)=-6.9078
+    # healing time = 6.9078/r
+
+    hmax*(1 .- exp.(-r*(t .- tStart)/P[1].yr2sec)) .+ dam     # hmax*(1 .- exp.(-r*(t .- tStart)/P[1].yr2sec)) > 0, when time is about 10 years, alphaa = dam + 0.05, healing completely!
+end
 
 function main(P,alphaa)
     # please refer to par.jl to see the specific meaning of P
@@ -260,7 +264,7 @@ function main(P,alphaa)
                 # step4: compute traction on the fault
                 # Enforce K*d to be zero for velocity boundary (0-24 km)
                 # there is no traction on creeping fault 
-                a[P[4].FltIglobBC] .= 0.       # creeping fault 
+                a[P[4].FltIglobBC] .= 0.       # for creeping fault, traction is zero 
 
                 # step4
                 tau1 .= -a[P[4].iFlt]./P[3].FltL
@@ -301,30 +305,31 @@ function main(P,alphaa)
             # Healing stuff: Ignore for now
             # --------------
             # 
-            # if  it > 3
-            #     #if t > 10*P[1].yr2sec     # healing after 10 year, neglect the first event
-            #         #  alphaa = healing2(t, tStart2, dam)
-            #         #  alphaa[it] = αD(t, tStart2, dam)
-            #     #end
+            if  it > 3
+                
+                #if t > 10*P[1].yr2sec     # healing after 10 year, neglect the first event
+                    alphaa = healing2(t, tStart2, dam)
+                    #  alphaa[it] = αD(t, tStart2, dam)
+                #end
 
-            #     for id in did
-            #         Ksparse[id] = alphaa*Korig[id]   # define the stiffness of fault damage zone
-            #     end
+                for id in did
+                    Ksparse[id] = alphaa*Korig[id]   # define the stiffness of fault damage zone
+                end
 
-            #     #println("alpha healing = ", alphaa[it])
+                #println("alpha healing = ", alphaa[it])
 
-            #     # Linear solver stuff
-            #     kni = -Ksparse[P[4].FltNI, P[4].FltNI]
-            #     nKsparse = -Ksparse
-            #     # multigrid
-            #     ml = ruge_stuben(kni)
-            #     p = aspreconditioner(ml)
+                # Linear solver stuff
+                kni = -Ksparse[P[4].FltNI, P[4].FltNI]
+                nKsparse = -Ksparse
+                # multigrid
+                ml = ruge_stuben(kni)
+                p = aspreconditioner(ml)
 
-            #     # faster matrix multiplication
-            #     #  Ksparse = Ksparse'
-            #     #  nKsparse = nKsparse'
-            #     #  kni = kni'
-            # end
+                # faster matrix multiplication
+                #  Ksparse = Ksparse'
+                #  nKsparse = nKsparse'
+                #  kni = kni'
+            end
 
         
         # If isolver != 1, or max slip rate is > 10^-3 m/s , dynamic phase
@@ -338,7 +343,7 @@ function main(P,alphaa)
 
             # Prediction
             v .= v .+ half_dt.*a
-            a .= 0.
+            a .= 0.   # traction on fault
 
             # step2: computing the internal forces -K*d[t+1] stored in global array 'a'
             mul!(a,nKsparse,d)
@@ -390,6 +395,7 @@ function main(P,alphaa)
         #-----
         # record the coseismic event!!
         if  Vfmax > 1.01*P[2].Vthres && slipstart == 0
+
             it_s = it_s + 1
             delfref = 2*d[P[4].iFlt] .+ P[2].Vpl*t
             
@@ -419,42 +425,38 @@ function main(P,alphaa)
             
             slipstart = 0
             
-            # # at the end of each earthquake, the shear wave velocity in the damaged zone reduces by 5%
+            # at the end of each earthquake, the shear wave velocity in the damaged zone reduces
 
-            #     # Time condition of 10 years
-            #     #if t > 10*P[1].yr2sec 
-            #         #  use this for no permanent damage    65-60-65%
-            #             alphaa = 0.60
-            #             dam = alphaa      # rigidity ratio before healing 
+                # Time condition of 10 years
+                #if t > 10*P[1].yr2sec 
+                    #  use this for no permanent damage    65-60-65%
+                       alphaa = 0.80   # a constant value
 
-
-            #         #  Use this for permanent damage
-            #         #  alphaa = alphaa - 0.05
-            #         #  dam = alphaa
-            #         #  if dam < 0.60     # lowest rigidity ratio
-            #             #  alphaa = 0.60
-            #             #  dam = 0.60
-            #         #  end
+                    #  Use this for permanent damage: 1%
+                    #  alphaa = alphaa - 0.06      
+                    #  dam = alphaa
+                    #  if dam < 0.60     # lowest rigidity ratio
+                        #  alphaa = 0.60
+                        #  dam = 0.60
+                    #  end
                 
-            #     # it's necessary to change the stiffness matrix if the rigidity ratio is changed 
-            #         tStart2 = t            # used for healing!
+                # it's necessary to change the stiffness matrix if the rigidity ratio is changed 
+                    tStart2 = t            # used for healing!
 
-            #         for id in did
-            #             Ksparse[id] = alphaa*Korig[id]      # calculate the stiffness of fault damage zone again
-            #         end
+                    for id in did
+                        Ksparse[id] = alphaa*Korig[id]      # calculate the stiffness of fault damage zone again
+                    end
 
-            #         # Linear solver stuff
-            #         kni = -Ksparse[P[4].FltNI, P[4].FltNI]
-            #         nKsparse = -Ksparse
-            #         # multigrid
-            #         ml = ruge_stuben(kni)
-            #         p = aspreconditioner(ml)
+                    # Linear solver stuff
+                    kni = -Ksparse[P[4].FltNI, P[4].FltNI]
+                    nKsparse = -Ksparse
+                    # multigrid
+                    ml = ruge_stuben(kni)
+                    p = aspreconditioner(ml)
 
-                # end
+                #end
 
-                # println("alphaa = ", alphaa)   # output the rigidity ratio after every earthquake 
-
-            #  end
+                println("alphaa = ", alphaa)   # output the rigidity ratio after every earthquake 
 
         end
         

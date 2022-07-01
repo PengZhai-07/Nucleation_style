@@ -59,15 +59,16 @@ function setParameters(FZdepth, halfwidth, res, T, alpha)
     # default: host rock!!
     rho1::Float64 = 2670
     vs1::Float64 = 3464
-    mu = rho1*vs1^2
-
-    # The entire medium has low rigidity
-    #  rho1::Float64 = 2500
-    #  vs1::Float64 = 0.6*3464
+    
+    # # The entire medium has low rigidity
+    # rho1::Float64 = 2670
+    # vs1::Float64 = 0.6*3464
 
     # the initial property of fualt damage zone: fault zone evolution!!!
     rho2::Float64 = 2670
     vs2::Float64 = alpha*vs1
+
+    mu = rho1*vs1^2
 
     # without viscosity
     ETA = 0.
@@ -241,11 +242,11 @@ function setParameters(FZdepth, halfwidth, res, T, alpha)
     # Compute diagonal of K
     #  diagKnew::Vector{Float64} = KdiagFunc!(FltNglob, NelY, NGLL, Nel, coefint1, coefint2, iglob, W, H, Ht, FltNI)
 
-    # Fault boundary: global indices where fault within 24 km 
-    fbc = reshape(iglob[:,1,:], length(iglob[:,1,:]))    # convert the index of all left(fault) boundary GLL nodes in all elements into 1-D vector
+    # Fault boundary: global indices where fault within 24 km: boundary between dynamic fault and creeping fault  
+    fbc = reshape(iglob[:,1,:], length(iglob[:,1,:]))   #convert the index of all left(fault) boundary GLL nodes in all elements into 1-D vector
     # println("fbc=", fbc[1:10])
     # println(findall(x .== -24e3)[1])    # the point on the fault at the depth of 24km
-    idx = findall(fbc .== findall(x .== -24e3)[1] - 1)[1]   
+    idx = findall(fbc .== findall(x .== -24e3)[1] - 1)[1]
     #println("idx=", idx)
     FltIglobBC::Vector{Int} = fbc[1:idx]     # GLL nodes within creeping fault (>24 km)  with repeated nodes
     
