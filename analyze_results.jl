@@ -5,17 +5,23 @@ using DelimitedFiles
 # FILE = "48000.0_1000_6_0.9_0.01"      # 6.5h: 22120.908916 seconds (2.75 G allocations: 608.486 GiB, 0.08% gc time, 0.29% compilation time)
 # FILE = "48000.0_1000_6_0.8"      # 8h: 28651.685314 seconds (4.84 G allocations: 847.386 GiB, 0.11% gc time, 0.03% compilation time)
 # FILE = "48000.0_1000_6_0.9"      # 6.2h: 22461.485130 seconds (2.76 G allocations: 609.411 GiB, 0.09% gc time, 0.10% compilation time)
-FILE = "10000.0_1000_6_0.8"          #10.8h 38095.389985 seconds (6.11 G allocations: 1.118 TiB, 0.10% gc time, 0.03% compilation time)
-alpha = 0.8
+# FILE = "10000.0_1000_6_0.8"          #10.8h 38095.389985 seconds (6.11 G allocations: 1.118 TiB, 0.10% gc time, 0.03% compilation time)
+
+# 300years
+FILE = "24000.0_1000_4_0.65"     # 分辨率低，反复跳动， 多次地震(dynamic)   6h: 21474.667074 seconds (15.14 G allocations: 13.519 TiB, 2.74% gc time, 0.07% compilation time)
+# FILE = "24000.0_1000_4_0.45"     # 分辨率不够，NR search failed!!
+# FILE = "24000.0_1000_4_0.85"          #100year  3.68h: 13277.669141 seconds (8.17 G allocations: 8.039 TiB, 3.34% gc time, 0.13% compilation time)
+
 
 include("$(@__DIR__)/post/event_details.jl")
 include("$(@__DIR__)/post/plotting_script.jl")
  
 # path to save files
-global path = "$(@__DIR__)/plots/$(FILE)/"
+global path = "$(@__DIR__)/plots/fully_healing/$(FILE)/"
 mkpath(path)
 
-global out_path = "$(@__DIR__)/data/$(FILE)/"
+# global out_path = "$(@__DIR__)/data/$(FILE)/"
+global out_path = "$(@__DIR__)/data/fully_healing/$(FILE)/"
 
 # Global variables
 yr2sec = 365*24*60*60
@@ -67,11 +73,6 @@ Vsurface = time_vel[:,3]
 alphaa = time_vel[:,4]
 
 
-rho1 = 2670
-vs1 = 3464
-rho2 = 2500
-vs2 = alpha*vs1
-mu = rho2*vs2^2
 
 # displacement on fault line for different time 
 delfsec = readdlm(string(out_path, "delfsec.out"))
@@ -84,5 +85,15 @@ stress = readdlm(string(out_path, "stress.out"), header=false)
 start_index = get_index(stress', taubefore')
 stressdrops = taubefore .- tauafter
 
-Mw, del_sigma, fault_slip, rupture_len =
-        moment_magnitude_new(mu, FltX, delfafter', stressdrops', t);
+
+alpha = 0.85
+# rho1 = 2670
+# vs1 = 3464
+# rho2 = 2500
+# vs2 = alpha*vs1
+# mu = rho2*vs2^2    # to calculate seismic moment
+
+# Mw, del_sigma, fault_slip, rupture_len =
+#         moment_magnitude_new(mu, FltX, delfafter', stressdrops', t);
+
+

@@ -19,15 +19,15 @@ include("$(@__DIR__)/par.jl")	    #	Set Parameters
 
 FZdepth = 24e3   # depth of fault zone
 halfwidth = 1000
-res = 6   # resolution of mesh
+res = 4   # resolution of mesh
 # 4: 481 GLL nodes, average 100m on fault  
 # 6: 721 GLL nodes, average 67m on fault
 # 8: 961 GLL nodes, average 50m on fault
 # 10: 1201 GLL nodes, average 40m on fault
 # 12: 1441 GLL nodes,  average 33m on fault
 # 16: 1921 GLL nodes, average 25m on fault
-T = 300    # total simulation years 
-alpha = 0.85    # velocity ratio: fault zone/host rock
+T = 100    # total simulation years 
+alpha = 0.65    # initial rigidity ratio: fault zone/host rock
 
 # Output directory to save data
 out_dir = "$(@__DIR__)/data/fully_healing/$(FZdepth)_$(halfwidth)_$(res)_$(alpha)/"    

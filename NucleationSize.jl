@@ -22,7 +22,7 @@ function CohesiveZoneSize(P, alpha)             # (Day, 2005)
     #sigma = 5e7             # unit: Pa   50MPa
     sigma = maximum(P[3].Seff)             # unit: Pa   50MPa
     #mu = 3.2 e10               # unit: Pa    32 GPa
-    mu = P[2].mu*alpha^2             # unit: Pa    32 GPa     
+    mu = P[2].mu*alpha             # unit: Pa    32 GPa     
     #L = 0.008               # unit: m    8mm
     L = maximum(P[3].xLf)               # unit: m    8mm
     #b = 0.019

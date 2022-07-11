@@ -134,7 +134,7 @@ function main(P,alphaa)
     rit = 0
     # Here v is not zero!!!  0.5e-3 m/s
     v = v[:] .- 0.5*P[2].Vpl   # initial slip rate on the whole model    ???
-    Vf = 2*v[P[4].iFlt]      # 1e-3
+    Vf = 2*v[P[4].iFlt]      # about 1e-3
     iFBC::Vector{Int64} = findall(abs.(P[3].FltX) .> 24e3)   # index for points below the damage zone
     NFBC::Int64 = length(iFBC) + 1
     Vf[iFBC] .= 0.             # set the initial fault slip rate (within creeping fault) to be zero
@@ -167,7 +167,8 @@ function main(P,alphaa)
 
     # Damage evolution stuff: using with healing 
     did = P[10]   # index of GLL nodes in fault damage zone
-    dam = alphaa   # initial damage ratio
+    dam = alphaa   # current rigidity ratio: initial value
+    alpha_after = alphaa - 0.05
 
     # Save parameters to file: from depth(48km) to shallow(0km)
     open(string(out_dir,"params.out"), "w") do io
@@ -302,13 +303,13 @@ function main(P,alphaa)
             v[P[4].FltIglobBC] .= 0.
 
             #---------------
-            # Healing stuff: Ignore for now
+            # Healing stuff: only for interseismic quasi-static phase
             # --------------
             # 
             if  it > 3
                 
                 #if t > 10*P[1].yr2sec     # healing after 10 year, neglect the first event
-                    alphaa = healing2(t, tStart2, dam)
+                    alphaa = healing2(t, tStart2, dam)           # healing from dam
                     #  alphaa[it] = αD(t, tStart2, dam)
                 #end
 
@@ -430,7 +431,8 @@ function main(P,alphaa)
                 # Time condition of 10 years
                 #if t > 10*P[1].yr2sec 
                     #  use this for no permanent damage    65-60-65%
-                       alphaa = 0.80   # a constant value
+                       alphaa = alpha_after   # a constant value after event
+                       dam = alphaa    # current rigidity ratio use for healing
 
                     #  Use this for permanent damage: 1%
                     #  alphaa = alphaa - 0.06      
@@ -527,7 +529,7 @@ function main(P,alphaa)
             # Vfmax: max slip rate on the fault
             # Vf[end] is fault slip rate on the surface!!
             # alphaa: current rigidity ratio of fault damage zone
-        write(Vf_time, join(hcat(t, Vfmax, Vf[end], alphaa), " "), "\n")
+        write(Vf_time, join(hcat(t, Vfmax, Vf[end], alphaa, isolver), " "), "\n")
         
         # Compute next timestep dt: adaptive!!
         dt = dtevol!(dt , dtmin, P[3].XiLf, P[1].FltNglob, NFBC, current_sliprate, isolver)
