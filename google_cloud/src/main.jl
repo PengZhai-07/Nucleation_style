@@ -91,11 +91,13 @@ function main(P,alphaa)
     tau1::Vector{Float64} = zeros(P[1].FltNglob)
     tau2::Vector{Float64} = zeros(P[1].FltNglob)
     tau3::Vector{Float64} = zeros(P[1].FltNglob)
+    # pore pressure
+    pp::Vector{Float64} = zeros(P[1].FltNglob) 
 
-    # Initial state variable
     # log.(P[3].Vo.*theta./xLf)
     psi = P[3].tauo./(P[3].Seff.*P[3].ccb) - P[3].fo./P[3].ccb - (P[3].cca./P[3].ccb).*log.(2*v[P[4].iFlt]./P[3].Vo)
-    psi0 .= psi[:]
+    # Initial state variable
+    # psi0 .= psi[:]
     # which kind of solver to use
     isolver::Int = 1         # quasi-static
 
@@ -130,7 +132,12 @@ function main(P,alphaa)
     rit = 0
     # Here v is not zero!!!  0.5e-3 m/s
     v = v[:] .- 0.5*P[2].Vpl   # initial slip rate on the whole model    ???
-    Vf = 2*v[P[4].iFlt]      # 1e-3
+    # initial pore pressure
+    pp = (log(v[P[4].iFlt])+9)*20             # unit: MPa
+
+    Vf = 2*v[P[4].iFlt]      # 1e-3 m/s
+
+
     iFBC::Vector{Int64} = findall(abs.(P[3].FltX) .> 24e3)   # index for points below the damage zone
     NFBC::Int64 = length(iFBC) + 1
     Vf[iFBC] .= 0.             # set the initial fault slip rate (within creeping fault) to be zero
@@ -167,7 +174,9 @@ function main(P,alphaa)
 
     # Save parameters to file: from depth(48km) to shallow(0km)
     open(string(out_dir,"params.out"), "w") do io
+        # effective normal stress
         write(io, join(P[3].Seff/1e6, " "), "\n")  # unit: MPa
+        # intial shear stress
         write(io, join(P[3].tauo/1e6, " "), "\n")   # unit: MPa
         write(io, join(-P[3].FltX/1e3, " "), "\n")  # depth  unit: km   
         write(io, join(P[3].cca, " "), "\n")
@@ -265,9 +274,12 @@ function main(P,alphaa)
                 # step4
                 tau1 .= -a[P[4].iFlt]./P[3].FltL
                 
+                # calculate the diffusion equation, update the normal stress(initial normal stress-pore press): pp
+                # assume that pore pressure only depends on slip rate
+
                 # step5
-                # Function to calculate on-fault sliprate on whole fault line
-                psi1, Vf1 = slrFunc!(P[3], NFBC, P[1].FltNglob, psi, psi1, Vf, Vf1, P[1].IDstate, tau1, dt)   # from other functions
+                # Function to calculate on-fault sliprate and state variable on whole fault line
+                psi1, Vf1 = slrFunc!(pp, P[3], NFBC, P[1].FltNglob, psi, psi1, Vf, Vf1, P[1].IDstate, tau1, dt)   # from other functions
                 
                 # step6: correct slip rate on the fault
                 Vf1[iFBC] .= P[2].Vpl     # set slip rate on creep fault to be plate motion rate
@@ -276,10 +288,12 @@ function main(P,alphaa)
                 v[P[4].iFlt] .= 0.5*(Vf .- P[2].Vpl)   # slip rate on creeping fault:  0 
 
             end
-
+            # state variable for next step!! normal stress only influence the state variable
             psi .= psi1[:]
             tau .= tau1[:]
-            
+            # update the pore pressure
+            pp = (log(v[P[4].iFlt])+9)*20             # unit: MPa
+
             # # creeping fault
             # tau[iFBC] .= 0.
             # Vf1[iFBC] .= P[2].Vpl

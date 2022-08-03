@@ -85,9 +85,10 @@ function main(P,alphaa)
     Vf0::Vector{Float64} = zeros(length(P[4].iFlt))      # length(P[4].iFlt) = P[1].FltNglob
     Vf1::Vector{Float64} = zeros(P[1].FltNglob)
     Vf2::Vector{Float64} = zeros(P[1].FltNglob)
+
     # state variables
     psi::Vector{Float64} = zeros(P[1].FltNglob)
-    psi0::Vector{Float64} = zeros(P[1].FltNglob)       # intial state
+    #psi0::Vector{Float64} = zeros(P[1].FltNglob)       # intial state
     psi1::Vector{Float64} = zeros(P[1].FltNglob)
     psi2::Vector{Float64} = zeros(P[1].FltNglob)
     # stress variables
@@ -98,8 +99,10 @@ function main(P,alphaa)
 
     # Initial state variable
     # log.(P[3].Vo.*theta./xLf)
+
+    # after earthquake, normal stress reduces and psi increase: how can normal stress influence state variable
     psi = P[3].tauo./(P[3].Seff.*P[3].ccb) - P[3].fo./P[3].ccb - (P[3].cca./P[3].ccb).*log.(2*v[P[4].iFlt]./P[3].Vo)
-    psi0 .= psi[:]
+    #psi0 .= psi[:]
     # which kind of solver to use
     isolver::Int = 1         # quasi-static
 
@@ -155,6 +158,8 @@ function main(P,alphaa)
     ml = ruge_stuben(kni)
     p = aspreconditioner(ml)
     tmp = copy(a)
+
+    
 
     # faster matrix multiplication
      #  Ksparse = Ksparse'
@@ -281,7 +286,8 @@ function main(P,alphaa)
                 v[P[4].iFlt] .= 0.5*(Vf .- P[2].Vpl)   # slip rate on creeping fault:  0 
 
             end
-
+            
+            # update current variable
             psi .= psi1[:]
             tau .= tau1[:]
             

@@ -59,7 +59,8 @@ function IDS2!(xLf, Vo, psi, psi1, dt, Vf, Vf1, IDstate = 2)
 end
 
 # Slip rates on fault for quasi-static regime
-function slrFunc!(P::params_farray, NFBC, FltNglob, psi, psi1, Vf, Vf1, IDstate, tau1, dt)
+# pp is the pore pressure
+function slrFunc!(pp, P::params_farray, NFBC, FltNglob, psi, psi1, Vf, Vf1, IDstate, tau1, dt)
     
     tauAB::Vector{Float64} = zeros(FltNglob)
 
@@ -71,7 +72,8 @@ function slrFunc!(P::params_farray, NFBC, FltNglob, psi, psi1, Vf, Vf1, IDstate,
         psi1[j] = IDS!(P.xLf[j], P.Vo[j], psi[j], dt, Vf[j], 1e-6, IDstate)
 
         tauAB[j] = tau1[j] + P.tauo[j]
-        fa = tauAB[j]/(P.Seff[j]*P.cca[j])
+        fa = tauAB[j]/((P.Seff[j]-pp)*P.cca[j])   
+        # here, Seff(the constant normal stress) is used again!!! But Seff is more important in dynamic regime
         help = -(P.fo[j] + P.ccb[j]*psi1[j])/P.cca[j]
         help1 = exp(help + fa)
         help2 = exp(help - fa)

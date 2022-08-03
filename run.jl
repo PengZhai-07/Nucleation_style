@@ -27,7 +27,7 @@ res = 4   # resolution of mesh
 # 12: 1441 GLL nodes,  average 33m on fault
 # 16: 1921 GLL nodes, average 25m on fault
 T = 100    # total simulation years 
-alpha = 0.65    # initial rigidity ratio: fault zone/host rock
+alpha = 1    # initial rigidity ratio: fault zone/host rock
 
 # Output directory to save data
 out_dir = "$(@__DIR__)/data/fully_healing/$(FZdepth)_$(halfwidth)_$(res)_$(alpha)/"    

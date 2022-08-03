@@ -1,5 +1,5 @@
 ####################################
-#   fault slip behavior
+#   fault slip behavior for dynamic regime
 ####################################
 
 # Fault Boundary function
