@@ -17,9 +17,9 @@ include("$(@__DIR__)/par.jl")	    #	Set Parameters
 
 # Put the resolution for the simulation here: should be an integer
 
-FZdepth = 24e3   # depth of fault zone
+FZdepth = 48e3   # depth of fault zone
 halfwidth = 1000
-res = 4   # resolution of mesh
+res = 6   # resolution of mesh
 # 4: 481 GLL nodes, average 100m on fault  
 # 6: 721 GLL nodes, average 67m on fault
 # 8: 961 GLL nodes, average 50m on fault
@@ -27,14 +27,14 @@ res = 4   # resolution of mesh
 # 12: 1441 GLL nodes,  average 33m on fault
 # 16: 1921 GLL nodes, average 25m on fault
 T = 100    # total simulation years 
-alpha = 1    # initial rigidity ratio: fault zone/host rock
+alpha = 0.8    # initial rigidity ratio: fault zone/host rock
 
 # Output directory to save data
 out_dir = "$(@__DIR__)/data/fully_healing/$(FZdepth)_$(halfwidth)_$(res)_$(alpha)/"    
 mkpath(out_dir)
 
 P = setParameters(FZdepth, halfwidth, res, T , alpha)   
-# println(size(P[4].FltNI))
+println(size(P[4].FltNI))
 
 include("$(@__DIR__)/NucleationSize.jl") 
 # calculate the nucleation size of initial rigidity ratio!!

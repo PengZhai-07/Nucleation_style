@@ -58,6 +58,37 @@ function SeffDepth(FltX)
 
 end
 
+# Initial normal stress: linear dependent
+function SnormalDepth(FltX)
+
+    FltNglob = length(FltX)
+    Snormal::Array{Float64} = repeat([0], FltNglob)
+    sP1 = [10e6 0]
+    sP2 = [970e6 -48e3]  
+    Snormal_depth = findall(abs.(FltX) .<= abs(sP2[2]))
+    Snormal[Snormal_depth] = Int1D(sP1, sP2, FltX[Snormal_depth])
+
+    return Snormal
+
+end
+
+# Initial normal stress: linear dependent
+function SSppDepth(FltX)
+
+    FltNglob = length(FltX)
+    SSpp::Array{Float64} = repeat([0], FltNglob)
+    sP1 = [10e6 0]
+    sP2 = [50e6 -5e3]  
+    sP3 = [920e6 -48e3]
+    SSpp_depth1 = findall(abs.(FltX) .<= abs(sP3[2]))
+    SSpp_depth2 = findall(abs.(FltX) .<= abs(sP2[2]))
+    SSpp[SSpp_depth1] = Int1D(sP2, sP3, FltX[SSpp_depth1])
+    SSpp[SSpp_depth2] = Int1D(sP1, sP2, FltX[SSpp_depth2])
+
+    return SSpp
+
+end
+
 
 # Shear stress
 function tauDepth(FltX)

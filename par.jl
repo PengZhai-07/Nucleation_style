@@ -219,6 +219,13 @@ function setParameters(FZdepth, halfwidth, res, T, alpha)
     cca::Vector{Float64}, ccb::Vector{Float64}, a_b = fricDepth(FltX)   # rate-state friction parameters
     # println(a_b ,length(a_b))
     Seff::Vector{Float64} = SeffDepth(FltX)       # effective normal stress
+    print(Seff)
+    Snormal::Vector{Float64} = SnormalDepth(FltX)       # effective normal stress
+    print(Snormal)
+    SSpp::Vector{Float64} = SSppDepth(FltX)       # effective normal stress
+    print(SSpp)
+
+
     tauo::Vector{Float64} = tauDepth(FltX)        # initial shear stress
 
     # Kelvin-Voigt Viscosity : one technical method to increase the convergence rate
@@ -261,7 +268,7 @@ function setParameters(FZdepth, halfwidth, res, T, alpha)
 
     return params_int(Nel, FltNglob, yr2sec, Total_time, IDstate, nglob),
             params_float(ETA, Vpl, Vthres, Vevne, dt, mu, ThickY),
-            params_farray(fo, Vo, xLf, M, BcBC, BcRC, FltL, FltZ, FltX, cca, ccb, Seff, tauo, XiLf, x_out, y_out),
+            params_farray(fo, Vo, xLf, M, BcBC, BcRC, FltL, FltZ, FltX, cca, ccb, SSpp, Snormal, Seff, tauo, XiLf, x_out, y_out),
             params_iarray(iFlt, iBcB, iBcR, FltIglobBC, FltNI, out_seis), 
             Ksparse, iglob, NGLL, wgll2, nglob, did
 
@@ -321,6 +328,8 @@ struct params_farray{T<:Vector{Float64}}
     cca::T    # a of RSF 
     ccb::T    # b of RSF 
     Seff::T   # effective normal stress
+    Snormal::T   # initial normal stress
+    SSpp::T   # initial steady state pore pressure
     tauo::T    # intial shear stress
  
     XiLf::T    # maximum slip in a timestep to constrain the length of timestep (based on friction law)
@@ -339,7 +348,7 @@ struct params_iarray{T<:Vector{Int}}
     out_seis::T    # index of off-fault GLL nodes which are nearest to the predefined output locations
 end
 
-# required timestepping for low slip velocities
+# required timestepping for low slip velocities(quasi-static)
 # Calculate XiLf used in computing the final timestep
 function XiLfFunc!(LX, FltNglob, gamma_, xLf, muMax, cca, ccb, Seff)
 

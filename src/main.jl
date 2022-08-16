@@ -159,7 +159,6 @@ function main(P,alphaa)
     p = aspreconditioner(ml)
     tmp = copy(a)
 
-    
 
     # faster matrix multiplication
      #  Ksparse = Ksparse'

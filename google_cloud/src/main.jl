@@ -91,8 +91,7 @@ function main(P,alphaa)
     tau1::Vector{Float64} = zeros(P[1].FltNglob)
     tau2::Vector{Float64} = zeros(P[1].FltNglob)
     tau3::Vector{Float64} = zeros(P[1].FltNglob)
-    # pore pressure
-    pp::Vector{Float64} = zeros(P[1].FltNglob) 
+
 
     # log.(P[3].Vo.*theta./xLf)
     psi = P[3].tauo./(P[3].Seff.*P[3].ccb) - P[3].fo./P[3].ccb - (P[3].cca./P[3].ccb).*log.(2*v[P[4].iFlt]./P[3].Vo)
@@ -132,8 +131,16 @@ function main(P,alphaa)
     rit = 0
     # Here v is not zero!!!  0.5e-3 m/s
     v = v[:] .- 0.5*P[2].Vpl   # initial slip rate on the whole model    ???
-    # initial pore pressure
-    pp = (log(v[P[4].iFlt])+9)*20             # unit: MPa
+
+
+    # pore pressure
+    # pp::Vector{Float64} = zeros(P[1].FltNglob) 
+    # the initial effective normal stress is similar to steady state
+    # but we need a linear depth-dependent normal stress
+
+    # define the change of pore pressure
+    # pp = (log(v[P[4].iFlt])+9)*20*1e6            # unit: MPa
+    # suppose the plate motion rate is 1e-9, so the pore pressure will be zero
 
     Vf = 2*v[P[4].iFlt]      # 1e-3 m/s
 
@@ -279,7 +286,7 @@ function main(P,alphaa)
 
                 # step5
                 # Function to calculate on-fault sliprate and state variable on whole fault line
-                psi1, Vf1 = slrFunc!(pp, P[3], NFBC, P[1].FltNglob, psi, psi1, Vf, Vf1, P[1].IDstate, tau1, dt)   # from other functions
+                psi1, Vf1 = slrFunc!(P[3], NFBC, P[1].FltNglob, psi, psi1, Vf, Vf1, P[1].IDstate, tau1, dt)   # from other functions
                 
                 # step6: correct slip rate on the fault
                 Vf1[iFBC] .= P[2].Vpl     # set slip rate on creep fault to be plate motion rate
@@ -292,7 +299,7 @@ function main(P,alphaa)
             psi .= psi1[:]
             tau .= tau1[:]
             # update the pore pressure
-            pp = (log(v[P[4].iFlt])+9)*20             # unit: MPa
+            # pp = (log(v[P[4].iFlt])+9)*20*1e6            # unit: Pa
 
             # # creeping fault
             # tau[iFBC] .= 0.
@@ -517,10 +524,11 @@ function main(P,alphaa)
         end
 
 
-        # Write stress, sliprate, slip to file every 10 timesteps
+        # Write sliprate, shear stress, pore pressure to file every 10 timesteps
         if mod(it,10) == 0
             write(sliprate, join(2*v[P[4].iFlt] .+ P[2].Vpl, " "), "\n")
             write(stress, join((tau + P[3].tauo)./1e6, " "), "\n")
+            # write(stress, join(pp, " "), "\n")
         end
 
         # Determine quasi-static or dynamic regime based on max-slip velocity
