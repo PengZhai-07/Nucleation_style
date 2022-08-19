@@ -1,4 +1,5 @@
 # Material properties for a narrow rectangular damaged zone of half-thickness ThickY and depth ThickX 
+# define the properties of fault damage zone using locations of elements: on the level of elements, no change of properties inside elements  
 function MaterialProperties(NelX, NelY,NGLL, dxe, dye, ThickX, ThickY, wgll2, rho1, vs1, rho2, vs2)
     mu::Matrix{Float64} = zeros(NGLL, NGLL)
     W::Array{Float64,3} = zeros(NGLL, NGLL, NelX*NelY)

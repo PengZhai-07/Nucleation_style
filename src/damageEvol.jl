@@ -1,7 +1,7 @@
 #####################################
 # DAMAGE EVOLUTION IN TIME
 #####################################
-
+# find the indexes of GLL nodes in fault zone 
 function damage_indx!(ThickX, ThickY, dxe, dye, NGLL, NelX, NelY, iglob)
     # return the global index of fault zone elements
 
@@ -22,24 +22,17 @@ function damage_indx!(ThickX, ThickY, dxe, dye, NGLL, NelX, NelY, iglob)
                     # damage zone
                     if ex*dxe >= ThickX && (dye <= ey*dye <= ThickY)
                         Ke2[i,j,k,l] = 1000.0   # with no specific meanings, only to find id of GLL nodes in fault damage zone!!
-                        #  Ke3[i,j,k,l] = 0.0
-                    # host rock
-                    else
+                    else     # host rock
                         Ke2[i,j,k,l] = -1000
                     end
                 end
             end
             Ke_d[:,:,eo] = reshape(Ke2,NGLL*NGLL,NGLL*NGLL)
-            #  Ke_und[:,:,eo] = reshape(Ke3,NGLL*NGLL,NGLL*NGLL)
         end
     end
 
-    Kdam = FEsparse(NelX*NelY, Ke_d, iglob)
-    #  Kdam[Kdam .> 1.0] .= 1.0
+    Kdam = FEsparse(NelX*NelY, Ke_d, iglob)      # store the Ke_d as a sparse matrix
 
-    #  Kudam = FEsparse(NelX*NelY, Ke_und, iglob)
-    #  Kudam[Kudam .> 1.0] .= 1.0
-
-    return findall(Kdam .> 0)
+    return findall(Kdam .> 0)    # return the index of GLL nodes in fault zone: 1000
 
 end

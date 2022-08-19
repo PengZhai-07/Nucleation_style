@@ -8,12 +8,14 @@ function Kassemble(NGLL, NelX, NelY, dxe,dye, nglob, iglob, W)
     #  ig::Matrix{Int64} = zeros(NGLL,NGLL)  # iterator
 
     #  W = material_properties(NelX, NelY,NGLL,dxe, dye, ThickX, ThickY, wgll2, rho1, rho2, vs1, vs2)
-    Ke = K_element(W, dxe, dye, NGLL, H, NelX*NelY)  # completed stiffness Matrix
+    Ke = K_element(W, dxe, dye, NGLL, H, NelX*NelY)  # complete stiffness Matrix
+    println("the dimension of stiffness for each element is",size(Ke))
     #  Ks22 = assembley(Ke, iglob, NelX*NelY, nglob)
     K = FEsparse(NelX*NelY, Ke, iglob)    # change into Sparse matrix K!!
     return dropzeros!(K)
     #  return rcmpermute(dropzeros!(K))
 end
+
 # vec: 将指定数组重塑为一维列向量，即一维数组
 function FEsparse(Nel, Ke, iglob)
     K = SparseMatrixCOO()   # Construct sparse matrix
@@ -49,15 +51,17 @@ function K_element(W, dxe, dye, NGLL, H, Nel)
                 for k in 1:NGLL, l in 1:NGLL
                     term1 = 0.; term2 = 0.
                     for p in 1:NGLL      # degree of lagrange polynomial
-                        term1 += del[i,k]*ww[k,p]*(jac/dy_deta^2)*H[j,p]*H[l,p]
-                        term2 += del[j,l]*ww[p,j]*(jac/dx_dxi^2)*H[i,p]*H[k,p]
+                        # term1 += del[i,k]*ww[k,p]*(jac/dy_deta^2)*H[j,p]*H[l,p]
+                        # term2 += del[j,l]*ww[p,j]*(jac/dx_dxi^2)*H[i,p]*H[k,p]
+                        term2 += del[j,l]*ww[p,j]*(jac/(dx_dxi^2+dy_deta^2))*H[i,p]*H[k,p]  # ???
+                        # The specific form can refer to page 20 of SEM-notes by Ampuero, 2011
                     end
                     Ke2[i,j,k,l] = term1 + term2
                 end
             end
-            Ke[:,:,eo] = reshape(Ke2,NGLL*NGLL,NGLL*NGLL)
+            Ke[:,:,eo] = reshape(Ke2,NGLL*NGLL,NGLL*NGLL)    # 25*25 !!
         end
-    Ke
+    return Ke
 end
 
 # My naive approach

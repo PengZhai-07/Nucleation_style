@@ -19,7 +19,7 @@ function Massemble!(NGLL, NelX, NelY, dxe, dye, ThickX,
     dx = zeros(NGLL-1, NGLL)
     muMax = 0
     dt = Inf
-    a = 0
+    a = 0   # number of all elements 
     #  # damage zone index
     #  damage_idx = zeros(Int, NelX*NelY)
     #  遍历所有单元，公共节点加倍， the index of shared nodes are the same!!!!
@@ -28,7 +28,9 @@ function Massemble!(NGLL, NelX, NelY, dxe, dye, ThickX,
             a = a+1
             eo = (ey-1)*NelX + ex
             ig = iglob[:,:,eo]       # 2D matrix: Global index of No. eo element
-            
+            # if a == 1
+            #     print(ig)
+            # end
             # Properties of heterogeneous medium: long narrow fault damage zone
             if ex*dxe >= ThickX && (dye <= ey*dye <= ThickY)   #range of damage zone: shallow near fault LVZ
                 #  damage_idx[eo] = eo
@@ -44,14 +46,17 @@ function Massemble!(NGLL, NelX, NelY, dxe, dye, ThickX,
                 muMax = maximum(maximum(mu))
             end
 
-            # Diagonal Mass Matrix
-            M[ig] .+= wgll2.*rho*jac            # not diagonal? how to make the matrix doubled at the shared nodes?
-            # if a == 1
-            #     print(M[1:50])
-            # end
+            # Diagonal Mass vector: 
+            # M is only a vector but wgll2.*rho*jac is a matrix, matrix -> vector
+            M[ig] .+= wgll2.*rho*jac          # how to make the matrix doubled at the shared nodes?
+            
+            if a == 1
+                #print(M[1:50])
+            print(wgll2.*rho*jac)
+            end
 
             # Local contributions to the stiffness matrix
-            #  W[:,:,eo] .= wgll2.*mu;
+            # W[:,:,eo] .= wgll2.*mu;
             
             # Set timestep based on CFL criterion: dt<=dx/vs
             vso .= sqrt.(mu./rho)      # velocity of shear wave in all elements
@@ -65,7 +70,7 @@ function Massemble!(NGLL, NelX, NelY, dxe, dye, ThickX,
             end
 
             dtloc = dx./vs      # min(dx)/max(vs) : upper limit
-            dt = minimum( push!(dtloc[1:end], dt) )    # minimum of all upper limits for all elements
+            dt = minimum( push!(dtloc[1:end], dt) )    # minimum value of all upper timestep limits for all elements
 
         end
     end

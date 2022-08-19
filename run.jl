@@ -17,9 +17,9 @@ include("$(@__DIR__)/par.jl")	    #	Set Parameters
 
 # Put the resolution for the simulation here: should be an integer
 
-FZdepth = 48e3   # depth of fault zone
+FZdepth = 24e3   # depth of fault zone
 halfwidth = 1000
-res = 6   # resolution of mesh
+res = 4   # resolution of mesh
 # 4: 481 GLL nodes, average 100m on fault  
 # 6: 721 GLL nodes, average 67m on fault
 # 8: 961 GLL nodes, average 50m on fault
@@ -27,33 +27,36 @@ res = 6   # resolution of mesh
 # 12: 1441 GLL nodes,  average 33m on fault
 # 16: 1921 GLL nodes, average 25m on fault
 T = 100    # total simulation years 
-alpha = 0.8    # initial rigidity ratio: fault zone/host rock
+alpha = 0.85    # initial rigidity ratio: fault zone/host rock
+cos_reduction = 0.05    # coseismic rigidity reduction
+multiple = 5    # effective normal stress on fault: 10MPa*multiple
 
 # Output directory to save data
-out_dir = "$(@__DIR__)/data/fully_healing/$(FZdepth)_$(halfwidth)_$(res)_$(alpha)/"    
+out_dir = "$(@__DIR__)/data/immature_fully_healing/$(FZdepth)_$(halfwidth)_$(res)_$(alpha)_$(cos_reduction)_$(multiple)/"    
 mkpath(out_dir)
 
-P = setParameters(FZdepth, halfwidth, res, T , alpha)   
-println(size(P[4].FltNI))
+P = setParameters(FZdepth, halfwidth, res, T , alpha, multiple)   
+# # println(size(P[4].FltNI))   # total number of off-fault GLL nodes
 
-include("$(@__DIR__)/NucleationSize.jl") 
-# calculate the nucleation size of initial rigidity ratio!!
-h_hom = NucleationSize(P)
-println("The nucleation size of homogeneous medium:", h_hom, " m")
-# h_dam = h_hom/3           # with alphaa = 0.60
-# println("The approximate nucleation size of damage zone medium:", h_dam, " m")
-CZone = CohesiveZoneSize(P, alpha)
-println("The Cohesive zone size:", CZone, " m")
+# include("$(@__DIR__)/NucleationSize.jl") 
+# # calculate the nucleation size of initial rigidity ratio!!
+# h_hom_host, h_hom_dam = NucleationSize(P, alpha)
+# println("The nucleation size of homogeneous host medium:", h_hom_host, " m")
+# println("The nucleation size of homogeneous damage medium:", h_hom_dam, " m")
+# # # h_dam = h_hom/3           # with alphaa = 0.60
+# # # println("The approximate nucleation size of damage zone medium:", h_dam, " m")
+# CZone = CohesiveZoneSize(P, alpha)
+# println("The Cohesive zone size:", CZone, " m")
 
-include("$(@__DIR__)/src/dtevol.jl")
-include("$(@__DIR__)/src/NRsearch.jl")
-include("$(@__DIR__)/src/otherFunctions.jl")
+# include("$(@__DIR__)/src/dtevol.jl")
+# include("$(@__DIR__)/src/NRsearch.jl")
+# include("$(@__DIR__)/src/otherFunctions.jl")
 
-include("$(@__DIR__)/src/main.jl")
+# include("$(@__DIR__)/src/main.jl")
 
-simulation_time = @elapsed @time main(P, alpha)    # all parameters, rigidity ratio 
+# simulation_time = @elapsed @time main(P, alpha, cos_reduction)    # all parameters, rigidity ratio 
 
-println("\n")
+# println("\n")
 
-@info("Simulation Complete!");
+# @info("Simulation Complete!");
 

@@ -12,9 +12,9 @@ function fricDepth(FltX)
     
     # Friction with depth
     cca::Array{Float64} = repeat([0.015], FltNglob)
-    ccb::Array{Float64} = repeat([0.019], FltNglob)
+    ccb::Array{Float64} = repeat([0.019], FltNglob)    # b is always a constant
 
-    a_b = cca - ccb
+    a_b = cca - ccb     # -0.004 is the initial value of a-B
     # [a-b, depth]   key points of friction coefficient change
     fP1 = [0.012, 0e3]   # fP1 = [0.012, 0e3]
     fP2 = [-0.0041, -2e3]
@@ -36,7 +36,7 @@ function fricDepth(FltX)
     a_b[fric_depth5] .= 0.0047   # depth >=24 km
 
     #  cca[fric_depth4] .= Int1D(fP4, fP5, FltX[fric_depth4]) .+ 0.0001
-    cca .= ccb .+ a_b
+    cca .= ccb .+ a_b      # so a is variable
     #  ccb .= cca .- a_b
     # ccb is a constant
     return cca, ccb, a_b
@@ -44,19 +44,20 @@ function fricDepth(FltX)
 end
 
 # Effective normal stress
-function SeffDepth(FltX)
+function SeffDepth(FltX, multiple)
 
     FltNglob = length(FltX)
-
-    Seff::Array{Float64} = repeat([50e6], FltNglob)
+    NS = multiple*10e6
+    Seff::Array{Float64} = repeat([NS], FltNglob)
     sP1 = [10e6 0]
-    sP2 = [50e6 -2e3]         # constant normal stress below 24 km
+    sP2 = [NS -2e3]         # constant normal stress below 2 km
     Seff_depth = findall(abs.(FltX) .<= abs(sP2[2]))
     Seff[Seff_depth] = Int1D(sP1, sP2, FltX[Seff_depth])
 
     return Seff
 
 end
+
 
 # Initial normal stress: linear dependent
 function SnormalDepth(FltX)

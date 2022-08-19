@@ -13,7 +13,7 @@
 ###############################################################################
 
 # Healing exponential function
-function healing2(t,tStart,dam)
+function healing2(t,tStart,dam, cos_reduction)
     """ hmax: coseismic damage amplitude
         r: healing rate (0.3454 => 20 years to heal completely)
                         (0.4605 => 15 years to heal completely)
@@ -22,7 +22,8 @@ function healing2(t,tStart,dam)
                         (0.8635 => 8 years to heal completely)
                         (1.7269 => 4 years to heal completely)
                     """
-    hmax = 0.05
+    hmax = cos_reduction
+
     r =  0.8635   
     # t: current time of all simulation unit: seconds
     # tStart: time when earthquake happens  unit: seconds
@@ -35,7 +36,7 @@ function healing2(t,tStart,dam)
     hmax*(1 .- exp.(-r*(t .- tStart)/P[1].yr2sec)) .+ dam     # hmax*(1 .- exp.(-r*(t .- tStart)/P[1].yr2sec)) > 0, when time is about 10 years, alphaa = dam + 0.05, healing completely!
 end
 
-function main(P,alphaa)
+function main(P,alphaa, cos_reduction)
     # please refer to par.jl to see the specific meaning of P
     # P[1] = integer  Nel, FltNglob, yr2sec, Total_time, IDstate, nglob
     # P[2] = float    ETA, Vpl, Vthres, Vevne, dt
@@ -172,7 +173,7 @@ function main(P,alphaa)
     # Damage evolution stuff: using with healing 
     did = P[10]   # index of GLL nodes in fault damage zone
     dam = alphaa   # current rigidity ratio: initial value
-    alpha_after = alphaa - 0.05
+    alpha_after = alphaa - cos_reduction
 
     # Save parameters to file: from depth(48km) to shallow(0km)
     open(string(out_dir,"params.out"), "w") do io
@@ -314,7 +315,7 @@ function main(P,alphaa)
             if  it > 3
                 
                 #if t > 10*P[1].yr2sec     # healing after 10 year, neglect the first event
-                    alphaa = healing2(t, tStart2, dam)           # healing from dam
+                    alphaa = healing2(t, tStart2, dam, cos_reduction)           # healing from dam
                     #  alphaa[it] = αD(t, tStart2, dam)
                 #end
 

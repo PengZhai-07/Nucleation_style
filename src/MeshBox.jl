@@ -75,8 +75,9 @@ function MeshBox!(NGLL, Nel, NelX, NelY, FltNglob, dxe, dye)
 	# 3  7  11  15
 	# 4  8  12  16
 	xgll = repeat(0.5*(1 .+ XGLL), 1, NGLL)    # from [-1,1] to [0,1]
-	ygll = dye*xgll'           # project to local coordinate
-	xgll = dxe*xgll            # the real coordination of GLL nodes in the model geometry
+	# using jacabian matrix to map the real coordinates to [-1, 1]
+	ygll = dye*xgll'           # project to local coordinate: the real coordination of GLL nodes in the model geometry
+	xgll = dxe*xgll      
 
 # Y and then X !!
 	@inbounds for ey = 1:NelY         # number of Y elements  
@@ -100,7 +101,7 @@ function MeshBox!(NGLL, Nel, NelX, NelY, FltNglob, dxe, dye)
 					ig[2:end, :] = last_iglob .+ igL # The rest
 
 				elseif ex == 1	    
-					ig[:,1] = iglob[:,NGLL,et-NelX]	# Left edge in geometry
+					ig[:,1] = iglob[:,NGLL,et-NelX]	# Left edge in geometry: fault
 					ig[:,2:end] = last_iglob .+ igB 	# The rest
 				
 				else 			# Other Elements
