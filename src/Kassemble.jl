@@ -53,7 +53,7 @@ function K_element(W, dxe, dye, NGLL, H, Nel)
                     for p in 1:NGLL      # degree of lagrange polynomial
                         term1 += del[i,k]*ww[k,p]*(jac/dy_deta^2)*H[j,p]*H[l,p]
                         term2 += del[j,l]*ww[p,j]*(jac/dx_dxi^2)*H[i,p]*H[k,p]
-                    
+                        
                     end
                     Ke2[i,j,k,l] = term1 + term2
                 end

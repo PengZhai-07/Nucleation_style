@@ -34,8 +34,8 @@ function setParameters(FZdepth, halfwidth, res, T, alpha, multiple)
     dx_dxi::Float64 = 0.5*dxe
     dy_deta::Float64 = 0.5*dye
     jac::Float64 = dx_dxi*dy_deta
-    coefint1::Float64 = jac/dx_dxi^2          # dye/dxe
-    coefint2::Float64 = jac/dy_deta^2         # dxe/dye
+    printf(coefint1::Float64 = jac/dx_dxi^2)          # dye/dxe
+    printf(coefint2::Float64 = jac/dy_deta^2)         # dxe/dye
 
     #..................
     # TIME PARAMETERS
@@ -165,7 +165,7 @@ function setParameters(FZdepth, halfwidth, res, T, alpha, multiple)
     # M, W =  mat_trap(NelX, NelY, NGLL, iglob, M, dxe, dye, x, y, wgll2)
 
     # Stiffness Assembly: compute and output the whole large stiffness matrix: about (154401*154401)
-    Ksparse::SparseMatrixCSC{Float64} = Kassemble(NGLL, NelX, NelY, dxe,dye, nglob, iglob, W)
+    f::SparseMatrixCSC{Float64} = Kassemble(NGLL, NelX, NelY, dxe,dye, nglob, iglob, W)
     #print(size(Ksparse))
 
     # Damage Indexed Kdam
