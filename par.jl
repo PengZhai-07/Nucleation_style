@@ -21,7 +21,9 @@ function setParameters(FZdepth, halfwidth, res, T, alpha, multiple)
     NelY::Int = 20*res # no. of elements in y
 
     dxe::Float64 = LX/NelX   #	Size of one element along X
+    print(dxe)
     dye::Float64 = LY/NelY   #	Size of one element along Y
+    print(dye)
     Nel::Int = NelX*NelY     # Total no. of elements
 
     P::Int = 4		#	Lagrange polynomial degree
@@ -34,8 +36,10 @@ function setParameters(FZdepth, halfwidth, res, T, alpha, multiple)
     dx_dxi::Float64 = 0.5*dxe
     dy_deta::Float64 = 0.5*dye
     jac::Float64 = dx_dxi*dy_deta
-    printf(coefint1::Float64 = jac/dx_dxi^2)          # dye/dxe
-    printf(coefint2::Float64 = jac/dy_deta^2)         # dxe/dye
+    coefint1::Float64 = jac/dx_dxi^2         # dye/dxe
+    coefint2::Float64 = jac/dy_deta^2         # dxe/dye
+    print(coefint1)
+    print(coefint2)
 
     #..................
     # TIME PARAMETERS
@@ -71,6 +75,7 @@ function setParameters(FZdepth, halfwidth, res, T, alpha, multiple)
     vs2::Float64 = sqrt(alpha)*vs1
 
     mu = rho1*vs1^2
+    print("The shear modulus of shostrock is",mu)     # the default value is about 32GPa
 
     # without viscosity damping
     ETA = 0.
@@ -159,13 +164,14 @@ function setParameters(FZdepth, halfwidth, res, T, alpha, multiple)
     # println(a)          # total number of elements
     # Material properties for a narrow rectangular damaged zone of half-thickness ThickY and depth ThickX: shear modulus
     W = MaterialProperties(NelX, NelY, NGLL, dxe, dye, ThickX, ThickY, wgll2, rho1, vs1, rho2, vs2)
+    # W[:,:,eo] = wgll2.*mu
 
     # Material properties for trapezoid damaged zone: need to calculate mass matrix again!! may not calculate the dt again,
     # because the velocity of host rock(vs1: the bigger value) decides the timestep!!!(without change of mesh!!!) 
     # M, W =  mat_trap(NelX, NelY, NGLL, iglob, M, dxe, dye, x, y, wgll2)
 
     # Stiffness Assembly: compute and output the whole large stiffness matrix: about (154401*154401)
-    f::SparseMatrixCSC{Float64} = Kassemble(NGLL, NelX, NelY, dxe,dye, nglob, iglob, W)
+    Ksparse::SparseMatrixCSC{Float64} = Kassemble(NGLL, NelX, NelY, dxe,dye, nglob, iglob, W)
     #print(size(Ksparse))
 
     # Damage Indexed Kdam
@@ -210,8 +216,11 @@ function setParameters(FZdepth, halfwidth, res, T, alpha, multiple)
     FltL::Vector{Float64}, iFlt::Vector{Int} = BoundaryMatrix!(NGLL, NelX, NelY, 
                        rho1, vs1, rho2, vs2, dy_deta, dx_dxi, wgll, iglob, 'L')
 
-    # what is FltZ??   FltZ = jac1D*wgll on the left boundary
-    FltZ::Vector{Float64} = M[iFlt]./FltL /half_dt * 0.5   #  times 0.5 due to the symmetry 
+    # what is FltZ?  FltZ = jac1D(dy_deta)*wgll*rho1/dt_min  used in NRsearch
+    # M = wgll2.*rho1 (damage zone).*jac (dx_dxi*dy_deta)
+    # FltL = dx_dxi.*wgll.*1 (impedance)
+    # half_dt = 0.5*dtmin
+    FltZ::Vector{Float64} = M[iFlt]./FltL/half_dt * 0.5   #  times 0.5 due to the symmetry 
     print(FltZ)
     # X (vertical) of all GLL nodes at fault surface
     FltX::Vector{Float64} = x[iFlt]   

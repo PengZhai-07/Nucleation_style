@@ -51,10 +51,12 @@ function K_element(W, dxe, dye, NGLL, H, Nel)
                 for k in 1:NGLL, l in 1:NGLL
                     term1 = 0.; term2 = 0.
                     for p in 1:NGLL      # degree of lagrange polynomial
-                        term1 += del[i,k]*ww[k,p]*(jac/dy_deta^2)*H[j,p]*H[l,p]
-                        term2 += del[j,l]*ww[p,j]*(jac/dx_dxi^2)*H[i,p]*H[k,p]
                         
+                        term1 += del[i,k]*ww[k,p]*(jac/dy_deta^2)*H[j,p]*H[l,p]   # eta, eta    i=k=p
+                        term2 += del[j,l]*ww[p,j]*(jac/dx_dxi^2)*H[i,p]*H[k,p]    # ksi,ksi     q=j=l
+                        # The specific form can refer to page 20 of SEM-notes by Ampuero, 2011
                     end
+                    
                     Ke2[i,j,k,l] = term1 + term2
                 end
             end
@@ -62,9 +64,6 @@ function K_element(W, dxe, dye, NGLL, H, Nel)
         end
     return Ke
 end
-
-term2 += del[j,l]*ww[p,j]*(jac/dx_dxi^2+jac/dy_deta^2)*H[i,p]*H[k,p]  # ???
-                        # The specific form can refer to page 20 of SEM-notes by Ampuero, 2011
 
 
 # My naive approach

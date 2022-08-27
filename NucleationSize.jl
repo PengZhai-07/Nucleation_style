@@ -16,7 +16,7 @@ b = maximum(P[3].ccb)
 b_a = -minimum(P[3].cca .- P[3].ccb)
 
 h_hom_host = 2/pi*mu*L*b/sigma/b_a^2        #  (Rubin & Ampuero, 2005)
-h_hom_dam  = 2/pi*mu*alpha*L*b/sigma/b_a^2        #  (Rubin & Ampuero, 2005)
+h_hom_dam  = 2/pi*mu*alpha*L*b/sigma/b_a^2        #  (Rubin & Ampuero, 2005)   smaller!!  downlimit of nucleation size
 
 return h_hom_host, h_hom_dam
 

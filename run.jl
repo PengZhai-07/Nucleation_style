@@ -18,7 +18,7 @@ include("$(@__DIR__)/par.jl")	    #	Set Parameters
 # Put the resolution for the simulation here: should be an integer
 
 FZdepth = 24e3   # depth of fault zone
-halfwidth = 1000
+halfwidth = 500
 res = 4   # resolution of mesh
 # 4: 481 GLL nodes, average 100m on fault  
 # 6: 721 GLL nodes, average 67m on fault
@@ -27,7 +27,7 @@ res = 4   # resolution of mesh
 # 12: 1441 GLL nodes,  average 33m on fault
 # 16: 1921 GLL nodes, average 25m on fault
 T = 100    # total simulation years 
-alpha = 0.85    # initial rigidity ratio: fault zone/host rock
+alpha = 0.64    # initial rigidity ratio: fault zone/host rock
 cos_reduction = 0.05    # coseismic rigidity reduction
 multiple = 5    # effective normal stress on fault: 10MPa*multiple
 
@@ -38,15 +38,15 @@ mkpath(out_dir)
 P = setParameters(FZdepth, halfwidth, res, T , alpha, multiple)   
 # # println(size(P[4].FltNI))   # total number of off-fault GLL nodes
 
-# include("$(@__DIR__)/NucleationSize.jl") 
-# # calculate the nucleation size of initial rigidity ratio!!
-# h_hom_host, h_hom_dam = NucleationSize(P, alpha)
-# println("The nucleation size of homogeneous host medium:", h_hom_host, " m")
-# println("The nucleation size of homogeneous damage medium:", h_hom_dam, " m")
-# # # h_dam = h_hom/3           # with alphaa = 0.60
-# # # println("The approximate nucleation size of damage zone medium:", h_dam, " m")
-# CZone = CohesiveZoneSize(P, alpha)
-# println("The Cohesive zone size:", CZone, " m")
+include("$(@__DIR__)/NucleationSize.jl") 
+# calculate the nucleation size of initial rigidity ratio!!
+h_hom_host, h_hom_dam = NucleationSize(P, alpha)
+println("The nucleation size of homogeneous host medium:", h_hom_host, " m")
+println("The nucleation size of homogeneous damage medium:", h_hom_dam, " m")
+# # h_dam = h_hom/3           # with alphaa = 0.60
+# # println("The approximate nucleation size of damage zone medium:", h_dam, " m")
+CZone = CohesiveZoneSize(P, alpha)
+println("The downlimit (damage) Cohesive zone size:", CZone, " m")
 
 # include("$(@__DIR__)/src/dtevol.jl")
 # include("$(@__DIR__)/src/NRsearch.jl")
