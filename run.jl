@@ -27,9 +27,18 @@ res = 4   # resolution of mesh
 # 12: 1441 GLL nodes,  average 33m on fault
 # 16: 1921 GLL nodes, average 25m on fault
 T = 100    # total simulation years 
-alpha = 0.64    # initial rigidity ratio: fault zone/host rock
-cos_reduction = 0.05    # coseismic rigidity reduction
-multiple = 5    # effective normal stress on fault: 10MPa*multiple
+alpha = 0.64    # initial(background) rigidity ratio: fault zone/host rock
+
+# vs: 2%   3%  4%
+# 0.9604   0.9409    0.9216
+# 0.0396   0.0591    0.0784
+
+cos_reduction = 0.0396    # coseismic rigidity reduction 
+multiple = 3    # effective normal stress on fault: 10MPa*multiple  
+# cos_reduction = 0.0591    # coseismic rigidity reduction 
+# multiple = 5    # effective normal stress on fault: 10MPa*multiple
+# cos_reduction = 0.0784    # coseismic rigidity reduction   
+# multiple = 7    # effective normal stress on fault: 10MPa*multiple
 
 # Output directory to save data
 out_dir = "$(@__DIR__)/data/immature_fully_healing/$(FZdepth)_$(halfwidth)_$(res)_$(alpha)_$(cos_reduction)_$(multiple)/"    
@@ -48,15 +57,15 @@ println("The nucleation size of homogeneous damage medium:", h_hom_dam, " m")
 CZone = CohesiveZoneSize(P, alpha)
 println("The downlimit (damage) Cohesive zone size:", CZone, " m")
 
-# include("$(@__DIR__)/src/dtevol.jl")
-# include("$(@__DIR__)/src/NRsearch.jl")
-# include("$(@__DIR__)/src/otherFunctions.jl")
+include("$(@__DIR__)/src/dtevol.jl")
+include("$(@__DIR__)/src/NRsearch.jl")
+include("$(@__DIR__)/src/otherFunctions.jl")
 
-# include("$(@__DIR__)/src/main.jl")
+include("$(@__DIR__)/src/main.jl")
 
-# simulation_time = @elapsed @time main(P, alpha, cos_reduction)    # all parameters, rigidity ratio 
+simulation_time = @elapsed @time main(P, alpha, cos_reduction)    # all parameters, rigidity ratio 
 
-# println("\n")
+println("\n")
 
-# @info("Simulation Complete!");
+@info("Simulation Complete!");
 
