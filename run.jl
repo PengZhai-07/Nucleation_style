@@ -29,14 +29,17 @@ res = 4   # resolution of mesh
 T = 500    # total simulation years 
 alpha = 0.64    # initial(background) rigidity ratio: fault zone/host rock
 
-# vs: 2%   3%  4%
+# vs: 2%   3%  4%              
 # 0.9604   0.9409    0.9216
 # 0.0396   0.0591    0.0784
 
-cos_reduction = 0.0396    # coseismic rigidity reduction 
-multiple = 3    # effective normal stress on fault: 10MPa*multiple  
-# cos_reduction = 0.0591    # coseismic rigidity reduction 
-# multiple = 5    # effective normal stress on fault: 10MPa*multiple
+# runing time
+# case01: 17 hours on wozhi
+
+# cos_reduction = 0.0396    # coseismic rigidity reduction 
+# multiple = 3    # effective normal stress on fault: 10MPa*multiple  
+cos_reduction = 0.0591    # coseismic rigidity reduction 
+multiple = 5    # effective normal stress on fault: 10MPa*multiple
 # cos_reduction = 0.0784    # coseismic rigidity reduction   
 # multiple = 7    # effective normal stress on fault: 10MPa*multiple
 
