@@ -1,0 +1,2 @@
+copy data from wozhi to local PC: ./xfer_wozhi.sh immature_fully_healing
+julia analyze_results.jl

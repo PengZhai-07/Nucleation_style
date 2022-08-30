@@ -1,3 +1,0 @@
-#!/bin/bash
-
-scp -r prith@wozhi.earth.lsa.umich.edu:/opt/home/prith/Spear/data/$1 /Users/prith/Spear/data/.

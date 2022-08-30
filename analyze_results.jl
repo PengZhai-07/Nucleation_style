@@ -8,20 +8,24 @@ using DelimitedFiles
 # FILE = "10000.0_1000_6_0.8"          #10.8h 38095.389985 seconds (6.11 G allocations: 1.118 TiB, 0.10% gc time, 0.03% compilation time)
 
 # 300years
-FILE = "24000.0_1000_4_0.65"     # 分辨率低，反复跳动， 多次地震(dynamic)   6h: 21474.667074 seconds (15.14 G allocations: 13.519 TiB, 2.74% gc time, 0.07% compilation time)
+# FILE = "24000.0_1000_4_0.65"     # 分辨率低，反复跳动， 多次地震(dynamic)   6h: 21474.667074 seconds (15.14 G allocations: 13.519 TiB, 2.74% gc time, 0.07% compilation time)
 # FILE = "24000.0_1000_4_0.45"     # 分辨率不够，NR search failed!!
 # FILE = "24000.0_1000_4_0.85"          #100year  3.68h: 13277.669141 seconds (8.17 G allocations: 8.039 TiB, 3.34% gc time, 0.13% compilation time)
+
+# normal stress: 500 years
+FILE = "24000.0_500_4_0.64_0.0396_3"
+
 
 
 include("$(@__DIR__)/post/event_details.jl")
 include("$(@__DIR__)/post/plotting_script.jl")
- 
+
 # path to save files
-global path = "$(@__DIR__)/plots/fully_healing/$(FILE)/"
+global path = "$(@__DIR__)/plots/immature_fully_healing/$(FILE)/"
 mkpath(path)
 
 # global out_path = "$(@__DIR__)/data/$(FILE)/"
-global out_path = "$(@__DIR__)/data/fully_healing/$(FILE)/"
+global out_path = "$(@__DIR__)/data/immature_fully_healing/$(FILE)/"
 
 # Global variables
 yr2sec = 365*24*60*60
@@ -86,7 +90,7 @@ start_index = get_index(stress', taubefore')
 stressdrops = taubefore .- tauafter
 
 
-alpha = 0.85
+# alpha = 0.64
 # rho1 = 2670
 # vs1 = 3464
 # rho2 = 2500

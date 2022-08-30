@@ -10,7 +10,7 @@
 
 using Printf, LinearAlgebra, DelimitedFiles, SparseArrays, AlgebraicMultigrid, StaticArrays, IterativeSolvers, FEMSparse
 using Base.Threads
-using PyPlot
+# using PyPlot
 #  BLAS.set_num_threads(1)
 
 include("$(@__DIR__)/par.jl")	    #	Set Parameters
