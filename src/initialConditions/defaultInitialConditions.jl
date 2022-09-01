@@ -92,17 +92,17 @@ end
 
 
 # Shear stress
-function tauDepth(FltX)
+function tauDepth(FltX, multiple)
 
     FltNglob = length(FltX)
-
-    tauo::Array{Float64} = repeat([22.5e6], FltNglob)
+    NS = multiple*10e6
+    tauo::Array{Float64} = repeat([0.5*NS], FltNglob)
     tP1 = [0.01e6 0]
-    tP2 = [30e6 -2e3]
+    tP2 = [0.6*NS -2e3]
     #  tP2 = [30e6 -0.5e3]
-    tP3 = [30e6 -14e3]
-    tP4 = [22.5e6 -17e3]
-    tP5 = [22.5e6 -24e3]
+    tP3 = [0.6*NS -14e3]
+    tP4 = [0.45*NS -17e3]
+    tP5 = [0.45*NS -24e3]
 
     tau_depth1 = findall(abs.(FltX) .<= abs(tP2[2]))
     tau_depth2 = findall(abs(tP2[2]) .< abs.(FltX) .<= abs(tP3[2]))

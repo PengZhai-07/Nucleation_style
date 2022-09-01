@@ -36,7 +36,7 @@ function healing2(t,tStart,dam, cos_reduction)
     hmax*(1 .- exp.(-r*(t .- tStart)/P[1].yr2sec)) .+ dam     # hmax*(1 .- exp.(-r*(t .- tStart)/P[1].yr2sec)) > 0, when time is about 10 years, alphaa = dam + 0.05, healing completely!
 end
 
-function main(P,alphaa, cos_reduction)
+function main(P, alphaa, cos_reduction)
     # please refer to par.jl to see the specific meaning of P
     # P[1] = integer  Nel, FltNglob, yr2sec, Total_time, IDstate, nglob
     # P[2] = float    ETA, Vpl, Vthres, Vevne, dt
@@ -73,6 +73,7 @@ function main(P,alphaa, cos_reduction)
     d::Vector{Float64} = zeros(P[1].nglob)   # initial displacement
     v::Vector{Float64} = zeros(P[1].nglob)
     v .= 0.5e-3         # half of Vthres(1e-3 m/second)   intial velocity on whole model
+    # this initial velocity is only good for 50 Mpa and less, for higher normal stress, need larger initial velocity
     a::Vector{Float64} = zeros(P[1].nglob)   # relation between fault stress and acceleration?
 
     #.....................................
@@ -174,6 +175,7 @@ function main(P,alphaa, cos_reduction)
     did = P[10]   # index of GLL nodes in fault damage zone
     dam = alphaa   # current rigidity ratio: initial value
     alpha_after = alphaa - cos_reduction
+    print("alpha_after=", alpha_after)
 
     # Save parameters to file: from depth(48km) to shallow(0km)
     open(string(out_dir,"params.out"), "w") do io
@@ -506,8 +508,8 @@ function main(P,alphaa, cos_reduction)
 
         current_sliprate = 2*v[P[4].iFlt] .+ P[2].Vpl
 
-        # Output timestep info on screen: every 500 timesteps
-        if mod(it,500) == 0
+        # Output timestep info on screen: every 50 timesteps
+        if mod(it,50) == 0
             @printf("Time (yr) = %1.5g\n", t/P[1].yr2sec) 
             #  println("Vfmax = ", maximum(current_sliprate))
         end

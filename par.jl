@@ -239,7 +239,7 @@ function setParameters(FZdepth, halfwidth, res, T, alpha, multiple)
     SSpp::Vector{Float64} = SSppDepth(FltX)       # effective normal stress
     # print(SSpp)
 
-    tauo::Vector{Float64} = tauDepth(FltX)        # initial shear stress
+    tauo::Vector{Float64} = tauDepth(FltX, multiple)        # initial shear stress
 
     # Kelvin-Voigt Viscosity : one technical method to increase the convergence rate
     Nel_ETA::Int = 0   # not used! 
