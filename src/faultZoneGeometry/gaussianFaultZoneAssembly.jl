@@ -89,11 +89,11 @@ function assemble(P::parameters, iglob, M, W, x, y)
             end
             
             dtloc = dx./vs
-            dt = minimum( push!(dtloc[1:end], dt) )
+            dt = minimum( push!(dtloc[1:end], dt) )   # push! insert one or more items in collection
 
         end
     end
-
+()
     return M, W, dt, muMax
 end
 

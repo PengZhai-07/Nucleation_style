@@ -1,7 +1,7 @@
 #######################################
 # Basic testing to visualize results
 # #####################################
-FILE = "24000.0_500_4_0.64_0.0784_7"
+FILE = "24000.0_500_4_0.64_0.0591_5"
 
 include("analyze_results.jl")   
 
@@ -9,7 +9,8 @@ include("analyze_results.jl")
 VfmaxPlot(Vfmax, t, yr2sec);
 
 # culmulative slip
-cumSlipPlot(delfsec[1:4:end,:], delfyr[1:end, :], FltX, hypo, d_hypo);
+#cumSlipPlot(delfsec[1:4:end,:], delfyr[1:end, :], FltX, hypo, d_hypo);
+cumSlipPlot(delfsec[1:end,:], delfyr[1:end, :], FltX);
 # cumSlipPlot(delfsec[1:4:end,:], delfyr[1:end, :], FltX, hypo);
 
 # healing analysis: Vfmax and regidity ratio vs. time

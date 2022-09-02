@@ -44,7 +44,7 @@ function healing_analysis(Vf, alphaa, t, yr2sec)
     lab1 = "Max. slip rate"
     ax.set_ylabel("Max. Slip rate (m/s)")
     ax.set_yscale("log")
-    ax.set_xlim([0, 600])
+    #ax.set_xlim([0, 600])
     
     col="tab:red"
     ax2 = ax.twinx()
@@ -307,7 +307,8 @@ function alphaComp(a1, t1, a2, t2, a3, t3, yr2sec)
 end
 
 # Plot cumulative slip
-function cumSlipPlot(delfsec, delfyr, FltX, hypo, d_hypo)
+#function cumSlipPlot(delfsec, delfyr, FltX, hypo, d_hypo)
+function cumSlipPlot(delfsec, delfyr, FltX)
     indx = findall(abs.(FltX) .<= 18)[1]
 
     delfsec2 = transpose(delfsec[:,indx:end])
@@ -320,7 +321,7 @@ function cumSlipPlot(delfsec, delfyr, FltX, hypo, d_hypo)
 
     ax.plot(delfyr2, FltX, color="royalblue", lw=1.0)
     ax.plot(delfsec2, FltX[indx:end], color="chocolate", lw=1.0)
-    ax.plot(d_hypo, hypo./1000 , "*", color="saddlebrown", markersize=20)
+    #ax.plot(d_hypo, hypo./1000 , "*", color="saddlebrown", markersize=20)
     #ax.set_xlabel("Accumulated Slip (m)")
     ax.set_ylabel("Depth (km)")
     ax.set_ylim([0,24])

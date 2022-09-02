@@ -30,16 +30,18 @@ global out_path = "$(@__DIR__)/data/immature_fully_healing/$(FILE)/"
 # Global variables
 yr2sec = 365*24*60*60
 
-# Read data
-event_time = readdlm(string(out_path, "event_time.out"), header=false)
-tStart = event_time[:,1]
-#println(tStart)
-tEnd = event_time[:,2]
+# comment this part if there is nothing in event_time temporarily
 
-hypo = event_time[:,3]
-d_hypo = event_time[:,4]    # unit: m 
-print(d_hypo) 
-print(hypo)
+# # Read data
+# event_time = readdlm(string(out_path, "event_time.out"), header=false)
+# tStart = event_time[:,1]
+# #println(tStart)
+# tEnd = event_time[:,2]
+
+# hypo = event_time[:,3]
+# d_hypo = event_time[:,4]    # unit: m 
+# print(d_hypo) 
+# print(hypo)
 
 event_stress = readdlm(string(out_path, "event_stress.out"), header=false)
 indx = Int(length(event_stress[1,:])/2)
