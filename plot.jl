@@ -1,6 +1,7 @@
 #######################################
 # Basic testing to visualize results
 # #####################################
+FILE = "24000.0_500_4_0.64_0.0784_7"
 
 include("analyze_results.jl")   
 
@@ -16,6 +17,7 @@ healing_analysis(Vfmax, alphaa, t, yr2sec)
 
 # coseismic stress drop
 stressdrop_2(taubefore[1,:], tauafter[1,:], FltX)    # the row is the number of event
+# default is the first event, so taubefore is the initial shear stress: 0.6*normal stress
 
 # Plot slip vs event number
 #slipPlot(delfafter', rupture_len, FltX, Mw, tStart)           # delfafter: 179*481

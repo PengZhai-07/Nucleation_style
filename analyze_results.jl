@@ -13,7 +13,7 @@ using DelimitedFiles
 # FILE = "24000.0_1000_4_0.85"          #100year  3.68h: 13277.669141 seconds (8.17 G allocations: 8.039 TiB, 3.34% gc time, 0.13% compilation time)
 
 # normal stress: 500 years
-FILE = "24000.0_500_4_0.64_0.0396_3"
+
 
 
 
