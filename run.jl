@@ -11,7 +11,7 @@
 using Printf, LinearAlgebra, DelimitedFiles, SparseArrays, AlgebraicMultigrid, StaticArrays, IterativeSolvers, FEMSparse
 using Base.Threads
 # using PyPlot    # no matplotlib in wozhi
-BLAS.set_num_threads(4)
+BLAS.set_num_threads(4)  # If the underlying BLAS is using multiple threads, higher flop rates are realized
 
 include("$(@__DIR__)/par.jl")	    #	Set Parameters
 
@@ -27,7 +27,7 @@ res = 4   # resolution of mesh
 # 12: 1441 GLL nodes,  average 33m on fault
 # 16: 1921 GLL nodes, average 25m on fault
 T = 250    # total simulation years 
-alpha = 0.64    # initial(background) rigidity ratio: fault zone/host rock
+alpha = 0.85    # initial(background) rigidity ratio: fault zone/host rock
 
 # vs: 2%   3%  4%              
 # 0.9604   0.9409    0.9216
