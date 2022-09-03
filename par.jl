@@ -75,7 +75,7 @@ function setParameters(FZdepth, halfwidth, res, T, alpha, multiple)
     vs2::Float64 = sqrt(alpha)*vs1
 
     mu = rho1*vs1^2
-    print("The shear modulus of shostrock is",mu)     # the default value is about 32GPa
+    print("The shear modulus of shostrock is",mu)     # the default value is about 32GPa(3.2038e10)
 
     # without viscosity damping
     ETA = 0.

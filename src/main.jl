@@ -524,7 +524,7 @@ function main(P, alphaa, cos_reduction)
         # Determine quasi-static or dynamic regime based on max-slip velocity
         #  if isolver == 1 && Vfmax < 5e-3 || isolver == 2 && Vfmax < 2e-3
         # when to change the solver
-        if isolver == 1 && Vfmax < 5e-3 || isolver == 2 && Vfmax < 2e-3    
+        if isolver == 1 && Vfmax < 0.5e-3 || isolver == 2 && Vfmax < 0.2e-3    
             # 0.5e-3 is the initial slip rate, so that there is an initial earthquake at zero time!!
             # in addition, 5e-3 is half of the vthres, if it necessary to convert to dynamic regime in advance??
             isolver = 1   # quasi-static

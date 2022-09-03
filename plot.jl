@@ -1,9 +1,9 @@
 #######################################
 # Basic testing to visualize results
 # #####################################
-FILE = "24000.0_500_8_0.85_0.0396_3"
-# FILE = "24000.0_500_4_0.64_0.0591_5"
-# FILE = "24000.0_500_8_0.64_0.0784_7"
+# FILE = "24000.0_500_8_0.85_0.0396_3"
+# FILE = "24000.0_500_8_0.85_0.0591_5"
+FILE = "24000.0_500_8_0.85_0.0784_7"
 
 include("analyze_results.jl")   
 
@@ -19,7 +19,7 @@ cumSlipPlot(delfsec[1:end,:], delfyr[1:end, :], FltX);
 healing_analysis(Vfmax, alphaa, t, yr2sec)
 
 # coseismic stress drop
-stressdrop_2(taubefore[1,:], tauafter[1,:], FltX)    # the row is the number of event
+# stressdrop_2(taubefore[1,:], tauafter[1,:], FltX)    # the row is the number of event
 # default is the first event, so taubefore is the initial shear stress: 0.6*normal stress
 
 # Plot slip vs event number

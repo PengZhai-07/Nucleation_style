@@ -15,8 +15,6 @@ using DelimitedFiles
 # normal stress: 500 years
 
 
-
-
 include("$(@__DIR__)/post/event_details.jl")
 include("$(@__DIR__)/post/plotting_script.jl")
 
