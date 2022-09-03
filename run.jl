@@ -19,7 +19,7 @@ include("$(@__DIR__)/par.jl")	    #	Set Parameters
 
 FZdepth = 24e3   # depth of fault zone  unit: m
 halfwidth = 500   # half width of damage zone   unit:m
-res = 8   # resolution of mesh
+res = 4   # resolution of mesh
 # 4: 481 GLL nodes, average 100m on fault  
 # 6: 721 GLL nodes, average 67m on fault
 # 8: 961 GLL nodes, average 50m on fault
@@ -38,10 +38,10 @@ alpha = 0.85    # initial(background) rigidity ratio: fault zone/host rock
 
 #cos_reduction = 0.0396    # coseismic rigidity reduction 
 #multiple = 3    # effective normal stress on fault: 10MPa*multiple  
-# cos_reduction = 0.0591    # coseismic rigidity reduction 
-# multiple = 5    # effective normal stress on fault: 10MPa*multiple
-cos_reduction = 0.0784    # coseismic rigidity reduction   
-multiple = 7    # effective normal stress on fault: 10MPa*multiple
+cos_reduction = 0.0591    # coseismic rigidity reduction 
+multiple = 5    # effective normal stress on fault: 10MPa*multiple
+# cos_reduction = 0.0784    # coseismic rigidity reduction   
+# multiple = 7    # effective normal stress on fault: 10MPa*multiple
 
 # Output directory to save data
 out_dir = "$(@__DIR__)/data/immature_fully_healing/$(FZdepth)_$(halfwidth)_$(res)_$(alpha)_$(cos_reduction)_$(multiple)/"    

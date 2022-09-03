@@ -72,7 +72,7 @@ function main(P, alphaa, cos_reduction)
     # Initialize kinematic field: global arrays
     d::Vector{Float64} = zeros(P[1].nglob)   # initial displacement
     v::Vector{Float64} = zeros(P[1].nglob)
-    v .= 0.5e-3         # half of Vthres(1e-3 m/second)   intial velocity on whole model
+    v .= 0.5e-4         #  intial velocity on whole model
     # this initial velocity is only good for 50 Mpa and less, for higher normal stress, need larger initial velocity
     a::Vector{Float64} = zeros(P[1].nglob)   # relation between fault stress and acceleration?
 
@@ -466,7 +466,7 @@ function main(P, alphaa, cos_reduction)
 
                 #end
 
-                println("alphaa = ", alphaa)   # output the rigidity ratio after every earthquake 
+                println("alphaa = ", alphaa,"\n")   # output the rigidity ratio after every earthquake 
 
         end
         
@@ -509,7 +509,7 @@ function main(P, alphaa, cos_reduction)
         current_sliprate = 2*v[P[4].iFlt] .+ P[2].Vpl
 
         # Output timestep info on screen: every 50 timesteps
-        if mod(it,50) == 0
+        if mod(it,500) == 0
             @printf("Time (yr) = %1.5g\n", t/P[1].yr2sec) 
             #  println("Vfmax = ", maximum(current_sliprate))
         end
