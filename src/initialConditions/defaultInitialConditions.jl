@@ -104,7 +104,7 @@ function tauDepth(FltX, multiple)
     tP4 = [0.45*NS -17e3]
     tP5 = [0.45*NS -24e3]
 
-    tau_depth1 = findall(abs.(FltX) .<= abs(tP2[2]))
+    tau_depth1 = findall(abs.(FltX).<=  abs(tP2[2]))
     tau_depth2 = findall(abs(tP2[2]) .< abs.(FltX) .<= abs(tP3[2]))
     tau_depth3 = findall(abs(tP3[2]) .< abs.(FltX) .<= abs(tP4[2]))
     tau_depth4 = findall(abs(tP4[2]) .< abs.(FltX) .<= abs(tP5[2]))

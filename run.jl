@@ -19,7 +19,7 @@ include("$(@__DIR__)/par.jl")	    #	Set Parameters
 
 FZdepth = 24e3   # depth of fault zone  unit: m
 halfwidth = 500   # half width of damage zone   unit:m
-res = 4   # resolution of mesh
+res = 8   # resolution of mesh
 # 4: 481 GLL nodes, average 100m on fault  
 # 6: 721 GLL nodes, average 67m on fault
 # 8: 961 GLL nodes, average 50m on fault
@@ -27,9 +27,9 @@ res = 4   # resolution of mesh
 # 12: 1441 GLL nodes,  average 33m on fault
 # 16: 1921 GLL nodes, average 25m on fault
 T = 250    # total simulation years 
-alpha = 0.85    # initial(background) rigidity ratio: fault zone/host rock
+lpha = 0.85    # initial(background) rigidity ratio: fault zone/host rock
 
-# vs: 2%   3%  4%              
+# vs: 2%   3%  4%     a         
 # 0.9604   0.9409    0.9216
 # 0.0396   0.0591    0.0784
 
