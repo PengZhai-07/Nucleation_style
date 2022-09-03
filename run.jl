@@ -27,7 +27,7 @@ res = 8   # resolution of mesh
 # 12: 1441 GLL nodes,  average 33m on fault
 # 16: 1921 GLL nodes, average 25m on fault
 T = 250    # total simulation years 
-lpha = 0.85    # initial(background) rigidity ratio: fault zone/host rock
+alpha = 0.85    # initial(background) rigidity ratio: fault zone/host rock
 
 # vs: 2%   3%  4%     a         
 # 0.9604   0.9409    0.9216
