@@ -223,9 +223,7 @@ function main(P, alphaa, cos_reduction)
     while t < P[1].Total_time
         it = it + 1
 
-        
         t = t + dt   # dt is the initial smallest timestep: dtmin
-        
 
         if isolver == 1    # quasi-static phase at the beginning!!!
             # intial velocity and displacement field for all GLL nodes
@@ -466,8 +464,8 @@ function main(P, alphaa, cos_reduction)
 
                 #end
 
-                @printf("alphaa = ", alphaa)   # output the rigidity ratio after every earthquake 
-
+                println("alphaa = ", alphaa)   # output the rigidity ratio after every earthquake 
+                # warning: println is different from @printf !!!
         end
         
         #-----

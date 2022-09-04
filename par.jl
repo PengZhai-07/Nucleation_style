@@ -21,9 +21,9 @@ function setParameters(FZdepth, halfwidth, res, T, alpha, multiple)
     NelY::Int = 20*res # no. of elements in y
 
     dxe::Float64 = LX/NelX   #	Size of one element along X
-    print(dxe)
+    #println(dxe)
     dye::Float64 = LY/NelY   #	Size of one element along Y
-    print(dye)
+    #println(dye)
     Nel::Int = NelX*NelY     # Total no. of elements
 
     P::Int = 4		#	Lagrange polynomial degree
@@ -38,8 +38,8 @@ function setParameters(FZdepth, halfwidth, res, T, alpha, multiple)
     jac::Float64 = dx_dxi*dy_deta
     coefint1::Float64 = jac/dx_dxi^2         # dye/dxe
     coefint2::Float64 = jac/dy_deta^2         # dxe/dye
-    print(coefint1)
-    print(coefint2)
+    #println(coefint1)
+    #println(coefint2)
 
     #..................
     # TIME PARAMETERS
@@ -75,7 +75,7 @@ function setParameters(FZdepth, halfwidth, res, T, alpha, multiple)
     vs2::Float64 = sqrt(alpha)*vs1
 
     mu = rho1*vs1^2
-    print("The shear modulus of shostrock is",mu)     # the default value is about 32GPa(3.2038e10)
+    println("The shear modulus of shostrock is",mu)     # the default value is about 32GPa(3.2038e10)
 
     # without viscosity damping
     ETA = 0.
@@ -172,7 +172,7 @@ function setParameters(FZdepth, halfwidth, res, T, alpha, multiple)
 
     # Stiffness Assembly: compute and output the whole large stiffness matrix: about (154401*154401)
     Ksparse::SparseMatrixCSC{Float64} = Kassemble(NGLL, NelX, NelY, dxe,dye, nglob, iglob, W)
-    #print(size(Ksparse))
+    #println(size(Ksparse))
 
     # Damage Indexed Kdam
     # fault damage zone evolution
@@ -221,7 +221,7 @@ function setParameters(FZdepth, halfwidth, res, T, alpha, multiple)
     # FltL = dx_dxi.*wgll.*1 (impedance)
     # half_dt = 0.5*dtmin
     FltZ::Vector{Float64} = M[iFlt]./FltL/half_dt * 0.5   #  times 0.5 due to the symmetry 
-    print(FltZ)
+    #println(FltZ)
     # X (vertical) of all GLL nodes at fault surface
     FltX::Vector{Float64} = x[iFlt]   
     #println("# X(vertical) of all GLL nodes at dynamic fault surface: ", FltX)    
@@ -234,10 +234,10 @@ function setParameters(FZdepth, halfwidth, res, T, alpha, multiple)
     Seff::Vector{Float64} = SeffDepth(FltX, multiple)       # default effective normal stress: 10MPa
 
     Snormal::Vector{Float64} = SnormalDepth(FltX)       # effective normal stress
-    # print(Snormal)
+    # println(Snormal)
 
     SSpp::Vector{Float64} = SSppDepth(FltX)       # effective normal stress
-    # print(SSpp)
+    # println(SSpp)
 
     tauo::Vector{Float64} = tauDepth(FltX, multiple)        # initial shear stress
 
