@@ -11,7 +11,7 @@
 using Printf, LinearAlgebra, DelimitedFiles, SparseArrays, AlgebraicMultigrid, StaticArrays, IterativeSolvers, FEMSparse
 using Base.Threads
 # using PyPlot    # no matplotlib in wozhi
-BLAS.set_num_threads(4)  # If the underlying BLAS is using multiple threads, higher flop rates are realized
+#BLAS.set_num_threads(2)  # If the underlying BLAS is using multiple threads, higher flop rates are realized
 
 include("$(@__DIR__)/par.jl")	    #	Set Parameters
 
