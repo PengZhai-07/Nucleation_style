@@ -175,7 +175,7 @@ function main(P, alphaa, cos_reduction)
     did = P[10]   # index of GLL nodes in fault damage zone
     dam = alphaa   # current rigidity ratio: initial value
     alpha_after = alphaa - cos_reduction
-    print("alpha_after=", alpha_after)
+    print("alpha_after=", alpha_after,"\n")
 
     # Save parameters to file: from depth(48km) to shallow(0km)
     open(string(out_dir,"params.out"), "w") do io
@@ -466,7 +466,7 @@ function main(P, alphaa, cos_reduction)
 
                 #end
 
-                println("alphaa = ", alphaa,"\n")   # output the rigidity ratio after every earthquake 
+                @printf("alphaa = ", alphaa)   # output the rigidity ratio after every earthquake 
 
         end
         
