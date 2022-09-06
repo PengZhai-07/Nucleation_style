@@ -1,7 +1,7 @@
 #######################################
 # Basic testing to visualize results
 # #####################################
-# FILE = "24000.0_500_8_0.85_0.0396_3"
+#FILE = "24000.0_500_8_0.85_0.0396_3"
 # FILE = "24000.0_500_8_0.85_0.0591_5"
 FILE = "24000.0_500_8_0.85_0.0784_7"
 
@@ -26,10 +26,10 @@ healing_analysis(Vfmax, alphaa, t, yr2sec)
 #slipPlot(delfafter', rupture_len, FltX, Mw, tStart)           # delfafter: 179*481
 
 # slip rate vs timesteps
-eqCyclePlot(sliprate', FltX)
+# eqCyclePlot(sliprate', FltX)
 
 # plot alphaa vs time
 # alphaaPlot(alphaa, t, yr2sec)
 
 # Plot friction parameters
-icsPlot(a_b, Seff, tauo, FltX)
+# icsPlot(a_b, Seff, tauo, FltX)

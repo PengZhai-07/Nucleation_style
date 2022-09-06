@@ -26,8 +26,8 @@ res = 8   # resolution of mesh
 # 10: 1201 GLL nodes, average 40m on fault
 # 12: 1441 GLL nodes,  average 33m on fault
 # 16: 1921 GLL nodes, average 25m on fault
-T = 250    # total simulation years 
-alpha = 0.64    # initial(background) rigidity ratio: fault zone/host rock
+T = 100    # total simulation years 
+alpha = 0.85    # initial(background) rigidity ratio: fault zone/host rock
 
 # vs: 2%   3%  4%     a         
 # 0.9604   0.9409    0.9216
@@ -38,7 +38,7 @@ alpha = 0.64    # initial(background) rigidity ratio: fault zone/host rock
 
 #cos_reduction = 0.0396    # coseismic rigidity reduction 
 #multiple = 3    # effective normal stress on fault: 10MPa*multiple  
-cos_reduction = 0.0591    # coseismic rigidity reduction 
+cos_reduction = 0.05    # coseismic rigidity reduction 
 multiple = 5    # effective normal stress on fault: 10MPa*multiple
 # cos_reduction = 0.0784    # coseismic rigidity reduction   
 # multiple = 7    # effective normal stress on fault: 10MPa*multiple

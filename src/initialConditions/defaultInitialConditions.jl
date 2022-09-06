@@ -17,10 +17,10 @@ function fricDepth(FltX)
     a_b = cca - ccb     # -0.004 is the initial value of a-B
     # [a-b, depth]   key points of friction coefficient change
     fP1 = [0.012, 0e3]   # fP1 = [0.012, 0e3]
-    fP2 = [-0.0041, -2e3]
-    fP3 = [-0.0041, -14e3]
+    fP2 = [-0.004, -2e3]
+    fP3 = [-0.004, -12e3]
     fP4 = [0.015, -17e3]
-    fP5 = [0.024, -24e3]
+    fP5 = [0.024, -20e3]
 
     # Return a vector I of the indices or keys of A
     fric_depth1 = findall(abs.(FltX) .<= abs(fP2[2]))
@@ -100,9 +100,9 @@ function tauDepth(FltX, multiple)
     tP1 = [0.01e6 0]
     tP2 = [0.6*NS -2e3]
     #  tP2 = [30e6 -0.5e3]
-    tP3 = [0.6*NS -14e3]
+    tP3 = [0.6*NS -12e3]
     tP4 = [0.45*NS -17e3]
-    tP5 = [0.45*NS -24e3]
+    tP5 = [0.45*NS -20e3]
 
     tau_depth1 = findall(abs.(FltX).<=  abs(tP2[2]))
     tau_depth2 = findall(abs(tP2[2]) .< abs.(FltX) .<= abs(tP3[2]))

@@ -232,7 +232,8 @@ function setParameters(FZdepth, halfwidth, res, T, alpha, multiple)
     cca::Vector{Float64}, ccb::Vector{Float64}, a_b = fricDepth(FltX)   # rate-state friction parameters
     
     Seff::Vector{Float64} = SeffDepth(FltX, multiple)       # default effective normal stress: 10MPa
-
+    println(Seff)
+    
     Snormal::Vector{Float64} = SnormalDepth(FltX)       # effective normal stress
     # println(Snormal)
 
@@ -240,6 +241,7 @@ function setParameters(FZdepth, halfwidth, res, T, alpha, multiple)
     # println(SSpp)
 
     tauo::Vector{Float64} = tauDepth(FltX, multiple)        # initial shear stress
+    println(tauo)
 
     # Kelvin-Voigt Viscosity : one technical method to increase the convergence rate
     Nel_ETA::Int = 0   # not used! 
