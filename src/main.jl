@@ -83,7 +83,7 @@ function main(P, alphaa, cos_reduction)
     FaultC::Vector{Float64} = zeros(P[1].FltNglob)     
     FltVfree::Vector{Float64} = zeros(length(P[4].iFlt))   # index of GLL nodes on the fault
     # velocity variables
-    Vf::Vector{Float64} =  zeros(P[1].FltNglob)      
+    Vf::Vector{Float64} =  zeros(P[1].FltNglob)       
     Vf0::Vector{Float64} = zeros(length(P[4].iFlt))      # length(P[4].iFlt) = P[1].FltNglob
     Vf1::Vector{Float64} = zeros(P[1].FltNglob)
     Vf2::Vector{Float64} = zeros(P[1].FltNglob)
