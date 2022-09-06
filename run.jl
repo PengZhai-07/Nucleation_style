@@ -18,7 +18,7 @@ include("$(@__DIR__)/par.jl")	    #	Set Parameters
 # Put the resolution for the simulation here: should be an integer
 
 FZdepth = 24e3   # depth of fault zone  unit: m
-halfwidth = 500   # half width of damage zone   unit:m
+halfwidth = 1000   # half width of damage zone   unit:m
 res = 8   # resolution of mesh
 # 4: 481 GLL nodes, average 100m on fault  
 # 6: 721 GLL nodes, average 67m on fault

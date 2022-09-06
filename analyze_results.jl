@@ -27,7 +27,6 @@ global out_path = "$(@__DIR__)/data/immature_fully_healing/$(FILE)/"
 
 # Global variables
 yr2sec = 365*24*60*60
-
 # comment this part if there is nothing in event_time temporarily
 
 # # Read data

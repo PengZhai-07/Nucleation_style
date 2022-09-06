@@ -45,7 +45,9 @@ function healing_analysis(Vf, alphaa, t, yr2sec)
     ax.set_ylabel("Max. Slip rate (m/s)")
     ax.set_yscale("log")
     #ax.set_xlim([0, 600])
+    ax.set_ylim([1e-10, 1e2])
     
+
     col="tab:red"
     ax2 = ax.twinx()
     
@@ -237,7 +239,7 @@ function VfmaxPlot(Vfmax, t, yr2sec)
     ax.set_xlabel("Time (years)")
     ax.set_ylabel("Max. Slip rate (m/s)")
     ax.set_yscale("log")
-    #  ax.set_xlim([230,400])
+    ax.set_ylim([1e-10,1e2])
     show()
     
     figname = string(path, "Vfmax01.png")
