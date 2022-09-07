@@ -234,10 +234,10 @@ function setParameters(FZdepth, halfwidth, res, T, alpha, multiple)
     Seff::Vector{Float64} = SeffDepth(FltX, multiple)       # default effective normal stress: 10MPa
     println(Seff)
 
-    #Snormal::Vector{Float64} = SnormalDepth(FltX)       # effective normal stress
+    Snormal::Vector{Float64} = SnormalDepth(FltX)       # effective normal stress
     # println(Snormal)
 
-    #SSpp::Vector{Float64} = SSppDepth(FltX)       # effective normal stress
+    SSpp::Vector{Float64} = SSppDepth(FltX)       # effective normal stress
     # println(SSpp)
 
     tauo::Vector{Float64} = tauDepth(FltX, multiple)        # initial shear stress
