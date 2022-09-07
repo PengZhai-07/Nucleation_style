@@ -20,7 +20,7 @@ function fricDepth(FltX)
     fP2 = [-0.004, -2e3]
     fP3 = [-0.004, -12e3]
     fP4 = [0.015, -17e3]
-    fP5 = [0.024, -20e3]
+    fP5 = [0.024, -24e3]
 
     # Return a vector I of the indices or keys of A
     fric_depth1 = findall(abs.(FltX) .<= abs(fP2[2]))
@@ -59,36 +59,36 @@ function SeffDepth(FltX, multiple)
 end
 
 
-# Initial normal stress: linear dependent
-function SnormalDepth(FltX)
+# # Initial normal stress: linear dependent
+# function SnormalDepth(FltX)
 
-    FltNglob = length(FltX)
-    Snormal::Array{Float64} = repeat([0], FltNglob)
-    sP1 = [10e6 0]
-    sP2 = [970e6 -48e3]  
-    Snormal_depth = findall(abs.(FltX) .<= abs(sP2[2]))
-    Snormal[Snormal_depth] = Int1D(sP1, sP2, FltX[Snormal_depth])
+#     FltNglob = length(FltX)
+#     Snormal::Array{Float64} = repeat([0], FltNglob)
+#     sP1 = [10e6 0]
+#     sP2 = [970e6 -48e3]  
+#     Snormal_depth = findall(abs.(FltX) .<= abs(sP2[2]))
+#     Snormal[Snormal_depth] = Int1D(sP1, sP2, FltX[Snormal_depth])
 
-    return Snormal
+#     return Snormal
 
-end
+# end
 
-# Initial normal stress: linear dependent
-function SSppDepth(FltX)
+# # Initial pore pressure: linear dependent
+# function SSppDepth(FltX)
 
-    FltNglob = length(FltX)
-    SSpp::Array{Float64} = repeat([0], FltNglob)
-    sP1 = [10e6 0]
-    sP2 = [50e6 -5e3]  
-    sP3 = [920e6 -48e3]
-    SSpp_depth1 = findall(abs.(FltX) .<= abs(sP3[2]))
-    SSpp_depth2 = findall(abs.(FltX) .<= abs(sP2[2]))
-    SSpp[SSpp_depth1] = Int1D(sP2, sP3, FltX[SSpp_depth1])
-    SSpp[SSpp_depth2] = Int1D(sP1, sP2, FltX[SSpp_depth2])
+#     FltNglob = length(FltX)
+#     SSpp::Array{Float64} = repeat([0], FltNglob)
+#     sP1 = [10e6 0]
+#     sP2 = [50e6 -5e3]  
+#     sP3 = [920e6 -48e3]
+#     SSpp_depth1 = findall(abs.(FltX) .<= abs(sP3[2]))
+#     SSpp_depth2 = findall(abs.(FltX) .<= abs(sP2[2]))
+#     SSpp[SSpp_depth1] = Int1D(sP2, sP3, FltX[SSpp_depth1])
+#     SSpp[SSpp_depth2] = Int1D(sP1, sP2, FltX[SSpp_depth2])
 
-    return SSpp
+#     return SSpp
 
-end
+# end
 
 
 # Shear stress
@@ -102,7 +102,7 @@ function tauDepth(FltX, multiple)
     #  tP2 = [30e6 -0.5e3]
     tP3 = [0.6*NS -12e3]
     tP4 = [0.45*NS -17e3]
-    tP5 = [0.45*NS -20e3]
+    tP5 = [0.45*NS -24e3]
 
     tau_depth1 = findall(abs.(FltX).<=  abs(tP2[2]))
     tau_depth2 = findall(abs(tP2[2]) .< abs.(FltX) .<= abs(tP3[2]))

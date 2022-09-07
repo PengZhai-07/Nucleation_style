@@ -47,13 +47,13 @@ yr2sec = 365*24*60*60
 # taubefore = event_stress[:,1:indx]
 # tauafter = event_stress[:,indx+1:end]
 
-# # coseismic slip on fault for all different events(row)
-# delfafter = readdlm(string(out_path, "coseismic_slip.out"), header=false)
-# # print(size(delfafter))
-# #  slip = readdlm(string(out_path, "slip.out"), header=false)
-# sliprate = readdlm(string(out_path, "sliprate.out"), header=false)
-# # println(size(delfafter,1))
-# # println(size(delfafter,2))
+# coseismic slip on fault for all different events(row)
+delfafter = readdlm(string(out_path, "coseismic_slip.out"), header=false)
+# print(size(delfafter))
+#  slip = readdlm(string(out_path, "slip.out"), header=false)
+sliprate = readdlm(string(out_path, "sliprate.out"), header=false)
+# println(size(delfafter,1))
+# println(size(delfafter,2))
 
 # Order of storage: Seff, tauo, FltX, cca, ccb, xLf
 params = readdlm(string(out_path, "params.out"), header=false)
@@ -77,12 +77,12 @@ alphaa = time_vel[:,4]
 
 
 
-# # displacement on fault line for different time 
-# delfsec = readdlm(string(out_path, "delfsec.out"))
-# # print(size(delfsec))
-# delfyr = readdlm(string(out_path, "delfyr.out"))
-# # print(size(delfyr))
-# stress = readdlm(string(out_path, "stress.out"), header=false)
+# displacement on fault line for different time 
+delfsec = readdlm(string(out_path, "delfsec.out"))
+# print(size(delfsec))
+delfyr = readdlm(string(out_path, "delfyr.out"))
+# print(size(delfyr))
+stress = readdlm(string(out_path, "stress.out"), header=false)
 
 
 # start_index = get_index(stress', taubefore')
