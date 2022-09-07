@@ -326,7 +326,7 @@ function cumSlipPlot(delfsec, delfyr, FltX)
     #ax.plot(d_hypo, hypo./1000 , "*", color="saddlebrown", markersize=20)
     #ax.set_xlabel("Accumulated Slip (m)")
     ax.set_ylabel("Depth (km)")
-    ax.set_ylim([0,24])
+    ax.set_ylim([0,30])
     ax.set_xlim([0,maximum(delfyr2)])
     #ax.set_xlim([0,9.0])
     
