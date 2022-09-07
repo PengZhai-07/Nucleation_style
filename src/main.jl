@@ -292,11 +292,11 @@ function main(P, alphaa, cos_reduction)
             tau .= tau1[:]
             
             # # creeping fault
-            # tau[iFBC] .= 0.
-            # Vf1[iFBC] .= P[2].Vpl
+            tau[iFBC] .= 0.
+            Vf1[iFBC] .= P[2].Vpl
 
             # on fault GLL nodes
-            # v[P[4].iFlt] .= 0.5*(Vf .- P[2].Vpl)   
+            v[P[4].iFlt] .= 0.5*(Vf1 .- P[2].Vpl)   
 
             # off-fault GLL nodes
             v[P[4].FltNI] .= (d[P[4].FltNI] .- dPre[P[4].FltNI])/dt
@@ -305,7 +305,7 @@ function main(P, alphaa, cos_reduction)
             # reset the fault stress(or acceleration) to be zero
             a .= 0.
             # reset the culmulative displacement and velocity within creeping fault to be zero
-            # d[P[4].FltIglobBC] .= 0.
+            d[P[4].FltIglobBC] .= 0.
             v[P[4].FltIglobBC] .= 0.
 
             #---------------
