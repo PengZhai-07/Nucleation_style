@@ -18,7 +18,7 @@ function fricDepth(FltX)
     # [a-b, depth]   key points of friction coefficient change
     fP1 = [0.012, 0e3]   # fP1 = [0.012, 0e3]
     fP2 = [-0.004, -2e3]
-    fP3 = [-0.004, -12e3]
+    fP3 = [-0.004, -14e3]
     fP4 = [0.015, -17e3]
     fP5 = [0.024, -24e3]
 
@@ -100,7 +100,7 @@ function tauDepth(FltX, multiple)
     tP1 = [0.01e6 0]
     tP2 = [0.6*NS -2e3]
     #  tP2 = [30e6 -0.5e3]
-    tP3 = [0.6*NS -12e3]
+    tP3 = [0.6*NS -14e3]
     tP4 = [0.45*NS -17e3]
     tP5 = [0.45*NS -24e3]
 
