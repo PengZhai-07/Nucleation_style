@@ -20,17 +20,17 @@ cumSlipPlot(delfsec[1:end,:], delfyr[1:end, :], FltX);
 healing_analysis(Vfmax, alphaa, t, yr2sec)
 
 # coseismic stress drop
-# stressdrop_2(taubefore[1,:], tauafter[1,:], FltX)    # the row is the number of event
+stressdrop_2(taubefore[1,:], tauafter[1,:], FltX)    # the row is the number of event
 # default is the first event, so taubefore is the initial shear stress: 0.6*normal stress
 
 # Plot slip vs event number
 #slipPlot(delfafter', rupture_len, FltX, Mw, tStart)           # delfafter: 179*481
 
 # slip rate vs timesteps
-# eqCyclePlot(sliprate', FltX)
+eqCyclePlot(sliprate', FltX)
 
 # plot alphaa vs time
 # alphaaPlot(alphaa, t, yr2sec)
 
 # Plot friction parameters
-# icsPlot(a_b, Seff, tauo, FltX)
+icsPlot(a_b, Seff, tauo, FltX)
