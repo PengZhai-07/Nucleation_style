@@ -4,7 +4,7 @@
 #FILE = "24000.0_500_8_0.85_0.0396_3"
 # FILE = "24000.0_500_8_0.85_0.0591_5"
 # FILE = "24000.0_500_8_0.85_0.0784_7"
-FILE = "24000.0_2000_8_0.85_0.05_5"
+FILE = "24000.0_1500_8_0.85_0.05_5"
 
 include("analyze_results.jl")   
 
@@ -16,7 +16,7 @@ VfmaxPlot(Vfmax, t, yr2sec);
 cumSlipPlot(delfsec[1:end,:], delfyr[1:end, :], FltX);
 # cumSlipPlot(delfsec[1:4:end,:], delfyr[1:end, :], FltX, hypo);
 
-# healing analysis: Vfmax and regidity ratio vs. time
+# # healing analysis: Vfmax and regidity ratio vs. time
 healing_analysis(Vfmax, alphaa, t, yr2sec)
 
 # coseismic stress drop
