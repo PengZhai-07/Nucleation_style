@@ -1,4 +1,0 @@
-Greetings!
-halfwidth of fault zone(m): 5000.000000
-rigidity ratio of damage zone: 0.200000
-characteristic slip distance(m): 0.022366
