@@ -18,8 +18,8 @@ list = ["#!/bin/bash\n# The interpreter used to execute the script\n\n",\
             "#SBATCH --mem=120000m"
             "#SBATCH --time=14-00:00:00\n",\
             "#SBATCH --partition=standard\n\n",\
-            "#SBATCH --output=/home/%u/%x-%j.log\n",\
-            "#SBATCH --error=/home/%u/error-%x-%j.log\n\n"]
+            "#SBATCH --output=/home/%u/log/%x-%j.log\n",\
+            "#SBATCH --error=/home/%u/log/error-%x-%j.log\n\n"]
 
 par = pd.read_table("./key_par.txt", header = 0, sep=" ")
 print(par.columns)
@@ -39,5 +39,5 @@ with open('ratio_halfwidth_cycle_part_1.sh','w') as f:
     f.write("# half-width(m) rigidity_ratio Lc(m)\n\n")
     for i in range(0,2):
             n = n+1
-            f.write("julia --threads 4 run.jl %.6f %.6f %.6f > log/gl_case%.0f \n\n"  \
+            f.write("julia --threads 4 run.jl %.6f %.6f %.6f > /home/%u/log/gl_case%.0f \n\n"  \
                 %(ratio.iloc[i],halfwidth.iloc[i],L.iloc[i],n))
