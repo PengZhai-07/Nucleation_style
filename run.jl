@@ -27,8 +27,8 @@ res = 8   # resolution of mesh
 # 20: 1921 GLL nodes, average 20m on fault
 T = 200    # total simulation years 
 FZdepth = 24e3   # depth of fault zone  unit: m
-halfwidth = ARGS[1]   # half width of damage zone   unit:m
-alpha = ARGS[2]       # initial(background) rigidity ratio: fault zone/host rock
+alpha = ARGS[1]       # initial(background) rigidity ratio: fault zone/host rock
+halfwidth = ARGS[2]   # half width of damage zone   unit:m
 Lc = ARGS[3]          # characteristic slip distance
 
 println("halfwidth of fault zone(m): ",halfwidth)
