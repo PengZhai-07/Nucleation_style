@@ -35,7 +35,7 @@ with open('ratio_halfwidth_cycle.sh','w') as f:     # with 关键字。优点是
             N = N+1
             f.write("# %.0f \n" %(N))
             f.writelines(list)
-            f.write("#SBATCH --job-name= gl_case%.0f \n" %(N))
+            f.write("#SBATCH --job-name= gl-case%.0f \n" %(N))
             f.write("#SBATCH --account=yiheh0\n")
             f.write("julia run.jl %.6f %.6f %.6f \n\n" \
                 %(ratio.iloc[i],halfwidth.iloc[i],L.iloc[i]))

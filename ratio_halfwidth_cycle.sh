@@ -20,7 +20,7 @@
 
 # half-width(m) rigidity_ratio Lc(m)
 
-#SBATCH --job-name= gl_case1 
+#SBATCH --job-name= gl-case1 
 #SBATCH --account=yiheh0
 julia run.jl 0.500000 500.000000 0.010081 
 
@@ -40,7 +40,7 @@ julia run.jl 0.500000 500.000000 0.010081
 
 # half-width(m) rigidity_ratio Lc(m)
 
-#SBATCH --job-name= gl_case2 
+#SBATCH --job-name= gl-case2 
 #SBATCH --account=yiheh0
 julia run.jl 0.500000 1000.000000 0.011114 
 
