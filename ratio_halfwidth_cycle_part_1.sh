@@ -15,7 +15,7 @@
 #SBATCH --output=/home/%u/%x-%j.log
 #SBATCH --error=/home/%u/error-%x-%j.log
 
-#SBATCH --job-name= gl_case1-8 
+#SBATCH --job-name=gl_case1-8 
 #SBATCH --account=yiheh0
 #SBATCH --ntasks-per-node=32
 # The application(s) to execute along with its input arguments and options:

@@ -32,7 +32,7 @@ n = 0
 
 with open('ratio_halfwidth_cycle_part_1.sh','w') as f:       
     f.writelines(list)
-    f.write("#SBATCH --job-name= gl_case1-%.0f \n" %(N))
+    f.write("#SBATCH --job-name=gl_case1-%.0f \n" %(N))
     f.write("#SBATCH --account=yiheh0\n")
     f.write("#SBATCH --ntasks-per-node=32\n")
     f.write("# The application(s) to execute along with its input arguments and options:\n")
