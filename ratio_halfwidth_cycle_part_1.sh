@@ -9,8 +9,7 @@
 #SBATCH --mail-user=zhai5108@gmail.com
 #SBATCH --mail-type=BEGIN,END
 #SBATCH --nodes=1
-#SBATCH --ntasks-per-node=32
-#SBATCH --time=14-00:00:00
+#SBATCH --mem=120000m#SBATCH --time=14-00:00:00
 #SBATCH --partition=standard
 
 #SBATCH --output=/home/%u/%x-%j.log
@@ -18,6 +17,7 @@
 
 #SBATCH --job-name= gl_case1-8 
 #SBATCH --account=yiheh0
+#SBATCH --ntasks-per-node=32
 # The application(s) to execute along with its input arguments and options:
 # half-width(m) rigidity_ratio Lc(m)
 

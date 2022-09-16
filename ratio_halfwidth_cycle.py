@@ -15,7 +15,7 @@ list = ["#!/bin/bash\n# The interpreter used to execute the script\n\n",\
             "#SBATCH --mail-user=zhai5108@gmail.com\n",\
             "#SBATCH --mail-type=BEGIN,END\n",\
             "#SBATCH --nodes=1\n",\
-            "#SBATCH --ntasks-per-node=32\n",\
+            "#SBATCH --mem=120000m"
             "#SBATCH --time=14-00:00:00\n",\
             "#SBATCH --partition=standard\n\n",\
             "#SBATCH --output=/home/%u/%x-%j.log\n",\
@@ -34,6 +34,7 @@ with open('ratio_halfwidth_cycle_part_1.sh','w') as f:
     f.writelines(list)
     f.write("#SBATCH --job-name= gl_case1-%.0f \n" %(N))
     f.write("#SBATCH --account=yiheh0\n")
+    f.write("#SBATCH --ntasks-per-node=32\n")
     f.write("# The application(s) to execute along with its input arguments and options:\n")
     f.write("# half-width(m) rigidity_ratio Lc(m)\n\n")
     for i in range(0,2):
