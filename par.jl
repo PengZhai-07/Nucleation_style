@@ -12,7 +12,7 @@ include("$(@__DIR__)/src/damageEvol.jl")   #    Stiffness index of damaged mediu
 include("$(@__DIR__)/src/BoundaryMatrix.jl")    #	Boundary matrices
 include("$(@__DIR__)/src/initialConditions/defaultInitialConditions.jl")
 
-function setParameters(FZdepth, halfwidth, res, T, alpha, multiple)
+function setParameters(FZdepth, halfwidth, res, T, alpha, multiple, Lc)
 
     LX::Int = 48e3  # depth dimension of rectangular domain
     LY::Int = 32e3 # off fault dimenstion of rectangular domain
@@ -93,7 +93,7 @@ function setParameters(FZdepth, halfwidth, res, T, alpha, multiple)
     # frictional parameters along the fault line (X direction)
     fo::Vector{Float64} = repeat([0.6], FltNglob)       #	Reference friction coefficient
     Vo::Vector{Float64} = repeat([1e-6], FltNglob)		#	Reference velocity 'Vo'  unit: m/s
-    xLf::Vector{Float64} = repeat([0.008], FltNglob)    #	Dc (Lc) = 8 mm
+    xLf::Vector{Float64} = repeat([Lc], FltNglob)    #	Dc (Lc)
 
     Vthres::Float64 = 0.001     # unit: m/s  if slip rate is higher than this value, earthquake happens
     Vevne::Float64 = Vthres     # redefine the velocity threshold!!
