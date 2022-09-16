@@ -1,18 +1,42 @@
 #!/usr/bin/env python3
 # -*- encoding: utf-8 -*-
 
-import os 
+
+# output several bash script
+
+from re import A
 import sys
 import pandas as pd 
-import numpy as np
 
-halfwidth = [500, 1000, 2000, 5000]
-alpha = [0.2, 0.25, 0.3333, 0.5]
+list = ["#!/bin/bash\n# The interpreter used to execute the script\n\n",\
+            "# This project is to explore the phase diagram (Ru=11) with\n", \
+            "# different rigidity ratio, halfwidth and characteristic slip distance \n\n",\
+            "##SBATCH directives that convey submission options:\n\n",\
+            "#SBATCH --mail-user=zhai5108@gmail.com\n",\
+            "#SBATCH --mail-type=BEGIN,END\n",\
+            "#SBATCH --nodes=1\n",\
+            "#SBATCH --ntasks-per-node=32\n",\
+            "#SBATCH --time=14-00:00:00\n",\
+            "#SBATCH --partition=standard\n\n",\
+            "#SBATCH --output=/home/%u/%x-%j.log\n",\
+            "#SBATCH --error=/home/%u/error-%x-%j.log\n\n"]
 
-Lc = pd.read_table("./Lc.txt", header = None)
+par = pd.read_table("./key_par.txt", header = 0, sep=" ")
+print(par.columns)
+ratio = par['ratio']
+halfwidth = par['halfwidth']
+L = par['L']
+co_size = par['co_size']
+N = 8    # number of tasks for each bash script
+n = 0
 
-for i in range(0,len(halfwidth)):
-    for j in range(0,len(alpha)):             
-        os.system("julia run.jl %.6f %.6f %.6f > log/case00.txt 2>&1 &" %(halfwidth[i],alpha[j],1e-3*Lc.iloc[i,j]))
-    
-# nohup julia run.jl --threads 4 > log/case01.txt 2>&1 &
+with open('ratio_halfwidth_cycle_part_1.sh','w') as f:       
+    f.writelines(list)
+    f.write("#SBATCH --job-name= gl_case1-%.0f \n" %(N))
+    f.write("#SBATCH --account=yiheh0\n")
+    f.write("# The application(s) to execute along with its input arguments and options:\n")
+    f.write("# half-width(m) rigidity_ratio Lc(m)\n\n")
+    for i in range(0,2):
+            n = n+1
+            f.write("julia --threads 4 run.jl %.6f %.6f %.6f > log/gl_case%.0f \n\n"  \
+                %(ratio.iloc[i],halfwidth.iloc[i],L.iloc[i],n))
