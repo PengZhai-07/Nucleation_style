@@ -17,7 +17,7 @@
 
 #SBATCH --job-name=gl_case1-8 
 #SBATCH --account=yiheh0
-#SBATCH --ntasks-per-node=32
+#SBATCH --ntasks-per-node=8
 # The application(s) to execute along with its input arguments and options:
 # half-width(m) rigidity_ratio Lc(m)
 
