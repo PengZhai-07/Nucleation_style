@@ -12,8 +12,8 @@
 #SBATCH --mem=120000m#SBATCH --time=14-00:00:00
 #SBATCH --partition=standard
 
-#SBATCH --output=/home/%u/%x-%j.log
-#SBATCH --error=/home/%u/error-%x-%j.log
+#SBATCH --output=/home/%u/log/%x-%j.log
+#SBATCH --error=/home/%u/log/error-%x-%j.log
 
 #SBATCH --job-name=gl_case1-8 
 #SBATCH --account=yiheh0
@@ -21,7 +21,7 @@
 # The application(s) to execute along with its input arguments and options:
 # half-width(m) rigidity_ratio Lc(m)
 
-julia --threads 4 run.jl 0.500000 500.000000 0.010081 > log/gl_case1 
+julia --threads 4 run.jl 0.500000 500.000000 0.010081 > /home/pengzhai/log/gl_case1 
 
-julia --threads 4 run.jl 0.500000 1000.000000 0.011114 > log/gl_case2 
+julia --threads 4 run.jl 0.500000 1000.000000 0.011114 > /home/pengzhai/log/gl_case2 
 
