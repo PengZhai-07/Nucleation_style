@@ -9,7 +9,7 @@
 # 5. Plot results from the scripts folder
 
 using Printf, LinearAlgebra, DelimitedFiles, SparseArrays, AlgebraicMultigrid, StaticArrays, IterativeSolvers, FEMSparse
-using Base.Threads
+# using Base.Threads
 # using PyPlot    # no matplotlib in wozhi
 # BLAS.set_num_threads(2)  # If the underlying BLAS is using multiple threads, higher flop rates are realized
 

@@ -12,12 +12,16 @@ list = ["#!/bin/bash\n# The interpreter used to execute the script\n\n",\
             "# This project is to explore the phase diagram (Ru=11) with\n", \
             "# different rigidity ratio, halfwidth and characteristic slip distance \n\n",\
             "##SBATCH directives that convey submission options:\n\n",\
-            "#SBATCH --mail-user=zhai5108@gmail.com\n",\
-            "#SBATCH --mail-type=BEGIN,END\n",\
+            "##SBATCH --mail-user=zhai5108@gmail.com\n",\
+            "##SBATCH --mail-type=BEGIN,END\n",\
             "#SBATCH --nodes=1\n",\
-            "#SBATCH --mem=60000m\n",\
+            "#SBATCH --mem=20000m\n",\
             "#SBATCH --time=14-00:00:00\n",\
             "#SBATCH --partition=standard\n\n"]
+
+# for high resolution, the mem should be large enough!!  default value is 20G
+# but for highest resolution 20: the mem should be about 60G
+
 
 par = pd.read_table("./key_par.txt", header = 0, sep=" ")
 print(par.columns)
@@ -28,7 +32,7 @@ L = par['L']
 co_size = par['co_size']
 
 n = 0              # number of tasks: calculate from the (n+1)th model
-N = 8              # threads for each task
+N = 8              # multi threads for each task: 4 is good!!
 
 with open('ratio_halfwidth_cycle.sh','w') as f:       
     f.writelines(list)

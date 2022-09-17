@@ -6,10 +6,10 @@
 
 ##SBATCH directives that convey submission options:
 
-#SBATCH --mail-user=zhai5108@gmail.com
-#SBATCH --mail-type=BEGIN,END
+##SBATCH --mail-user=zhai5108@gmail.com
+##SBATCH --mail-type=BEGIN,END
 #SBATCH --nodes=1
-#SBATCH --mem=60000m
+#SBATCH --mem=20000m
 #SBATCH --time=14-00:00:00
 #SBATCH --partition=standard
 
