@@ -14,10 +14,10 @@ include("$(@__DIR__)/src/initialConditions/defaultInitialConditions.jl")
 
 function setParameters(FZdepth, halfwidth, res, T, alpha, multiple, Lc)
 
-    LX::Int = 48e3  # depth dimension of rectangular domain
+    LX::Int = 40e3  # depth dimension of rectangular domain
     LY::Int = 32e3 # off fault dimenstion of rectangular domain
 
-    NelX::Int = 30*res # no. of elements in x
+    NelX::Int = 25*res # no. of elements in x
     NelY::Int = 20*res # no. of elements in y
 
     dxe::Float64 = LX/NelX   #	Size of one element along X
@@ -264,13 +264,13 @@ function setParameters(FZdepth, halfwidth, res, T, alpha, multiple, Lc)
     # Compute diagonal of K
     #  diagKnew::Vector{Float64} = KdiagFunc!(FltNglob, NelY, NGLL, Nel, coefint1, coefint2, iglob, W, H, Ht, FltNI)
 
-    # Fault boundary: global indices where fault within 24 km: boundary between dynamic fault and creeping fault  
+    # Fault boundary: global indices where fault within 20 km: boundary between dynamic fault and creeping fault  
     fbc = reshape(iglob[:,1,:], length(iglob[:,1,:]))   #convert the index of all left(fault) boundary GLL nodes in all elements into 1-D vector
     # println("fbc=", fbc[1:10])
     # println(findall(x .== -24e3)[1])    # the point on the fault at the depth of 24km
-    idx = findall(fbc .== findall(x .== -24e3)[1] - 1)[1]
+    idx = findall(fbc .== findall(x .== -20e3)[1] - 1)[1]
     #println("idx=", idx)
-    FltIglobBC::Vector{Int} = fbc[1:idx]     # GLL nodes within creeping fault (>24 km)  with repeated nodes
+    FltIglobBC::Vector{Int} = fbc[1:idx]     # GLL nodes within creeping fault (>20 km)  with repeated nodes
     
     # Display important parameters
     # println("Total number of GLL nodes on fault: ", FltNglob)

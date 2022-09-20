@@ -46,6 +46,6 @@ with open('ratio_halfwidth_cycle.sh','w') as f:
             f.write("##SBATCH --job-name=glcase%.0f \n"  %(n))
             f.write("##SBATCH --output=/home/%u/log/%x-%j.log \n")
             f.write("##SBATCH --error=/home/%u/log/error-%x-%j.log \n")
-            f.write("#julia --threads %.0f run.jl %.6f %.6f %.6f \n\n"\
+            f.write("#julia --threads %.0f run.jl %.2f %.0f %.6f \n\n"\
                 %(N,ratio.iloc[i],halfwidth.iloc[i],L.iloc[i]))
 

@@ -9,7 +9,6 @@
 # 5. Plot results from the scripts folder
 
 using Printf, LinearAlgebra, DelimitedFiles, SparseArrays, AlgebraicMultigrid, StaticArrays, IterativeSolvers, FEMSparse
-# using Distributed
 # using Base.Threads
 # using PyPlot    # no matplotlib in wozhi
 # BLAS.set_num_threads(2)  # If the underlying BLAS is using multiple threads, higher flop rates are realized
@@ -18,7 +17,7 @@ include("$(@__DIR__)/par.jl")	    #	Set Parameters
 
 # Put the resolution for the simulation here: should be an integer
 
-res = 8   # resolution of mesh
+res = 20   # resolution of mesh
 # 4: 481 GLL nodes, average 100m on fault  
 # 6: 721 GLL nodes, average 67m on fault
 # 8: 961 GLL nodes, average 50m on fault
@@ -26,8 +25,8 @@ res = 8   # resolution of mesh
 # 12: 1441 GLL nodes,  average 33m on fault
 # 16: 1921 GLL nodes, average 25m on fault
 # 20: 1921 GLL nodes, average 20m on fault
-T = 200    # total simulation years 
-FZdepth = 20e3   # depth of fault zone  unit: m
+T = 100    # total simulation years 
+FZdepth = 24e3   # depth of fault zone  unit: m
 alpha = parse(Float64,ARGS[1])   # initial(background) rigidity ratio: fault zone/host rock
 halfwidth = parse(Float64, ARGS[2])   # half width of damage zone   unit:m
 Lc= parse(Float64, ARGS[3])          # characteristic slip distance

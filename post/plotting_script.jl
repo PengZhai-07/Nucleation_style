@@ -81,7 +81,7 @@ function stressdrop_2(taubefore, tauafter, FltX)
               label="Shear stress after the earthquake", alpha=1.0);
       ax.set_xlabel("Stress drop (MPa)");
       ax.set_ylabel("Depth (km)");
-      ax.set_ylim([0,24]);
+      ax.set_ylim([0,20]);
       ax.set_xlim([15,45]);
       ax.invert_yaxis();
       plt.legend();
@@ -107,7 +107,7 @@ function shear_stress_comp(shear1b, shear1a, shear2b, shear2a, FltX1, FltX2)
     ax.plot(shear2a, FltX2, lw = 2.0, color="tab:orange", label="Mature Fault Zone: after")
     ax.set_xlabel("Shear stress (MPa)")
     ax.set_ylabel("Depth (km)")
-    ax.set_ylim([0,24])
+    ax.set_ylim([0,20])
     ax.invert_yaxis()
     plt.legend()
     show()
@@ -326,7 +326,7 @@ function cumSlipPlot(delfsec, delfyr, FltX)
     #ax.plot(d_hypo, hypo./1000 , "*", color="saddlebrown", markersize=20)
     #ax.set_xlabel("Accumulated Slip (m)")
     ax.set_ylabel("Depth (km)")
-    ax.set_ylim([0,24])
+    ax.set_ylim([0,20])
     ax.set_xlim([0,maximum(delfyr2)])
     #ax.set_xlim([0,9.0])
     
@@ -359,7 +359,7 @@ function icsPlot(a_b, Seff, tauo, FltX)
     ax2.tick_params(axis="x", labelcolor=col)  
     ax2.set_xlim([-0.010,0.040])
     
-    ax.set_ylim([0,24])
+    ax.set_ylim([0,20])
     ax.invert_yaxis()
     show()
     
