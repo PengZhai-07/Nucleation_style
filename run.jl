@@ -26,11 +26,14 @@ res = 8   # resolution of mesh
 # 12: 1441 GLL nodes,  average 33m on fault
 # 16: 1921 GLL nodes, average 25m on fault
 # 20: 1921 GLL nodes, average 20m on fault
-T = 200    # total simulation years 
+T = 300    # total simulation years 
 FZdepth = 20e3   # depth of fault zone  unit: m
 alpha = parse(Float64,ARGS[1])   # initial(background) rigidity ratio: fault zone/host rock
 halfwidth = parse(Float64, ARGS[2])   # half width of damage zone   unit:m
-Lc= parse(Float64, ARGS[3])          # characteristic slip distance
+Lc= parse(Float64, ARGS[3])  # characteristic slip distance
+cos_reduction = parse(Float64, ARGS[4])    # coseismic rigidity reduction 
+multiple = parse(Float64, ARGS[5])# effective normal stress on fault: 10MPa*multiple  
+
 
 println("rigidity ratio of damage zone: ",alpha)
 println("halfwidth of fault zone(m): ",halfwidth)
@@ -42,8 +45,8 @@ println("characteristic slip distance(m): ", Lc)
 
 #cos_reduction = 0.0396    # coseismic rigidity reduction 
 #multiple = 3    # effective normal stress on fault: 10MPa*multiple  
-cos_reduction = 0.05    # coseismic rigidity reduction 
-multiple = 5    # effective normal stress on fault: 10MPa*multiple
+# cos_reduction = 0.05    # coseismic rigidity reduction 
+# multiple = 5    # effective normal stress on fault: 10MPa*multiple
 # cos_reduction = 0.0784    # coseismic rigidity reduction   
 # multiple = 7    # effective normal stress on fault: 10MPa*multiple
 
