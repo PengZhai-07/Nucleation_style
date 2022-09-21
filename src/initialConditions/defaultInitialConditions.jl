@@ -97,7 +97,8 @@ function tauDepth(FltX, multiple)
     FltNglob = length(FltX)
     NS = multiple*10e6
     tauo::Array{Float64} = repeat([0.45*NS], FltNglob)
-    tP1 = [2e-4*NS 0]
+    tP1 = [2e-4*NS 0]      
+    #tP1 = [0.01e6 0]    
     tP2 = [0.6*NS -2e3]
     #  tP2 = [30e6 -0.5e3]
     tP3 = [0.6*NS -12e3]
