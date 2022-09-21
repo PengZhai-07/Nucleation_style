@@ -49,7 +49,7 @@ function SeffDepth(FltX, multiple)
     FltNglob = length(FltX)
     NS = multiple*10e6
     Seff::Array{Float64} = repeat([NS], FltNglob)
-    sP1 = [10e6 0]
+    sP1 = [0.2*NS 0]
     sP2 = [NS -2e3]         # constant normal stress below 2 km
     Seff_depth = findall(abs.(FltX) .<= abs(sP2[2]))
     Seff[Seff_depth] = Int1D(sP1, sP2, FltX[Seff_depth])
@@ -59,6 +59,49 @@ function SeffDepth(FltX, multiple)
 end
 
 
+
+
+# Shear stress
+function tauDepth(FltX, multiple)
+
+    FltNglob = length(FltX)
+    NS = multiple*10e6
+    tauo::Array{Float64} = repeat([0.45*NS], FltNglob)
+    tP1 = [2e-4*NS 0]      
+    #tP1 = [0.01e6 0]    
+    tP2 = [0.6*NS -2e3]
+    #  tP2 = [30e6 -0.5e3]
+    tP3 = [0.6*NS -12e3]
+    tP4 = [0.45*NS -17e3]
+    tP5 = [0.45*NS -20e3]
+
+    tau_depth1 = findall(abs.(FltX).<=  abs(tP2[2]))
+    tau_depth2 = findall(abs(tP2[2]) .< abs.(FltX) .<= abs(tP3[2]))
+    tau_depth3 = findall(abs(tP3[2]) .< abs.(FltX) .<= abs(tP4[2]))
+    tau_depth4 = findall(abs(tP4[2]) .< abs.(FltX) .<= abs(tP5[2]))
+
+    tauo[tau_depth1] = Int1D(tP1, tP2, FltX[tau_depth1])
+    tauo[tau_depth2] = Int1D(tP2, tP3, FltX[tau_depth2])
+    tauo[tau_depth3] = Int1D(tP3, tP4, FltX[tau_depth3])
+    tauo[tau_depth4] = Int1D(tP4, tP5, FltX[tau_depth4])
+
+    return tauo
+end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# test functions
 # Initial normal stress: linear dependent
 function SnormalDepth(FltX)
 
@@ -88,32 +131,4 @@ function SSppDepth(FltX)
 
     return SSpp
 
-end
-
-
-# Shear stress
-function tauDepth(FltX, multiple)
-
-    FltNglob = length(FltX)
-    NS = multiple*10e6
-    tauo::Array{Float64} = repeat([0.45*NS], FltNglob)
-    tP1 = [2e-4*NS 0]      
-    #tP1 = [0.01e6 0]    
-    tP2 = [0.6*NS -2e3]
-    #  tP2 = [30e6 -0.5e3]
-    tP3 = [0.6*NS -12e3]
-    tP4 = [0.45*NS -17e3]
-    tP5 = [0.45*NS -20e3]
-
-    tau_depth1 = findall(abs.(FltX).<=  abs(tP2[2]))
-    tau_depth2 = findall(abs(tP2[2]) .< abs.(FltX) .<= abs(tP3[2]))
-    tau_depth3 = findall(abs(tP3[2]) .< abs.(FltX) .<= abs(tP4[2]))
-    tau_depth4 = findall(abs(tP4[2]) .< abs.(FltX) .<= abs(tP5[2]))
-
-    tauo[tau_depth1] = Int1D(tP1, tP2, FltX[tau_depth1])
-    tauo[tau_depth2] = Int1D(tP2, tP3, FltX[tau_depth2])
-    tauo[tau_depth3] = Int1D(tP3, tP4, FltX[tau_depth3])
-    tauo[tau_depth4] = Int1D(tP4, tP5, FltX[tau_depth4])
-
-    return tauo
 end
