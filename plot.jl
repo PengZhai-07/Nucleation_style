@@ -9,7 +9,7 @@
 #FILE = "24000.0_1500_8_0.85_0.0784_7"
 
 #Great lakes
-FILE = "24000.0_500.0_8_0.5_0.05_5"
+FILE = "20000.0_500.0_12_0.85_0.05_5"
 
 include("analyze_results.jl")   
 
@@ -31,8 +31,8 @@ cumSlipPlot(delfsec[1:end,:], delfyr[1:end, :], FltX);
 # # Plot slip vs event number
 # #slipPlot(delfafter', rupture_len, FltX, Mw, tStart)           # delfafter: 179*481
 
-# # slip rate vs timesteps
-# # eqCyclePlot(sliprate', FltX)
+# slip rate vs timesteps
+eqCyclePlot(sliprate', FltX)
 
 # # plot alphaa vs time
 # # alphaaPlot(alphaa, t, yr2sec)

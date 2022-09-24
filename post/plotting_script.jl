@@ -311,7 +311,7 @@ end
 # Plot cumulative slip
 #function cumSlipPlot(delfsec, delfyr, FltX, hypo, d_hypo)
 function cumSlipPlot(delfsec, delfyr, FltX)
-    indx = findall(abs.(FltX) .<= 18)[1]
+    indx = findall(abs.(FltX) .<= 15)[1]
 
     delfsec2 = transpose(delfsec[:,indx:end])
     delfyr2 = transpose(delfyr)
@@ -343,7 +343,7 @@ end
 function icsPlot(a_b, Seff, tauo, FltX)
     plot_params()
     fig = PyPlot.figure(figsize=(7.2, 4.45))
-    ax = fig.add_subplot(111)
+    ax = fig.add_subplot(111)            
     
     ax.plot(Seff, FltX, "b", label="Normal Stress")
     ax.plot(tauo, FltX, "orange", label="Shear Stress")

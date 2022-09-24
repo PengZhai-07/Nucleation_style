@@ -67,12 +67,13 @@ function setParameters(FZdepth, halfwidth, res, T, alpha, multiple, Lc)
     vs1::Float64 = 3464
     
     # # The entire medium has low rigidity
-    # rho1::Float64 = 2670
+    # rho1::Float64 = 2500
     # vs1::Float64 = 0.6*3464
 
     # the initial property of fualt damage zone: fault zone evolution!!!
     rho2::Float64 = 2670
-    vs2::Float64 = sqrt(alpha)*vs1
+    vs2::Float64 = 1.00*vs1  
+    # note: it is not necessary to define the damage zone here!!!
 
     mu = rho1*vs1^2
     println("The shear modulus of hostrock is",mu)     # the default value is about 32GPa(3.2038e10)
