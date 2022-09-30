@@ -29,16 +29,16 @@ global out_path = "$(@__DIR__)/data/immature_fully_healing/$(FILE)/"
 yr2sec = 365*24*60*60
 # comment this part if there is nothing in event_time temporarily
 
-# # Read data
-# event_time = readdlm(string(out_path, "event_time.out"), header=false)
-# tStart = event_time[:,1]
-# #println(tStart)
-# tEnd = event_time[:,2]
+# Read data
+event_time = readdlm(string(out_path, "event_time.out"), header=false)
+tStart = event_time[:,1]
+#println(tStart)
+tEnd = event_time[:,2]
 
-# hypo = event_time[:,3]
-# d_hypo = event_time[:,4]    # unit: m 
-# print(d_hypo) 
-# print(hypo)
+hypo = event_time[:,3]
+d_hypo = event_time[:,4]    # unit: m 
+print(d_hypo) 
+print(hypo)
 
 event_stress = readdlm(string(out_path, "event_stress.out"), header=false)
 indx = Int(length(event_stress[1,:])/2)
@@ -50,8 +50,8 @@ tauafter = event_stress[:,indx+1:end]
 # coseismic slip on fault for all different events(row)
 delfafter = readdlm(string(out_path, "coseismic_slip.out"), header=false)
 # print(size(delfafter))
-#  slip = readdlm(string(out_path, "slip.out"), header=false)
 sliprate = readdlm(string(out_path, "sliprate.out"), header=false)
+#
 # println(size(delfafter,1))
 # println(size(delfafter,2))
 

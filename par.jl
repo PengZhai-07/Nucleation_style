@@ -71,7 +71,7 @@ function setParameters(FZdepth, halfwidth, res, T, alpha, multiple, Lc)
     # vs1::Float64 = 0.6*3464
 
     # the initial property of fualt damage zone: fault zone evolution!!!
-    rho2::Float64 = 2670
+    rho2::Float64 = 2500
     vs2::Float64 = 1.00*vs1  
     # note: it is not necessary to define the damage zone here!!!
 
