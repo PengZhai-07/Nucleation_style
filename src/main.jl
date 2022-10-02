@@ -316,7 +316,7 @@ function main(P, alphaa, cos_reduction)
             if  it > 3
                 
                 #if t > 10*P[1].yr2sec     # healing after 10 year, neglect the first event
-                    alphaa = healing2(t, tStart2, dam, cos_reduction)           # healing from dam
+                   # alphaa = healing2(t, tStart2, dam, cos_reduction)           # healing from dam
                     #  alphaa[it] = αD(t, tStart2, dam)
                 #end
 
@@ -438,8 +438,8 @@ function main(P, alphaa, cos_reduction)
                 # Time condition of 10 years
                 #if t > 10*P[1].yr2sec 
                     #  use this for no permanent damage    65-60-65%
-                       alphaa = alpha_after   # a constant value after event
-                       dam = alphaa    # current rigidity ratio use for healing
+                    #    alphaa = alpha_after   # a constant value after event
+                    #    dam = alphaa    # current rigidity ratio use for healing
 
                     #  Use this for permanent damage: 1%
                     #  alphaa = alphaa - 0.06      
@@ -450,18 +450,18 @@ function main(P, alphaa, cos_reduction)
                     #  end
                 
                 # it's necessary to change the stiffness matrix if the rigidity ratio is changed 
-                    tStart2 = t            # used for healing!
+                    # tStart2 = t            # used for healing!
 
-                    for id in did
-                        Ksparse[id] = alphaa*Korig[id]      # calculate the stiffness of fault damage zone again
-                    end
+                    # for id in did
+                    #     Ksparse[id] = alphaa*Korig[id]      # calculate the stiffness of fault damage zone again
+                    # end
 
-                    # Linear solver stuff
-                    kni = -Ksparse[P[4].FltNI, P[4].FltNI]
-                    nKsparse = -Ksparse
-                    # multigrid
-                    ml = ruge_stuben(kni)
-                    p = aspreconditioner(ml)
+                    # # Linear solver stuff
+                    # kni = -Ksparse[P[4].FltNI, P[4].FltNI]
+                    # nKsparse = -Ksparse
+                    # # multigrid
+                    # ml = ruge_stuben(kni)
+                    # p = aspreconditioner(ml)
 
                 #end
 
