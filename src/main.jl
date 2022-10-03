@@ -313,31 +313,31 @@ function main(P, alphaa, cos_reduction)
             # Healing stuff: only for interseismic quasi-static phase
             # --------------
             # 
-            if  it > 3
+            # if  it > 3
                 
-                #if t > 10*P[1].yr2sec     # healing after 10 year, neglect the first event
-                   # alphaa = healing2(t, tStart2, dam, cos_reduction)           # healing from dam
-                    #  alphaa[it] = αD(t, tStart2, dam)
-                #end
+            #     #if t > 10*P[1].yr2sec     # healing after 10 year, neglect the first event
+            #         alphaa = healing2(t, tStart2, dam, cos_reduction)           # healing from dam
+            #         #  alphaa[it] = αD(t, tStart2, dam)
+            #     #end
 
-                for id in did
-                    Ksparse[id] = alphaa*Korig[id]   # define the stiffness of fault damage zone
-                end
+            #     for id in did
+            #         Ksparse[id] = alphaa*Korig[id]   # define the stiffness of fault damage zone
+            #     end
 
-                #println("alpha healing = ", alphaa[it])
+            #     #println("alpha healing = ", alphaa[it])
 
-                # Linear solver stuff
-                kni = -Ksparse[P[4].FltNI, P[4].FltNI]
-                nKsparse = -Ksparse
-                # multigrid
-                ml = ruge_stuben(kni)
-                p = aspreconditioner(ml)
+            #     # Linear solver stuff
+            #     kni = -Ksparse[P[4].FltNI, P[4].FltNI]
+            #     nKsparse = -Ksparse
+            #     # multigrid
+            #     ml = ruge_stuben(kni)
+            #     p = aspreconditioner(ml)
 
-                # faster matrix multiplication
-                #  Ksparse = Ksparse'
-                #  nKsparse = nKsparse'
-                #  kni = kni'
-            end
+            #     # faster matrix multiplication
+            #     #  Ksparse = Ksparse'
+            #     #  nKsparse = nKsparse'
+            #     #  kni = kni'
+            # end
 
         
         # If isolver != 1, or max slip rate is > 10^-3 m/s , dynamic phase
@@ -433,37 +433,38 @@ function main(P, alphaa, cos_reduction)
             
             slipstart = 0
             
-            # at the end of each earthquake, the shear wave velocity in the damaged zone reduces
+  # note comment this part without healing   
+                # # at the end of each earthquake, the shear wave velocity in the damaged zone reduces
 
-                # Time condition of 10 years
-                #if t > 10*P[1].yr2sec 
-                    #  use this for no permanent damage    65-60-65%
-                    #    alphaa = alpha_after   # a constant value after event
-                    #    dam = alphaa    # current rigidity ratio use for healing
+                # # Time condition of 10 years
+                # #if t > 10*P[1].yr2sec 
+                #     #  use this for no permanent damage    65-60-65%
+                #        alphaa = alpha_after   # a constant value after event
+                #        dam = alphaa    # current rigidity ratio use for healing
 
-                    #  Use this for permanent damage: 1%
-                    #  alphaa = alphaa - 0.06      
-                    #  dam = alphaa
-                    #  if dam < 0.60     # lowest rigidity ratio
-                        #  alphaa = 0.60
-                        #  dam = 0.60
-                    #  end
+                #     #  Use this for permanent damage: 1%
+                #     #  alphaa = alphaa - 0.06      
+                #     #  dam = alphaa
+                #     #  if dam < 0.60     # lowest rigidity ratio
+                #         #  alphaa = 0.60
+                #         #  dam = 0.60
+                #     #  end
                 
-                # it's necessary to change the stiffness matrix if the rigidity ratio is changed 
-                    # tStart2 = t            # used for healing!
+                # # it's necessary to change the stiffness matrix if the rigidity ratio is changed 
+                #     tStart2 = t            # used for healing!
 
-                    # for id in did
-                    #     Ksparse[id] = alphaa*Korig[id]      # calculate the stiffness of fault damage zone again
-                    # end
+                #     for id in did
+                #         Ksparse[id] = alphaa*Korig[id]      # calculate the stiffness of fault damage zone again
+                #     end
 
-                    # # Linear solver stuff
-                    # kni = -Ksparse[P[4].FltNI, P[4].FltNI]
-                    # nKsparse = -Ksparse
-                    # # multigrid
-                    # ml = ruge_stuben(kni)
-                    # p = aspreconditioner(ml)
+                #     # Linear solver stuff
+                #     kni = -Ksparse[P[4].FltNI, P[4].FltNI]
+                #     nKsparse = -Ksparse
+                #     # multigrid
+                #     ml = ruge_stuben(kni)
+                #     p = aspreconditioner(ml)
 
-                #end
+                # #end
 
                 println("alphaa = ", alphaa)   # output the rigidity ratio after every earthquake 
                 # warning: println is different from @printf !!!
