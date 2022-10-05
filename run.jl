@@ -18,7 +18,7 @@ include("$(@__DIR__)/par.jl")	    #	Set Parameters
 
 # Put the resolution for the simulation here: should be an integer
 
-res = 8   # resolution of mesh
+res::Int = 8   # resolution of mesh
 # 4: 481 GLL nodes, average 100m on fault  
 # 6: 721 GLL nodes, average 67m on fault
 # 8: 961 GLL nodes, average 50m on fault
@@ -26,14 +26,14 @@ res = 8   # resolution of mesh
 # 12: 1441 GLL nodes,  average 33m on fault
 # 16: 1921 GLL nodes, average 25m on fault
 # 20: 1921 GLL nodes, average 20m on fault
-T = 300    # total simulation years 
-FZdepth = 20e3   # depth of fault zone  unit: m
+T::Int = 300    # total simulation years 
+FZdepth::Int = 20e3   # depth of fault zone  unit: m
 
 # note the sequence of all imput parameters
 alpha = parse(Float64,ARGS[1])   # initial(background) rigidity ratio: fault zone/host rock
-halfwidth = parse(Float64, ARGS[2])   # half width of damage zone   unit:m
+halfwidth::Int = parse(Float64, ARGS[2])   # half width of damage zone   unit:m
 Lc= parse(Float64, ARGS[3])  # characteristic slip distance      unit:m
-multiple = parse(Float64, ARGS[4])# effective normal stress on fault: 10MPa*multiple
+multiple::Int = parse(Float64, ARGS[4])# effective normal stress on fault: 10MPa*multiple
 cos_reduction = parse(Float64, ARGS[5])    # coseismic rigidity reduction 
   
 println("rigidity ratio of damage zone: ",alpha)
@@ -46,18 +46,17 @@ println("cos_reduction: ", cos_reduction)
 # 0.9604   0.9409   0.9216
 # 0.0396   0.0591   0.0784
 
-#cos_reduction = 0.0396    # coseismic rigidity reduction 
-#multiple = 3    # effective normal stress on fault: 10MPa*multiple  
-# cos_reduction = 0.05    # coseismic rigidity reduction 
-# multiple = 5    # effective normal stress on fault: 10MPa*multiple
-# cos_reduction = 0.0784    # coseismic rigidity reduction   
-# multiple = 7    # effective normal stress on fault: 10MPa*multiple
-
 # Output directory to save data
 out_dir = "$(@__DIR__)/data/immature_fully_healing/$(FZdepth)_$(halfwidth)_$(res)_$(alpha)_$(cos_reduction)_$(multiple)/"    
+
+# clean old files 
+if isdir(out_dir)
+    rm(out_dir, recursive = true)
+end
+
 mkpath(out_dir)
 
-P = setParameters(FZdepth, halfwidth, res, T , alpha, multiple, Lc)   
+P = setParameters(FZdepth, halfwidth, res, T, alpha, multiple, Lc)   
 # # println(size(P[4].FltNI))   # total number of off-fault GLL nodes
 
 include("$(@__DIR__)/NucleationSize.jl") 

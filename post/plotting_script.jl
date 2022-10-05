@@ -33,6 +33,22 @@ function plot_params()
   #plt.rc("figure", figsize=(7.2, 4.5))
 end
 
+# Plot Vfmax
+function VfmaxPlot(Vfmax, t, yr2sec)
+    plot_params()
+    fig = PyPlot.figure(figsize=(7.2, 3.45))
+    ax = fig.add_subplot(111)
+    
+    ax.plot(t./yr2sec, Vfmax, lw = 2.0)
+    ax.set_xlabel("Time (years)")
+    ax.set_ylabel("Max. Slip rate (m/s)")
+    ax.set_yscale("log")
+    ax.set_ylim([1e-10,1e2])
+    show()
+    
+    figname = string(path, "Vfmax01.png")
+    fig.savefig(figname, dpi = 300)
+end
 
 # Plot alpha and Vfmax on the same plot
 function healing_analysis(Vf, alphaa, t, yr2sec)
@@ -47,7 +63,6 @@ function healing_analysis(Vf, alphaa, t, yr2sec)
     #ax.set_xlim([0, 600])
     ax.set_ylim([1e-10, 1e2])
     
-
     col="tab:red"
     ax2 = ax.twinx()
     
@@ -55,8 +70,7 @@ function healing_analysis(Vf, alphaa, t, yr2sec)
     lab2 = "Shear modulus ratio"
     ax.set_xlabel("Time (years)")
     ax2.set_ylabel("Shear Modulus (% of host rock)")
-    #ax2.set_ylim([35, 60])
-    ax2.set_ylim([55, 110])
+    ax2.set_ylim([20, 110])
     ax2.get_xaxis().set_tick_params(color=col)
     ax2.tick_params(axis="x", labelcolor=col)
 
@@ -92,8 +106,104 @@ function stressdrop_2(taubefore, tauafter, FltX)
     #  end
 end
 
+# Plot cumulative slip
+function cumSlipPlot(delfsec, delfyr, FltX, hypo, d_hypo)
+    indx = findall(abs.(FltX) .<= 17)[1]
 
-# Plot shear stress comparison
+    delfsec2 = transpose(delfsec[:,indx:end])
+    delfyr2 = transpose(delfyr)
+
+    plot_params()
+    fig = PyPlot.figure(figsize=(7.2, 4.45))
+    ax = fig.add_subplot(111)
+    plt.rc("font",size=12)
+
+    ax.plot(delfyr2, FltX, color="royalblue", lw=1.0)
+    ax.plot(delfsec2, FltX[indx:end], color="chocolate", lw=1.0)
+    ax.plot(d_hypo, hypo./1000 , "*", color="saddlebrown", markersize=15)
+    ax.set_xlabel("Cumulative Slip (m)")
+    ax.set_ylabel("Depth (km)")
+    ax.set_ylim([0,20])
+    ax.set_xlim([0,maximum(delfyr2)])
+    #ax.set_xlim([0,9.0])
+    
+    ax.invert_yaxis()
+    
+    show()
+    
+    figname = string(path, "cumulative_slip.png")
+    fig.savefig(figname, dpi = 300)
+
+end
+
+# sliprate versus time plot
+function eqCyclePlot(sliprate, FltX)
+    indx = findall(abs.(FltX) .<= 16)[1]
+    value = sliprate[indx:end,:]
+    
+    depth = FltX[indx:end]
+
+    plot_params()
+    fig = PyPlot.figure(figsize=(7.2, 4.45))
+    ax = fig.add_subplot(111)
+    
+    c = ax.imshow(value, cmap="viridis", aspect="auto",
+                  norm=matplotlib.colors.LogNorm(vmin=1e-9, vmax=1e0),
+                  interpolation="bicubic",
+                  extent=[0,length(sliprate[1,:]), 0,20])
+    
+    # for stress
+    #  c = ax.imshow(value, cmap="inferno", aspect="auto",
+                  #  vmin=22.5, vmax=40,
+                  #  interpolation="bicubic",
+                  #  extent=[0,length(seismic_slipvel[1,:]), 0,16])
+    
+    ax.set_xlabel("Timesteps")
+    ax.set_ylabel("Depth (km)")
+
+    ax.invert_yaxis()
+    cbar = fig.colorbar(c, label = "Slip rate(m/s)")
+    #   cbar.set_ticks(cbar.get_ticks()[1:2:end])
+    
+    show()
+    figname = string(path, "mature_sliprate_3.png")
+    fig.savefig(figname, dpi = 300)
+    
+end
+
+
+# Plot friction parameters
+function icsPlot(a_b, Seff, tauo, FltX)
+    plot_params()
+    fig = PyPlot.figure(figsize=(7.2, 4.45))
+    ax = fig.add_subplot(111)            
+    
+    ax.plot(Seff, FltX, "b", label="Normal Stress")
+    ax.plot(tauo, FltX, "orange", label="Shear Stress")
+    ax.set_xlabel("Stresses (MPa)")
+    ax.set_ylabel("Depth (km)")
+    plt.legend(loc="lower right") 
+    
+    col="tab:green"
+    ax2 = ax.twiny()
+    ax2.plot(a_b, FltX, "g",label="(a-b)")
+    ax2.set_xlabel("Rate-state friction value (a-b)", color=col)
+    ax2.get_xaxis().set_tick_params(color=col)
+    ax2.tick_params(axis="x", labelcolor=col)  
+    ax2.set_xlim([-0.010,0.040])
+    
+    ax.set_ylim([0,20])
+    ax.invert_yaxis()
+    show()
+    
+    figname = string(path, "initial_condition.png")
+    fig.savefig(figname, dpi = 300)
+end
+
+
+
+
+# Plot shear stress comparison between full rupture and partial rupture in Prithvi(2021)
 function shear_stress_comp(shear1b, shear1a, shear2b, shear2a, FltX1, FltX2)
     plot_params()
    
@@ -116,6 +226,7 @@ function shear_stress_comp(shear1b, shear1a, shear2b, shear2a, FltX1, FltX2)
     fig.savefig(figname, dpi = 300);
 
 end
+
 
 # Plot rupture_length vs event time
 # the effect of healing time??
@@ -194,57 +305,8 @@ function slipPlot(delfafter2, rupture_len, FltX, Mw, tStart)
     fig.savefig(figname, dpi = 300)
 end
 
-# sliprate plot
-function eqCyclePlot(sliprate, FltX)
-    indx = findall(abs.(FltX) .<= 16)[1]
-    value = sliprate[indx:end,:]
-    
-    depth = FltX[indx:end]
 
-    plot_params()
-    fig = PyPlot.figure(figsize=(7.2, 4.45))
-    ax = fig.add_subplot(111)
-    
-    c = ax.imshow(value, cmap="inferno", aspect="auto",
-                  norm=matplotlib.colors.LogNorm(vmin=1e-9, vmax=1e0),
-                  interpolation="bicubic",
-                  extent=[0,length(sliprate[1,:]), 0,16])
-    
-    # for stress
-    #  c = ax.imshow(value, cmap="inferno", aspect="auto",
-                  #  vmin=22.5, vmax=40,
-                  #  interpolation="bicubic",
-                  #  extent=[0,length(seismic_slipvel[1,:]), 0,16])
-    
-    ax.set_xlabel("Timesteps")
-    ax.set_ylabel("Depth (km)")
 
-    ax.invert_yaxis()
-    cbar = fig.colorbar(c)
-    #   cbar.set_ticks(cbar.get_ticks()[1:2:end])
-    
-    show()
-    figname = string(path, "mature_sliprate_3.png")
-    fig.savefig(figname, dpi = 300)
-    
-end
-
-# Plot Vfmax
-function VfmaxPlot(Vfmax, t, yr2sec)
-    plot_params()
-    fig = PyPlot.figure(figsize=(7.2, 3.45))
-    ax = fig.add_subplot(111)
-    
-    ax.plot(t./yr2sec, Vfmax, lw = 2.0)
-    ax.set_xlabel("Time (years)")
-    ax.set_ylabel("Max. Slip rate (m/s)")
-    ax.set_yscale("log")
-    ax.set_ylim([1e-10,1e2])
-    show()
-    
-    figname = string(path, "Vfmax01.png")
-    fig.savefig(figname, dpi = 300)
-end
 
 # Plot Vsurface
 function VsurfPlot(Vsurf10, Vsurf12, Vsurf15, t10, t12, t15, yr2sec)
@@ -308,64 +370,7 @@ function alphaComp(a1, t1, a2, t2, a3, t3, yr2sec)
     fig.savefig(figname, dpi = 300)
 end
 
-# Plot cumulative slip
-#function cumSlipPlot(delfsec, delfyr, FltX, hypo, d_hypo)
-function cumSlipPlot(delfsec, delfyr, FltX)
-    indx = findall(abs.(FltX) .<= 15)[1]
 
-    delfsec2 = transpose(delfsec[:,indx:end])
-    delfyr2 = transpose(delfyr)
-
-    plot_params()
-    fig = PyPlot.figure(figsize=(7.2, 4.45))
-    ax = fig.add_subplot(111)
-    plt.rc("font",size=12)
-
-    ax.plot(delfyr2, FltX, color="royalblue", lw=1.0)
-    ax.plot(delfsec2, FltX[indx:end], color="chocolate", lw=1.0)
-    #ax.plot(d_hypo, hypo./1000 , "*", color="saddlebrown", markersize=20)
-    #ax.set_xlabel("Accumulated Slip (m)")
-    ax.set_ylabel("Depth (km)")
-    ax.set_ylim([0,20])
-    ax.set_xlim([0,maximum(delfyr2)])
-    #ax.set_xlim([0,9.0])
-    
-    ax.invert_yaxis()
-    
-    show()
-    
-    figname = string(path, "cumulative_slip.png")
-    fig.savefig(figname, dpi = 300)
-
-end
-
-# Plot friction parameters
-function icsPlot(a_b, Seff, tauo, FltX)
-    plot_params()
-    fig = PyPlot.figure(figsize=(7.2, 4.45))
-    ax = fig.add_subplot(111)            
-    
-    ax.plot(Seff, FltX, "b", label="Normal Stress")
-    ax.plot(tauo, FltX, "orange", label="Shear Stress")
-    ax.set_xlabel("Stresses (MPa)")
-    ax.set_ylabel("Depth (km)")
-    plt.legend(loc="lower right") 
-    
-    col="tab:green"
-    ax2 = ax.twiny()
-    ax2.plot(a_b, FltX, "g",label="(a-b)")
-    ax2.set_xlabel("Rate-state friction value", color=col)
-    ax2.get_xaxis().set_tick_params(color=col)
-    ax2.tick_params(axis="x", labelcolor=col)  
-    ax2.set_xlim([-0.010,0.040])
-    
-    ax.set_ylim([0,20])
-    ax.invert_yaxis()
-    show()
-    
-    figname = string(path, "ics_02.png")
-    fig.savefig(figname, dpi = 300)
-end
 
 
 # Plot stressdrop comparison
