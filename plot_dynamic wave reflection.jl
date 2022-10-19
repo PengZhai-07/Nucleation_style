@@ -4,20 +4,19 @@ using LinearAlgebra
 # include("$(@__DIR__)/post/event_details.jl")
 include("$(@__DIR__)/post/plotting_script.jl")
 
-multiple = [4.0,5.0,6.0,7.0]
-cos_reduction = [0.05, 0.06,0.07,0.08]
+multiple = [5.0]
+cos_reduction = [0.00]
+H = [500.0, 1000.0, 2000.0, 5000.0]
+
 # Global variables
 yr2sec = 365*24*60*60
 # comment this part if there is nothing in event_time temporarily
-fig = PyPlot.figure(figsize=(20, 20));
+fig = PyPlot.figure(figsize=(20, 15))
 
 for i = 1:4                   # normal stress
-    for j = 1:4              # cos_reduction 
-
-        FILE = "20000.0_1500.0_8_0.85_$(cos_reduction[i])_$(multiple[j])"   # normal stress testing
+        FILE = "20000.0_$(H)_8_0.5_0.00_5.0"   # normal stress testing
         println(FILE)
         out_path = "$(@__DIR__)/data/immature_fully_healing/$(FILE)/"
-
 
                 # Order of storage: Seff, tauo, FltX, cca, ccb, xLf
                 params = readdlm(string(out_path, "params.out"), header=false)
@@ -76,7 +75,7 @@ for i = 1:4                   # normal stress
         delfyr2 = 0
         
     end
-end
+
 path = "$(@__DIR__)/plots/immature_fully_healing/"        
 figname = string(path, "cumulative_slip_normal_stress_5.png")
 fig.savefig(figname, dpi = 600)

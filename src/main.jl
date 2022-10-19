@@ -473,28 +473,28 @@ function main(P, alphaa, cos_reduction)
         #-----
         # Output the variables certain timesteps: 2yr interseismic, 1 sec coseismic
         #-----
-        if t > tvsx
+        if t > tvsx                  # 2years
             ntvsx = ntvsx + 1
             idd += 1
             #  write(stress, join((tau + P[3].tauo)./1e6, " "), "\n")
             write(dfyr, join(2*d[P[4].iFlt] .+ P[2].Vpl*t, " "), "\n")
 
-            tvsx = tvsx + tvsxinc
+            tvsx = tvsx + tvsxinc     # output frequency: 2 years
         end
 
         if Vfmax > P[2].Vevne
-            if idelevne == 0
+            if idelevne == 0                  # record the first step
                 nevne = nevne + 1
                 idd += 1
                 idelevne = 1
                 tevneb = t
-                tevne = tevneinc
+                tevne = tevneinc      # 0.1s
 
                 #  write(stress, join((tau + P[3].tauo)./1e6, " "), "\n")
                 write(dfsec, join(2*d[P[4].iFlt] .+ P[2].Vpl*t, " "), "\n")
             end
 
-            if idelevne == 1 && (t - tevneb) > tevne
+            if idelevne == 1 && (t - tevneb) > tevne      # output at least every 0.1 s in the following steps
                 nevne = nevne + 1
                 idd += 1
 
@@ -515,7 +515,7 @@ function main(P, alphaa, cos_reduction)
         end
 
 
-        # Write stress, sliprate, slip to file every 10 timesteps
+        # Write stress, sliprate, slip to file every 5 timesteps
         if mod(it,10) == 0
             write(sliprate, join(2*v[P[4].iFlt] .+ P[2].Vpl, " "), "\n")
             write(stress, join((tau + P[3].tauo)./1e6, " "), "\n")
