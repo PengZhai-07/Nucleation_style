@@ -12,13 +12,13 @@ include("$(@__DIR__)/src/damageEvol.jl")   #    Stiffness index of damaged mediu
 include("$(@__DIR__)/src/BoundaryMatrix.jl")    #	Boundary matrices
 include("$(@__DIR__)/src/initialConditions/defaultInitialConditions.jl")
 
-function setParameters(FZdepth::Int, halfwidth::Int, res::Int, T::Int, alpha::Float64, multiple::Int, Lc::Float64)
+function setParameters(FZdepth::Int, halfwidth::Int, res::Int, T::Int, alpha::Float64, multiple::Int, Lc::Float64, Domain)
 
-    LX::Int = 40e3  # depth dimension of rectangular domain
-    LY::Int = 32e3 # off fault dimenstion of rectangular domain
+    LX::Int = Domain*40e3  # depth dimension of rectangular domain
+    LY::Int = Domain*32e3 # off fault dimenstion of rectangular domain
 
-    NelX::Int = 25*res # no. of elements in x
-    NelY::Int = 20*res # no. of elements in y
+    NelX::Int = 25*res*Domain # no. of elements in x
+    NelY::Int = 20*res*Domain # no. of elements in y
 
     dxe::Float64 = LX/NelX   #	Size of one element along X
     #println(dxe)
@@ -179,7 +179,7 @@ function setParameters(FZdepth::Int, halfwidth::Int, res::Int, T::Int, alpha::Fl
 
     # Damage Indexed Kdam
     # fault damage zone evolution
-    did = damage_indx(ThickX, ThickY, dxe, dye, NGLL, NelX, NelY, iglob)
+    did = damage_indx!(ThickX, ThickY, dxe, dye, NGLL, NelX, NelY, iglob)
     #println("index of GLL nodes in fault damage zone: ", did) 
 
     #  return Ksparse, Kdam, iglob

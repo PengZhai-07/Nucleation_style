@@ -18,7 +18,8 @@ include("$(@__DIR__)/par.jl")	    #	Set Parameters
 
 # Put the resolution for the simulation here: should be an integer
 
-res::Int = 8   # resolution of mesh
+res::Int = 12   # resolution of mesh
+
 # 4: 481 GLL nodes, average 100m on fault  
 # 6: 721 GLL nodes, average 67m on fault
 # 8: 961 GLL nodes, average 50m on fault
@@ -28,6 +29,7 @@ res::Int = 8   # resolution of mesh
 # 20: 1921 GLL nodes, average 20m on fault
 T::Int = 300    # total simulation years 
 FZdepth::Int = 20e3   # depth of fault zone  unit: m
+Domain = 1.5    # amplify the domain size
 
 # note the sequence of all imput parameters
 alpha = parse(Float64,ARGS[1])   # initial(background) rigidity ratio: fault zone/host rock
@@ -35,7 +37,9 @@ halfwidth::Int = parse(Float64, ARGS[2])   # half width of damage zone   unit:m
 Lc= parse(Float64, ARGS[3])  # characteristic slip distance      unit:m
 multiple::Int = parse(Float64, ARGS[4])# effective normal stress on fault: 10MPa*multiple
 cos_reduction = parse(Float64, ARGS[5])    # coseismic rigidity reduction 
-  
+
+
+println("doamin size: ",Domain)   # default is 40km*32km
 println("rigidity ratio of damage zone: ",alpha)
 println("halfwidth of fault zone(m): ",halfwidth)
 println("characteristic slip distance(m): ", Lc)
@@ -47,7 +51,7 @@ println("cos_reduction: ", cos_reduction)
 # 0.0396   0.0591   0.0784
 
 # Output directory to save data
-out_dir = "$(@__DIR__)/data/immature_fully_healing/$(FZdepth)_$(halfwidth)_$(res)_$(alpha)_$(cos_reduction)_$(multiple)/"    
+out_dir = "$(@__DIR__)/data/immature_fully_healing/$(FZdepth)_$(halfwidth)_$(res)_$(alpha)_$(cos_reduction)_$(multiple)_$(Domain)/"    
 
 # clean old files 
 if isdir(out_dir)
@@ -56,7 +60,7 @@ end
 
 mkpath(out_dir)
 
-P = setParameters(FZdepth, halfwidth, res, T, alpha, multiple, Lc)   
+P = setParameters(FZdepth, halfwidth, res, T, alpha, multiple, Lc, Domain)   
 # # println(size(P[4].FltNI))   # total number of off-fault GLL nodes
 
 include("$(@__DIR__)/NucleationSize.jl") 
