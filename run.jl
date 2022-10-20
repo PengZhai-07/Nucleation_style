@@ -28,8 +28,8 @@ res::Int = 12   # resolution of mesh
 # 16: 1921 GLL nodes, average 25m on fault
 # 20: 1921 GLL nodes, average 20m on fault
 T::Int = 300    # total simulation years 
-FZdepth::Int = 20e3   # depth of fault zone  unit: m
 Domain = 1.5    # amplify the domain size
+FZdepth::Int = 20e3*Domain   # depth of fault zone  unit: m
 
 # note the sequence of all imput parameters
 alpha = parse(Float64,ARGS[1])   # initial(background) rigidity ratio: fault zone/host rock

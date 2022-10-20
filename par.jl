@@ -56,7 +56,7 @@ function setParameters(FZdepth::Int, halfwidth::Int, res::Int, T::Int, alpha::Fl
     # Some other variables used to define the time steps: see koneko's function
     dtincf::Float64 = 1.2      # useless
     gamma_::Float64 = pi/4
-    dtmax::Int = 400 * 24 * 60*60		# Is this useful to determine the time step
+    dtmax::Int = 100 * 24 * 60*60		# Is this useful to determine the time step
 
     #...................
     # MEDIUM PROPERTIES
@@ -271,7 +271,7 @@ function setParameters(FZdepth::Int, halfwidth::Int, res::Int, T::Int, alpha::Fl
     fbc = reshape(iglob[:,1,:], length(iglob[:,1,:]))   #convert the index of all left(fault) boundary GLL nodes in all elements into 1-D vector
     # println("fbc=", fbc[1:10])
     # println(findall(x .== -24e3)[1])    # the point on the fault at the depth of 24km
-    idx = findall(fbc .== findall(x .>= -20e3)[1] - 1)[1]
+    idx = findall(fbc .== findall(x .>= -FZdepth)[1] - 1)[1]
     #println("idx=", idx)
     FltIglobBC::Vector{Int} = fbc[1:idx]     # GLL nodes within creeping fault (>20 km)  with repeated nodes
     
