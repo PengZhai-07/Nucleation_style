@@ -13,19 +13,19 @@
 
 
 # Ru=11 test
-FILE = "20000_2000_12_0.5_0.0_5"     # Ru number testing: no healing
+FILE = "20000_500_12_0.5_0.0_5_1.5"     # Ru number testing: no healing
 
 include("analyze_results.jl")   
 
-# # culmulative slip
-# cumSlipPlot(delfsec[1:4:end,:], delfyr[1:end, :], FltX, hypo, d_hypo);
-# #cumSlipPlot(delfsec[1:4:end,:], delfyr[1:end, :], FltX);
+# max slip rate versus timestep
+VfmaxPlot(Vfmax)
 
-# # max slip rate versus timestep
-# VfmaxPlot(Vfmax)
+# culmulative slip
+#cumSlipPlot(delfsec[1:4:end,:], delfyr[1:end, :], FltX, hypo, d_hypo);
+#cumSlipPlot(delfsec[1:4:end,:], delfyr[1:end, :], FltX);
 
-# # # healing analysis: Vfmax and regidity ratio vs. time
-# healing_analysis(Vfmax, alphaa, t, yr2sec)
+# # healing analysis: Vfmax and regidity ratio vs. time
+healing_analysis(Vfmax, alphaa, t, yr2sec)
 
 # # stress drop of the first artificial event 
 # # stressdrop_1(taubefore[1,:], tauafter[1,:], FltX)    # the row is the number of event
@@ -38,10 +38,10 @@ include("analyze_results.jl")
 # eqCyclePlot(sliprate', FltX)
 
 
-# # sliprate versus time for the last event
-N = 500      # time steps to plot in sliprate
-n = 6           # plot the last 4 events
-Nucleation(sliprate', FltX, tStart, t, N, n)
+# # # sliprate versus time for the last event
+# N = 500      # time steps to plot in sliprate
+# n = 6           # plot the last 4 events
+# Nucleation(sliprate', FltX, tStart, t, N, n)
 # eqCyclePlot_last_1(sliprate', FltX, tStart, t, N, n)
 # eqCyclePlot_last_2(sliprate', FltX, tStart, t, N, n)
 

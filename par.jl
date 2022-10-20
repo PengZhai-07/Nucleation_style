@@ -21,9 +21,9 @@ function setParameters(FZdepth::Int, halfwidth::Int, res::Int, T::Int, alpha::Fl
     NelY::Int = 20*res*Domain # no. of elements in y
 
     dxe::Float64 = LX/NelX   #	Size of one element along X
-    #println(dxe)
+    println(dxe)
     dye::Float64 = LY/NelY   #	Size of one element along Y
-    #println(dye)
+    println(dye)
     Nel::Int = NelX*NelY     # Total no. of elements
 
     P::Int = 4		#	Lagrange polynomial degree
@@ -78,13 +78,13 @@ function setParameters(FZdepth::Int, halfwidth::Int, res::Int, T::Int, alpha::Fl
     # But if with healing, we need to define the rigidity ratio here!!
 
     mu = rho1*vs1^2
-    println("The shear modulus of hostrock is",mu)     # the default value is about 32GPa(3.2038e10)
+    println("The shear modulus of hostrock is: ",mu)     # the default value is about 32GPa(3.2038e10)
 
     # without viscosity damping
     ETA = 0.
 
     # Low velocity layer dimensions
-    ThickX::Float64 = LX - ceil(FZdepth/dxe)*dxe   # ~FZdepth m deep
+    ThickX::Float64 = LX - ceil(FZdepth/dxe)*dxe   # ~distance from low boundary to fault zone low boundary
     ThickY::Float64 = ceil(halfwidth/dye)*dye     # ~ default halfwidth value: 0.25 km wide
     # when the resolution is low, the halfwidth of fault damage zone can not be two small 
 
@@ -235,7 +235,7 @@ function setParameters(FZdepth::Int, halfwidth::Int, res::Int, T::Int, alpha::Fl
     cca::Vector{Float64}, ccb::Vector{Float64}, a_b = fricDepth(FltX)   # rate-state friction parameters
     
     Seff::Vector{Float64} = SeffDepth(FltX, multiple)       # default effective normal stress: 10MPa
-    println(Seff)
+    #println(Seff)
 
     Snormal::Vector{Float64} = SnormalDepth(FltX)       # effective normal stress
     # println(Snormal)
@@ -244,7 +244,7 @@ function setParameters(FZdepth::Int, halfwidth::Int, res::Int, T::Int, alpha::Fl
     # println(SSpp)
 
     tauo::Vector{Float64} = tauDepth(FltX, multiple)        # initial shear stress
-    println(tauo)
+    #println(tauo)
 
     # Kelvin-Voigt Viscosity : one technical method to increase the convergence rate
     Nel_ETA::Int = 0   # not used! 
@@ -271,7 +271,7 @@ function setParameters(FZdepth::Int, halfwidth::Int, res::Int, T::Int, alpha::Fl
     fbc = reshape(iglob[:,1,:], length(iglob[:,1,:]))   #convert the index of all left(fault) boundary GLL nodes in all elements into 1-D vector
     # println("fbc=", fbc[1:10])
     # println(findall(x .== -24e3)[1])    # the point on the fault at the depth of 24km
-    idx = findall(fbc .== findall(x .== -20e3)[1] - 1)[1]
+    idx = findall(fbc .== findall(x .>= -20e3)[1] - 1)[1]
     #println("idx=", idx)
     FltIglobBC::Vector{Int} = fbc[1:idx]     # GLL nodes within creeping fault (>20 km)  with repeated nodes
     
@@ -279,9 +279,9 @@ function setParameters(FZdepth::Int, halfwidth::Int, res::Int, T::Int, alpha::Fl
     # println("Total number of GLL nodes on fault: ", FltNglob)
     println("Total number of GLL nodes on fault: ", length(iFlt))
     println("Average node spacing on fault: ", LX/(FltNglob-1), " m")
-    println("Effective normal stress distribution on fault: \n ", Seff, " MPa")
-    println("Initial shear stress distribution on fault: \n ", tauo, " MPa")
-    println("friction parameter a-b on fault:\n", a_b)
+    #println("Effective normal stress distribution on fault: \n ", Seff, " MPa")
+    #println("Initial shear stress distribution on fault: \n ", tauo, " MPa")
+    #println("friction parameter a-b on fault:\n", a_b)
     println("ThickX: ", ThickX, " m")
     println("ThickY: ", ThickY, " m")
     @printf("dt: %1.09f s\n", dt)   # minimal timestep during coseismic stage

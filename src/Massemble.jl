@@ -52,7 +52,7 @@ function Massemble!(NGLL, NelX, NelY, dxe, dye, ThickX,
             
             if a == 1
                 #print(M[1:50])
-            print(wgll2.*rho*jac)
+            # print(wgll2.*rho*jac)
             end
 
             # Local contributions to the stiffness matrix
