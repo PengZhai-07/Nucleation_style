@@ -133,9 +133,6 @@ end
 
 # Plot cumulative slip
 function cumSlipPlot(delfsec, delfyr, FltX, hypo, d_hypo)
-#function    cumSlipPlot(delfsec, delfyr, FltX)
-    
-    
     indx = findall(abs.(FltX) .<= 17)[1]
 
     delfsec2 = transpose(delfsec[:,indx:end])
@@ -159,6 +156,35 @@ function cumSlipPlot(delfsec, delfyr, FltX, hypo, d_hypo)
     show()
     
     figname = string(path, "cumulative_slip.png")
+    fig.savefig(figname, dpi = 300)
+
+end
+
+function    cumSlipPlot_no_hypocenter(delfsec, delfyr, FltX)
+
+    indx = findall(abs.(FltX) .<= 17)[1]
+
+    delfsec2 = transpose(delfsec[:,indx:end])
+    delfyr2 = transpose(delfyr)
+
+    plot_params()
+    fig = PyPlot.figure(figsize=(7.2, 4.45))
+
+    ax = fig.add_subplot(111)
+    plt.rc("font",size=12)
+    ax.plot(delfyr2, FltX, color="royalblue", lw=1.0)
+    ax.plot(delfsec2, FltX[indx:end], color="chocolate", lw=1.0)
+    #ax.plot(d_hypo, hypo./1000 , "*", color="saddlebrown", markersize=25)
+    ax.set_xlabel("Cumulative Slip (m)")
+    ax.set_ylabel("Depth (km)")
+    ax.set_ylim([0,20])
+    ax.set_xlim([0,maximum(delfyr2)])
+    #ax.set_xlim([0,9.0])
+    ax.invert_yaxis()
+
+    show()
+    
+    figname = string(path, "cumulative_slip_no_hypocenter.png")
     fig.savefig(figname, dpi = 300)
 
 end

@@ -33,7 +33,7 @@ function fricDepth(FltX)
     a_b[fric_depth2] .= Int1D(fP2, fP3, FltX[fric_depth2])
     a_b[fric_depth3] .= Int1D(fP3, fP4, FltX[fric_depth3])
     a_b[fric_depth4] .= Int1D(fP4, fP5, FltX[fric_depth4])
-    a_b[fric_depth5] .= 0.0047   # depth >=24 km
+    a_b[fric_depth5] .= 0.0047   # depth >=FZdepth km
 
     #  cca[fric_depth4] .= Int1D(fP4, fP5, FltX[fric_depth4]) .+ 0.0001
     cca .= ccb .+ a_b      # so a is variable
@@ -57,9 +57,6 @@ function SeffDepth(FltX, multiple)
     return Seff
 
 end
-
-
-
 
 # Shear stress
 function tauDepth(FltX, multiple)

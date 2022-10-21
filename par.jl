@@ -271,7 +271,7 @@ function setParameters(FZdepth::Int, halfwidth::Int, res::Int, T::Int, alpha::Fl
     fbc = reshape(iglob[:,1,:], length(iglob[:,1,:]))   #convert the index of all left(fault) boundary GLL nodes in all elements into 1-D vector
     # println("fbc=", fbc[1:10])
     # println(findall(x .== -24e3)[1])    # the point on the fault at the depth of 24km
-    idx = findall(fbc .== findall(x .>= -FZdepth)[1] - 1)[1]
+    idx = findall(fbc .== findall(x .>= -20e3)[1] - 1)[1]     # lower boundary of frictional parameters: over 20km are all creeping fault
     #println("idx=", idx)
     FltIglobBC::Vector{Int} = fbc[1:idx]     # GLL nodes within creeping fault (>20 km)  with repeated nodes
     

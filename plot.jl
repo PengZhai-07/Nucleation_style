@@ -22,7 +22,7 @@ VfmaxPlot(Vfmax)
 
 # culmulative slip
 #cumSlipPlot(delfsec[1:4:end,:], delfyr[1:end, :], FltX, hypo, d_hypo);
-#cumSlipPlot(delfsec[1:4:end,:], delfyr[1:end, :], FltX);
+cumSlipPlot_no_hypocenter(delfsec[1:4:end,:], delfyr[1:end, :], FltX);
 
 # # healing analysis: Vfmax and regidity ratio vs. time
 healing_analysis(Vfmax, alphaa, t, yr2sec)
