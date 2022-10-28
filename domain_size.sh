@@ -9,7 +9,7 @@
 ##SBATCH --mail-user=zhai5108@gmail.com
 ##SBATCH --mail-type=BEGIN,END
 #SBATCH --nodes=1
-#SBATCH --mem=30000m
+#SBATCH --mem=60000m
 #SBATCH --time=14-00:00:00
 #SBATCH --partition=standard
 
@@ -32,10 +32,15 @@
 ##SBATCH --error=/home/%u/log/error-%x-%j.log 
 #julia --threads 8 run.jl 0.5 200 0.0081 5 0.00 
 
-#SBATCH --job-name=case47 
+#SBATCH --job-name=case53 
 #SBATCH --output=/home/%u/log/%x-%j.log 
 #SBATCH --error=/home/%u/log/error-%x-%j.log 
 julia --threads 8 run.jl 0.5 500 0.010081 5 0.00  
+
+##SBATCH --job-name=case52
+##SBATCH --output=/home/%u/log/%x-%j.log 
+##SBATCH --error=/home/%u/log/error-%x-%j.log 
+#julia --threads 8 run.jl 0.5 500 0.010081 5 0.00  
 
 ##SBATCH --job-name=case44 
 ##SBATCH --output=/home/%u/log/%x-%j.log 
