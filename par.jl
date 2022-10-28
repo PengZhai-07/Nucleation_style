@@ -71,9 +71,9 @@ function setParameters(FZdepth::Int, halfwidth::Int, res::Int, T::Int, alpha::Fl
     # vs1::Float64 = 0.6*3462
     # the initial property of fualt damage zone: fault zone evolution!!!
     rho2::Float64 = 2670
-    vs2::Float64 = 1.00*vs1       # for healing test
-    
-    #vs2::Float64 = sqrt(alpha)*vs1 
+    #vs2::Float64 = 1.00*vs1       # for healing test
+
+    vs2::Float64 = sqrt(alpha)*vs1 
 
     # note: it is not necessary to define the damage zone here with healing
     # But if with healing, we need to define the rigidity ratio here!!
