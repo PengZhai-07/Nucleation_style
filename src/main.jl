@@ -19,7 +19,7 @@ function healing2(t,tStart,dam, cos_reduction)
                         (0.4605 => 15 years to heal completely)
                         (0.5756 => 12 years to heal completely)
                         (0.6908 => 10 years to heal completely)
-                        (0.8635 => 8 years to heal completely)
+                        (0.8635 => 8 years to healc completely)
                         (1.7269 => 4 years to heal completely)
                     """
     hmax = cos_reduction
@@ -220,6 +220,10 @@ function main(P, alphaa, cos_reduction)
     hypo = 0.    # earthquake hypocenter
     d_hypo = 0.   # # cumulative slip at earthquake hypocenter
  
+    # time dependence of b value
+    SSS = 0
+    seismogenic_depth = findall(abs(2e3) .< abs.(P[3].FltX) .<= abs(12e3))
+
     while t < P[1].Total_time
         it = it + 1
 
@@ -277,6 +281,8 @@ function main(P, alphaa, cos_reduction)
                 
                 # step5
                 # Function to calculate on-fault sliprate on whole fault line
+
+                # note that slrFunc! depends on ccb
                 psi1, Vf1 = slrFunc!(P[3], NFBC, P[1].FltNglob, psi, psi1, Vf, Vf1, P[1].IDstate, tau1, dt)   # from other functions
                 
                 # step6: correct slip rate on the fault
@@ -307,7 +313,6 @@ function main(P, alphaa, cos_reduction)
             # reset the culmulative displacement and velocity within creeping fault to be zero
             d[P[4].FltIglobBC] .= 0.
             v[P[4].FltIglobBC] .= 0.
-
 
             #---------------
             # Healing stuff: only for interseismic quasi-static phase
@@ -401,6 +406,27 @@ function main(P, alphaa, cos_reduction)
         end # of isolver if loop
 
         Vfmax = 2*maximum(v[P[4].iFlt]) .+ P[2].Vpl   # background plate motion rate: P[2].Vpl
+
+# velocity dependent b (evolution effect)
+
+        # if t > 10*P[1].yr2sec
+
+        #     if  Vfmax <= 1e-5          
+        #         P[3].ccb[seismogenic_depth] .= 0.019
+
+        #     elseif 1e-5 < Vfmax < 1e-3  
+        
+        #         K_b = (0.025-0.019)/(1e-3-1e-5)
+        #         P[3].ccb[seismogenic_depth] .= 0.019 .+ (Vfmax - 1e-5)* K_b 
+        #         # if  SSS == 0
+        #         #     println(P[3].ccb)
+        #         # end
+        #         # SSS = SSS + 1
+
+        #     elseif Vfmax >= 1e-3
+        #         P[3].ccb[seismogenic_depth] .= 0.025
+        #     end    
+        # end
 
         #-----
         # Output the variables before and after events
@@ -543,7 +569,7 @@ function main(P, alphaa, cos_reduction)
             # Vfmax: max slip rate on the fault
             # Vf[end] is fault slip rate on the surface!!
             # alphaa: current rigidity ratio of fault damage zone
-        write(Vf_time, join(hcat(t, Vfmax, Vf[end], alphaa, isolver), " "), "\n")
+        write(Vf_time, join(hcat(t, Vfmax, Vf[end], alphaa, isolver, maximum(P[3].ccb)), " "), "\n")
         
         # Compute next timestep dt: adaptive!!
         dt = dtevol!(dt , dtmin, P[3].XiLf, P[1].FltNglob, NFBC, current_sliprate, isolver)

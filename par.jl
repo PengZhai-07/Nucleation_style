@@ -21,9 +21,9 @@ function setParameters(FZdepth::Int, halfwidth::Int, res::Int, T::Int, alpha::Fl
     NelY::Int = 20*res*Domain # no. of elements in y
 
     dxe::Float64 = LX/NelX   #	Size of one element along X
-    println(dxe)
+    # println(dxe)
     dye::Float64 = LY/NelY   #	Size of one element along Y
-    println(dye)
+    # println(dye)
     Nel::Int = NelX*NelY     # Total no. of elements
 
     P::Int = 4		#	Lagrange polynomial degree
@@ -71,9 +71,9 @@ function setParameters(FZdepth::Int, halfwidth::Int, res::Int, T::Int, alpha::Fl
     # vs1::Float64 = 0.6*3462
     # the initial property of fualt damage zone: fault zone evolution!!!
     rho2::Float64 = 2670
-    #vs2::Float64 = 1.00*vs1       # for healing test
+    #vs2::Float64 = 1.00*vs1       # for healing test: define the variation of regidity in main.jl
 
-    vs2::Float64 = sqrt(alpha)*vs1 
+    vs2::Float64 = sqrt(alpha)*vs1   # define the rigidity now(a constant during whole simulation)
 
     # note: it is not necessary to define the damage zone here with healing
     # But if with healing, we need to define the rigidity ratio here!!
@@ -234,6 +234,10 @@ function setParameters(FZdepth::Int, halfwidth::Int, res::Int, T::Int, alpha::Fl
     # Initial Conditions
     #......................
     cca::Vector{Float64}, ccb::Vector{Float64}, a_b = fricDepth(FltX)   # rate-state friction parameters
+    # fric_depth = findall(abs(2e3) .< abs.(FltX) .<= abs(12e3))
+    # # println(fric_depth)
+    # ccb[fric_depth] .= 0.025
+    # println(ccb)
 
     Seff::Vector{Float64} = SeffDepth(FltX, multiple)       # default effective normal stress: 10MPa
     #println(Seff)
@@ -247,20 +251,11 @@ function setParameters(FZdepth::Int, halfwidth::Int, res::Int, T::Int, alpha::Fl
     tauo::Vector{Float64} = tauDepth(FltX, multiple)        # initial shear stress
     #println(tauo)
 
-    # Kelvin-Voigt Viscosity : one technical method to increase the convergence rate
-    Nel_ETA::Int = 0   # not used! 
-    if ETA != 0
-        Nel_ETA = NelX
-        x1 = 0.5*(1 .+ xgll')
-        eta_taper = exp.(-pi*x1.^2)
-        eta = ETA*dt*repeat([eta_taper], NGLL)
-    else
-        Nel_ETA = 0
-    end
-
     # Compute XiLF(largest slip in one timestep!!) used in timestep calculation: constrained by friction law!
     # quasi-static scheme
     XiLf::Vector{Float64} = XiLfFunc!(LX, FltNglob, gamma_, xLf, muMax, cca, ccb, Seff)
+    # println(XiLf)
+
 
     # Find nodes that do not belong to the fault (off-fault GLL nodes )
     FltNI::Vector{Int} = deleteat!(collect(1:nglob), iFlt)
@@ -276,6 +271,18 @@ function setParameters(FZdepth::Int, halfwidth::Int, res::Int, T::Int, alpha::Fl
     #println("idx=", idx)
     FltIglobBC::Vector{Int} = fbc[1:idx]     # GLL nodes within creeping fault (>20 km)  with repeated nodes
     
+
+    # # Kelvin-Voigt Viscosity : one technical method to increase the convergence rate
+    # Nel_ETA::Int = 0   # not used! 
+    # if ETA != 0
+    #     Nel_ETA = NelX
+    #     x1 = 0.5*(1 .+ xgll')
+    #     eta_taper = exp.(-pi*x1.^2)
+    #     eta = ETA*dt*repeat([eta_taper], NGLL)
+    # else
+    #     Nel_ETA = 0
+    # end
+
     # Display important parameters
     # println("Total number of GLL nodes on fault: ", FltNglob)
     println("Total number of GLL nodes on fault: ", length(iFlt))

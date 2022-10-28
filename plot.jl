@@ -13,7 +13,7 @@
 
 
 # Ru=11 test
-FILE = "20000_500_12_0.5_0.0_5_1.5"     # Ru number testing: no healing
+FILE = "20000_500_4_0.5_0.0_5_1.0"     # Ru number testing: no healing
 
 include("analyze_results.jl")   
 
@@ -21,8 +21,8 @@ include("analyze_results.jl")
 VfmaxPlot(Vfmax)
 
 # culmulative slip
-#cumSlipPlot(delfsec[1:4:end,:], delfyr[1:end, :], FltX, hypo, d_hypo);
-cumSlipPlot_no_hypocenter(delfsec[1:4:end,:], delfyr[1:end, :], FltX);
+cumSlipPlot(delfsec[1:4:end,:], delfyr[1:end, :], FltX, hypo, d_hypo);
+#cumSlipPlot_no_hypocenter(delfsec[1:4:end,:], delfyr[1:end, :], FltX);
 
 # # healing analysis: Vfmax and regidity ratio vs. time
 healing_analysis(Vfmax, alphaa, t, yr2sec)

@@ -13,7 +13,7 @@ L = maximum(P[3].xLf)               # unit: m    8mm
 #b = 0.019 non-changebale
 b = maximum(P[3].ccb)
 #b_a = 0.0041
-b_a = -minimum(P[3].cca .- P[3].ccb)
+b_a = 0.004
 
 h_hom_host = 2/pi*mu*L*b/sigma/b_a^2        #  (Rubin & Ampuero, 2005)
 h_hom_dam  = 2/pi*mu*alpha*L*b/sigma/b_a^2        #  (Rubin & Ampuero, 2005)   smaller!!  downlimit of nucleation size
@@ -36,7 +36,7 @@ function CohesiveZoneSize(P, alpha)             # (Day, 2005)
     
     CZone = 9*pi/32*mu*L/b/sigma
 
-    #print("sigma=",sigma,"  mu=",mu,"  L=",L,"  b=",b, "\n")
+    print("sigma=",sigma,"  mu=",mu,"  L=",L,"  b=",b, "\n")
     return CZone 
     
     end
