@@ -52,6 +52,38 @@ function VfmaxPlot(Vfmax)
     fig.savefig(figname, dpi = 300)
 end
 
+
+# Plot Vfmax
+function velocity_dependence(b_value, Vfmax, t, yr2sec)
+    plot_params()
+    fig = PyPlot.figure(figsize=(7.2, 4.45))
+    ax = fig.add_subplot(111)
+    
+    ax.plot(t./yr2sec, Vfmax, lw = 2.0, label="Max. Slip rate")
+    lab1 = "Max. slip rate"
+    ax.set_ylabel("Max. Slip rate (m/s)")
+    ax.set_yscale("log")
+    #ax.set_xlim([0, 600])
+    ax.set_ylim([1e-10, 1e2])
+    
+    col="tab:red"
+    ax2 = ax.twinx()
+    
+    ax2.plot(t./yr2sec, b_value, c=col, lw=2.0, label="b")
+    lab2 = "b"
+    ax.set_xlabel("Time (years)")
+    ax2.set_ylabel("b of R&S friction law")
+    ax2.set_ylim([0.015, 0.030])
+    ax2.get_xaxis().set_tick_params(color=col)
+    ax2.tick_params(axis="x", labelcolor=col)
+
+    #  ax.legend([lab1, lab2], loc=0)
+    show()
+    
+    figname = string(path, "velocity_dependence_b.png")
+    fig.savefig(figname, dpi = 300)
+end
+
 # Plot alpha and Vfmax on the same plot
 function healing_analysis(Vf, alphaa, t, yr2sec)
     plot_params()
@@ -420,6 +452,7 @@ figname = string(path, "sliprate_time_2.png")
 # figname = string(path, "sliprate_time_",i,".png")
 fig.savefig(figname, dpi = 300)
 end
+
 
 
 # Plot friction parameters

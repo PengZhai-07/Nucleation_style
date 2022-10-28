@@ -409,24 +409,24 @@ function main(P, alphaa, cos_reduction)
 
 # velocity dependent b (evolution effect)
 
-        # if t > 10*P[1].yr2sec
+        if t > 10*P[1].yr2sec
 
-        #     if  Vfmax <= 1e-5          
-        #         P[3].ccb[seismogenic_depth] .= 0.019
+            if  Vfmax <= 1e-5          
+                P[3].ccb[seismogenic_depth] .= 0.019
 
-        #     elseif 1e-5 < Vfmax < 1e-3  
+            elseif 1e-5 < Vfmax < 1e-3  
         
-        #         K_b = (0.025-0.019)/(1e-3-1e-5)
-        #         P[3].ccb[seismogenic_depth] .= 0.019 .+ (Vfmax - 1e-5)* K_b 
-        #         # if  SSS == 0
-        #         #     println(P[3].ccb)
-        #         # end
-        #         # SSS = SSS + 1
+                K_b = (0.025-0.019)/(1e-3-1e-5)
+                P[3].ccb[seismogenic_depth] .= 0.019 .+ (Vfmax - 1e-5)* K_b 
+                # if  SSS == 0
+                #     println(P[3].ccb)
+                # end
+                # SSS = SSS + 1
 
-        #     elseif Vfmax >= 1e-3
-        #         P[3].ccb[seismogenic_depth] .= 0.025
-        #     end    
-        # end
+            elseif Vfmax >= 1e-3
+                P[3].ccb[seismogenic_depth] .= 0.025
+            end    
+        end
 
         #-----
         # Output the variables before and after events

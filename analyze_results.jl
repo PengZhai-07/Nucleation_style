@@ -27,6 +27,8 @@ t = time_vel[:,1]             # all real timsteps
 Vfmax = time_vel[:,2]
 Vsurface = time_vel[:,3]
 alphaa = time_vel[:,4]         # initial background rigidity ratio
+b_value = time_vel[:,6]
+
 
 # displacement on fault line for different time 
 delfsec = readdlm(string(out_path, "delfsec.out"))

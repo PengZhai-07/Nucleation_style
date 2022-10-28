@@ -27,6 +27,9 @@ cumSlipPlot(delfsec[1:4:end,:], delfyr[1:end, :], FltX, hypo, d_hypo);
 # # healing analysis: Vfmax and regidity ratio vs. time
 healing_analysis(Vfmax, alphaa, t, yr2sec)
 
+# plot the b value in rate and state friction law
+velocity_dependence(b_value, Vfmax, t, yr2sec)
+
 # # stress drop of the first artificial event 
 # # stressdrop_1(taubefore[1,:], tauafter[1,:], FltX)    # the row is the number of event
 

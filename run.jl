@@ -27,7 +27,7 @@ res::Int = 4   # resolution of mesh
 # 12: 1441 GLL nodes,  average 33m on fault
 # 16: 1921 GLL nodes, average 25m on fault
 # 20: 1921 GLL nodes, average 20m on fault
-T::Int = 200    # total simulation years 
+T::Int = 300    # total simulation years 
 Domain = 1.0    # amplify factor of the domain size
 FZdepth::Int = 20e3   # depth of fault zone  unit: m     20km is the maximum depth
 
@@ -52,10 +52,10 @@ println("cos_reduction: ", cos_reduction)
 # Output directory to save data
 out_dir = "$(@__DIR__)/data/immature_fully_healing/$(FZdepth)_$(halfwidth)_$(res)_$(alpha)_$(cos_reduction)_$(multiple)_$(Domain)/"    
 
-# clean old files 
-if isdir(out_dir)
-    rm(out_dir, recursive = true)
-end
+# # clean old files 
+# if isdir(out_dir)
+#     rm(out_dir, recursive = true)
+# end
 
 mkpath(out_dir)
 
