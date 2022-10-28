@@ -233,7 +233,8 @@ function setParameters(FZdepth::Int, halfwidth::Int, res::Int, T::Int, alpha::Fl
     # Initial Conditions
     #......................
     cca::Vector{Float64}, ccb::Vector{Float64}, a_b = fricDepth(FltX)   # rate-state friction parameters
-    
+    cca_1::Vector{Float64}, ccb_1::Vector{Float64}, a_b_1 = fricDepth_1(FltX)   # rate-state friction parameters
+
     Seff::Vector{Float64} = SeffDepth(FltX, multiple)       # default effective normal stress: 10MPa
     #println(Seff)
 
