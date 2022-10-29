@@ -11,7 +11,6 @@
 # FILE = "20000.0_1500.0_8_0.85_0.05_4.0"   # normal stress testing
 #FILE = "20000.0_500.0_20_0.85_0.05_5.0"   # resolution testing
 
-
 # Ru=11 test
 FILE = "20000_500_4_0.5_0.0_5_1.0"     # Ru number testing: no healing
 

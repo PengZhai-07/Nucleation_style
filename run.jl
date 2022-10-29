@@ -49,8 +49,11 @@ println("cos_reduction: ", cos_reduction)
 # 0.9604   0.9409   0.9216
 # 0.0396   0.0591   0.0784
 
+# project = immature_fully_healing
+project = velocity_dependence_b
+
 # Output directory to save data
-out_dir = "$(@__DIR__)/data/immature_fully_healing/$(FZdepth)_$(halfwidth)_$(res)_$(alpha)_$(cos_reduction)_$(multiple)_$(Domain)/"    
+out_dir = "$(@__DIR__)/data/$(project)/$(FZdepth)_$(halfwidth)_$(res)_$(alpha)_$(cos_reduction)_$(multiple)_$(Domain)/"    
 
 # # clean old files 
 # if isdir(out_dir)
