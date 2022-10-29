@@ -16,18 +16,18 @@ FILE = "20000_500_4_0.5_0.0_5_1.0"     # Ru number testing: no healing
 
 include("analyze_results.jl")   
 
-# max slip rate versus timestep
-VfmaxPlot(Vfmax)
+# # max slip rate versus timestep
+# VfmaxPlot(Vfmax)
 
-# culmulative slip
-cumSlipPlot(delfsec[1:4:end,:], delfyr[1:end, :], FltX, hypo, d_hypo);
-#cumSlipPlot_no_hypocenter(delfsec[1:4:end,:], delfyr[1:end, :], FltX);
+# # culmulative slip
+# cumSlipPlot(delfsec[1:4:end,:], delfyr[1:end, :], FltX, hypo, d_hypo);
+# #cumSlipPlot_no_hypocenter(delfsec[1:4:end,:], delfyr[1:end, :], FltX);
 
-# # healing analysis: Vfmax and regidity ratio vs. time
-healing_analysis(Vfmax, alphaa, t, yr2sec)
+# # # healing analysis: Vfmax and regidity ratio vs. time
+# healing_analysis(Vfmax, alphaa, t, yr2sec)
 
-# plot the b value in rate and state friction law
-velocity_dependence(b_value, Vfmax, t, yr2sec)
+# # plot the b value in rate and state friction law
+# velocity_dependence(b_value, Vfmax, t, yr2sec)
 
 # # stress drop of the first artificial event 
 # # stressdrop_1(taubefore[1,:], tauafter[1,:], FltX)    # the row is the number of event
@@ -52,3 +52,6 @@ velocity_dependence(b_value, Vfmax, t, yr2sec)
 
 # # Plot friction parameters
 # icsPlot(a_b, Seff, tauo, FltX)
+
+# Plot velocity dependence of b
+velocity_dependence_b(1e-5, 1e-3, 0.019, 0.025)

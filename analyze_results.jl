@@ -3,8 +3,8 @@ using DelimitedFiles
 include("$(@__DIR__)/post/event_details.jl")
 include("$(@__DIR__)/post/plotting_script.jl")
 
-# project = immature_fully_healing
-project = velocity_dependence_b
+project = "immature_fully_healing"
+#project = "velocity_dependence_b"
 
 # path to save files
 global path = "$(@__DIR__)/plots/$(project)/$(FILE)/"

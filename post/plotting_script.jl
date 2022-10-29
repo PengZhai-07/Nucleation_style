@@ -53,6 +53,8 @@ function VfmaxPlot(Vfmax)
 end
 
 
+
+
 # Plot Vfmax
 function velocity_dependence(b_value, Vfmax, t, yr2sec)
     plot_params()
@@ -456,7 +458,7 @@ end
 
 
 # Plot friction parameters
-function icsPlot(a_b, Seff, tauo, FltX)
+function icsPlot(a_b, Seff, tauo, FltX )
     plot_params()
     fig = PyPlot.figure(figsize=(7.2, 4.45))
     ax = fig.add_subplot(111)            
@@ -465,22 +467,56 @@ function icsPlot(a_b, Seff, tauo, FltX)
     ax.plot(tauo, FltX, "orange", label="Shear Stress")
     ax.set_xlabel("Stresses (MPa)")
     ax.set_ylabel("Depth (km)")
-    plt.legend(loc="lower right") 
+    ax.legend(loc="lower right") 
     
     col="tab:green"
     ax2 = ax.twiny()
     ax2.plot(a_b, FltX, "g",label="(a-b)")
+    #println(FltX)
+    seismogenic_depth = findall(abs(2) .< abs.(FltX) .<= abs(12))   # note: unit of FltX here is km
+    a_b[seismogenic_depth] .= a_b[seismogenic_depth] .- 0.006
+    #println(a_b)
+    ax2.plot(a_b, FltX, "r",label="coseismic (a-b)", linestyle=":")
     ax2.set_xlabel("Rate-state friction value (a-b)", color=col)
     ax2.get_xaxis().set_tick_params(color=col)
     ax2.tick_params(axis="x", labelcolor=col)  
-    ax2.set_xlim([-0.010,0.040])
-    
+    ax2.set_xlim([-0.015,0.040])
+    ax2.legend(loc="lower left") 
+
     ax.set_ylim([0,20])
     ax.invert_yaxis()
     show()
     
     figname = string(path, "initial_condition.png")
     fig.savefig(figname, dpi = 300)
+end
+
+function velocity_dependence_b(x1 ,x2, y1, y2)
+    plot_params()
+    fig = PyPlot.figure(figsize=(7.2, 4.45))
+    ax = fig.add_subplot(111)            
+    
+    V::Vector{Float64} = range(1e-6, 1e-2, length=10000)
+    b::Vector{Float64} = range(y1, y1, length=10000)        # y1 must be number
+    a::Vector{Float64} = range(0.015, 0.015, length=10000)        # y1 must be number
+
+    index_1 = findall(x1.<= V .<= x2)
+    index_2 = findall(x2.< V )
+    # b[index_1] .= y1 .+ (V[index_1] .- x1)* (y2-y1) /(x2 - x1)
+    b[index_1] .= y1 .+ (log10.(V[index_1]) .- log10(x1)) * (y2-y1) / (log10(x2) - log10(x1))
+    b[index_2] .= y2
+    ax.plot(V, b , "r", label="Evolution effect in R&S friction")
+    ax.plot(V, a , "b", label="Direct effect in R&S friction")
+    ax.plot([1e-3, 1e-3],[0.01, 0.03] , "k", linestyle=":", label="Seismic threshold")
+    ax.set_xlabel("Max. Slip rate (m/s)")
+    ax.set_ylabel("b")
+    ax.set_ylim([0.01, 0.03])
+    ax.set_xscale("log")
+    ax.legend(loc="upper left") 
+    show()
+    figname = string(path, "velocity_dependence_b_seismogenic_zone.png")
+    fig.savefig(figname, dpi = 300)
+
 end
 
 
