@@ -2,7 +2,6 @@
 # Basic testing to visualize results
 # #####################################
 
-
 # wozhi
 #FILE = "24000.0_1500_8_0.85_0.0396_3"
 #FILE = "24000.0_1500_8_0.85_0.0591_5"
@@ -12,7 +11,7 @@
 #FILE = "20000.0_500.0_20_0.85_0.05_5.0"   # resolution testing
 
 # Ru=11 test
-FILE = "20000_500_4_0.5_0.0_5_1.0"     # Ru number testing: no healing
+FILE = "20000_500_12_0.5_0.0_5_1.0"     # Ru number testing: no healing
 
 include("analyze_results.jl")   
 
@@ -20,11 +19,11 @@ include("analyze_results.jl")
 # VfmaxPlot(Vfmax)
 
 # # culmulative slip
-# cumSlipPlot(delfsec[1:4:end,:], delfyr[1:end, :], FltX, hypo, d_hypo);
-# #cumSlipPlot_no_hypocenter(delfsec[1:4:end,:], delfyr[1:end, :], FltX);
+#cumSlipPlot(delfsec[1:4:end,:], delfyr[1:end, :], FltX, hypo, d_hypo);
+# cumSlipPlot_no_hypocenter(delfsec[1:4:end,:], delfyr[1:end, :], FltX);
 
-# # # healing analysis: Vfmax and regidity ratio vs. time
-# healing_analysis(Vfmax, alphaa, t, yr2sec)
+# # healing analysis: Vfmax and regidity ratio vs. time
+#healing_analysis(Vfmax, alphaa, t, yr2sec)
 
 # # plot the b value in rate and state friction law
 # velocity_dependence(b_value, Vfmax, t, yr2sec)
@@ -36,8 +35,8 @@ include("analyze_results.jl")
 # stressdrop_2(taubefore, tauafter, FltX, 6)    # the row is the number of event
 # # default is the first event, so taubefore is the initial shear stress: 0.6*normal stress
 
-# # slip rate vs timesteps
-# eqCyclePlot(sliprate', FltX)
+# slip rate vs timesteps
+#eqCyclePlot(sliprate', FltX)
 
 
 # # # sliprate versus time for the last event

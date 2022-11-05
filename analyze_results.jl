@@ -3,8 +3,8 @@ using DelimitedFiles
 include("$(@__DIR__)/post/event_details.jl")
 include("$(@__DIR__)/post/plotting_script.jl")
 
-project = "immature_fully_healing"
-#project = "velocity_dependence_b"
+#project = "immature_fully_healing"
+project = "velocity_dependence_b"
 
 # path to save files
 global path = "$(@__DIR__)/plots/$(project)/$(FILE)/"
@@ -30,7 +30,7 @@ t = time_vel[:,1]             # all real timsteps
 Vfmax = time_vel[:,2]
 Vsurface = time_vel[:,3]
 alphaa = time_vel[:,4]         # initial background rigidity ratio
-b_value = time_vel[:,6]
+# b_value = time_vel[:,6]
 
 
 # displacement on fault line for different time 
@@ -64,7 +64,6 @@ println("Depth of all seismic events:",hypo)
 sliprate = readdlm(string(out_path, "sliprate.out"), header=false)   # every 10 timesteps
 println("Dimension of sliprate:",size(sliprate))
 
- 
 
 # print(size(delfsec))
 event_stress = readdlm(string(out_path, "event_stress.out"), header=false)

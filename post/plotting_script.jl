@@ -167,7 +167,7 @@ end
 
 # Plot cumulative slip
 function cumSlipPlot(delfsec, delfyr, FltX, hypo, d_hypo)
-    indx = findall(abs.(FltX) .<= 17)[1]
+    indx = findall(abs.(FltX) .<= 20)[1]
 
     delfsec2 = transpose(delfsec[:,indx:end])
     delfyr2 = transpose(delfyr)
@@ -321,7 +321,7 @@ function eqCyclePlot(sliprate, FltX)
     plot_params()
     fig = PyPlot.figure(figsize=(7.2, 4.45))
     ax = fig.add_subplot(111)
-    
+
     c = ax.imshow(value, cmap="viridis", aspect="auto",
                   norm=matplotlib.colors.LogNorm(vmin=1e-9, vmax=1e-3),
                   interpolation="bicubic",
@@ -498,20 +498,24 @@ function velocity_dependence_b(x1 ,x2, y1, y2)
     
     V::Vector{Float64} = range(1e-6, 1e-2, length=10000)
     b::Vector{Float64} = range(y1, y1, length=10000)        # y1 must be number
+    b_linear::Vector{Float64} = range(y1, y1, length=10000)        # y1 must be number
     a::Vector{Float64} = range(0.015, 0.015, length=10000)        # y1 must be number
 
     index_1 = findall(x1.<= V .<= x2)
     index_2 = findall(x2.< V )
-    # b[index_1] .= y1 .+ (V[index_1] .- x1)* (y2-y1) /(x2 - x1)
-    b[index_1] .= y1 .+ (log10.(V[index_1]) .- log10(x1)) * (y2-y1) / (log10(x2) - log10(x1))
+    b_linear[index_1] .= y1 .+ (V[index_1] .- x1)* (y2-y1) /(x2 - x1)
+    # b[index_1] .= y1 .+ (log10.(V[index_1]) .- log10(x1)) * (y2-y1) / (log10(x2) - log10(x1))
+    b[index_1] .= 0.019 .+ (0.025-0.019) .*  (1 .+sin.((V[index_1] .- 1e-5)./(1e-3 - 1e-5).*pi.-pi/2))./2
     b[index_2] .= y2
     ax.plot(V, b , "r", label="Evolution effect in R&S friction")
+    ax.plot(V, b_linear , "r", linestyle=":", label="Evolution effect in R&S friction(linear)")
     ax.plot(V, a , "b", label="Direct effect in R&S friction")
-    ax.plot([1e-3, 1e-3],[0.01, 0.03] , "k", linestyle=":", label="Seismic threshold")
+    #ax.plot([1e-3, 1e-3],[0.01, 0.03] , "k", linestyle=":", label="Seismic threshold")
     ax.set_xlabel("Max. Slip rate (m/s)")
     ax.set_ylabel("b")
     ax.set_ylim([0.01, 0.03])
-    ax.set_xscale("log")
+    ax.set_xlim([1e-5, 1e-3])
+    # ax.set_xscale("log")
     ax.legend(loc="upper left") 
     show()
     figname = string(path, "velocity_dependence_b_seismogenic_zone.png")

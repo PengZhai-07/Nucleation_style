@@ -416,8 +416,13 @@ function main(P, alphaa, cos_reduction)
 
             elseif 1e-5 < Vfmax < 1e-3  
                 # linear increase in Cartesian velocity
-                K_b = (0.025-0.019)/(1e-3-1e-5)
-                P[3].ccb[seismogenic_depth] .= 0.019 .+ (Vfmax - 1e-5)* K_b
+                # K_b = (0.025-0.019)/(1e-3-1e-5)
+                # P[3].ccb[seismogenic_depth] .= 0.019 .+ (Vfmax - 1e-5)* K_b
+
+                # sin increase in Cartesian velocity
+                # normalization
+                K_b = (1+sin((Vfmax - 1e-5)/(1e-3 - 1e-5)*pi-pi/2))/2
+                P[3].ccb[seismogenic_depth] .= 0.019 + (0.025-0.019) * K_b
 
                 # linear increase in log scale velocity
                 # K_b = (0.025-0.019)/(log10(1e-3) - log10(1e-5))

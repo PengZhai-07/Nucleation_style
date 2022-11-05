@@ -18,7 +18,7 @@ include("$(@__DIR__)/par.jl")	    #	Set Parameters
 
 # Put the resolution for the simulation here: should be an integer
 
-res::Int = 4   # resolution of mesh
+res::Int = 12   # resolution of mesh
 
 # 4: 481 GLL nodes, average 100m on fault  
 # 6: 721 GLL nodes, average 67m on fault
@@ -27,7 +27,7 @@ res::Int = 4   # resolution of mesh
 # 12: 1441 GLL nodes,  average 33m on fault
 # 16: 1921 GLL nodes, average 25m on fault
 # 20: 1921 GLL nodes, average 20m on fault
-T::Int = 300    # total simulation years 
+T::Int = 500    # total simulation years 
 Domain = 1.0    # amplify factor of the domain size
 FZdepth::Int = 20e3   # depth of fault zone  unit: m     20km is the maximum depth
 
@@ -53,7 +53,7 @@ println("cos_reduction: ", cos_reduction)
 project = "velocity_dependence_b"
 
 # Output directory to save data
-out_dir = "$(@__DIR__)/data/$(project)/$(FZdepth)_$(halfwidth)_$(res)_$(alpha)_$(cos_reduction)_$(multiple)_$(Domain)/"    
+out_dir = "$(@__DIR__)/data/$(project)/$(FZdepth)_$(halfwidth)_$(res)_$(alpha)_$(cos_reduction)_$(multiple)_$(Domain)_smooth/"    
 
 # # clean old files 
 # if isdir(out_dir)
@@ -62,28 +62,28 @@ out_dir = "$(@__DIR__)/data/$(project)/$(FZdepth)_$(halfwidth)_$(res)_$(alpha)_$
 
 mkpath(out_dir)
 
-# P = setParameters(FZdepth, halfwidth, res, T, alpha, multiple, Lc, Domain)   
-# # # println(size(P[4].FltNI))   # total number of off-fault GLL nodes
+P = setParameters(FZdepth, halfwidth, res, T, alpha, multiple, Lc, Domain)   
+# # println(size(P[4].FltNI))   # total number of off-fault GLL nodes
 
-# include("$(@__DIR__)/NucleationSize.jl") 
-# # calculate the nucleation size of initial rigidity ratio!!
-# h_hom_host, h_hom_dam = NucleationSize(P, alpha)
-# println("The nucleation size of homogeneous host medium:", h_hom_host, " m")
-# println("The nucleation size of homogeneous damage medium:", h_hom_dam, " m")
-# # # h_dam = h_hom/3           # with alphaa = 0.60
-# # # println("The approximate nucleation size of damage zone medium:", h_dam, " m")
-# CZone = CohesiveZoneSize(P, alpha)
-# println("The downlimit (damage) Cohesive zone size:", CZone, " m")
+include("$(@__DIR__)/NucleationSize.jl") 
+# calculate the nucleation size of initial rigidity ratio!!
+h_hom_host, h_hom_dam = NucleationSize(P, alpha)
+println("The nucleation size of homogeneous host medium:", h_hom_host, " m")
+println("The nucleation size of homogeneous damage medium:", h_hom_dam, " m")
+# # h_dam = h_hom/3           # with alphaa = 0.60
+# # println("The approximate nucleation size of damage zone medium:", h_dam, " m")
+CZone = CohesiveZoneSize(P, alpha)
+println("The downlimit (damage) Cohesive zone size:", CZone, " m")
 
-# include("$(@__DIR__)/src/dtevol.jl")
-# include("$(@__DIR__)/src/NRsearch.jl")
-# include("$(@__DIR__)/src/otherFunctions.jl")
+include("$(@__DIR__)/src/dtevol.jl")
+include("$(@__DIR__)/src/NRsearch.jl")
+include("$(@__DIR__)/src/otherFunctions.jl")
 
-# include("$(@__DIR__)/src/main.jl")
+include("$(@__DIR__)/src/main.jl")
 
-# simulation_time = @elapsed @time main(P, alpha, cos_reduction)    # all parameters, rigidity ratio 
+simulation_time = @elapsed @time main(P, alpha, cos_reduction)    # all parameters, rigidity ratio 
 
-# println("\n")
+println("\n")
 
-# @info("Simulation Complete!");
+@info("Simulation Complete!");
 
