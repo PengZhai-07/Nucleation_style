@@ -124,7 +124,7 @@ function main(P, alphaa, cos_reduction)
     tvsx::Float64 = 2e-0*P[1].yr2sec  # 2 years for interseismic period
     tvsxinc::Float64 = tvsx
 
-    tevneinc::Float64 = 0.1    # 0.1 second for seismic period
+    tevneinc::Float64 = 0.1    # 0.1 second for coseismic phase
     delfref = zeros(P[1].FltNglob)
 
     # Iterators
@@ -140,7 +140,7 @@ function main(P, alphaa, cos_reduction)
     # Here v is not zero!!!  0.5e-3 m/s
     v = v[:] .- 0.5*P[2].Vpl   # initial slip rate on the whole model    ???
     Vf = 2*v[P[4].iFlt]      # about 1e-3
-    iFBC::Vector{Int64} = findall(abs.(P[3].FltX) .> 24e3)   # index for points below the damage zone
+    iFBC::Vector{Int64} = findall(abs.(P[3].FltX) .> 20e3)   # index for points below the damage zone
     NFBC::Int64 = length(iFBC) + 1
     Vf[iFBC] .= 0.             # set the initial fault slip rate (within creeping fault) to be zero
     v[P[4].FltIglobBC] .= 0.   # set the initial fault slip rate (within creeping fault) to be zero
@@ -194,6 +194,7 @@ function main(P, alphaa, cos_reduction)
     open(string(out_dir,"sliprate.out"), "w") do sliprate   # fault sliprate (Vpl+sliprate controlled by RSF)
     #open(string(out_dir,"slip.out"), "w") do slip   
     open(string(out_dir,"delfsec.out"), "w") do dfsec   # cultivate displacement(coseismic)
+    open(string(out_dir,"delfsec_each_timestep.out"), "w") do dfsec_et   # cultivate displacement(coseismic)
     open(string(out_dir,"delfyr.out"), "w") do dfyr   # cultivate displacement(interseismic)
     open(string(out_dir,"event_time.out"), "w") do event_time    # start and end time and hypocenter of earthquake event
     open(string(out_dir,"event_stress.out"), "w") do event_stress  # shear stress before and after 
@@ -272,7 +273,7 @@ function main(P, alphaa, cos_reduction)
                 #   a = Ksparse*d
 
                 # step4: compute traction on the fault
-                # Enforce K*d to be zero for velocity boundary (0-24 km)
+                # Enforce K*d to be zero for velocity boundary (0-20 km)
                 # there is no traction on creeping fault 
                 a[P[4].FltIglobBC] .= 0.       # for creeping fault, traction is zero 
 
@@ -450,11 +451,12 @@ function main(P, alphaa, cos_reduction)
             slipstart = 1   # sign for new earthquake!!
 
             tStart = t
-            taubefore = (tau +P[3].tauo)./1e6
+            taubefore = (tau +P[3].tauo)./1e6     # once switch into dynamic solution, record the shear stress before earthquake
             # hypocenter: fault location where slip rate exceed threshold value firstly!!
             vhypo, indx = findmax(2*v[P[4].iFlt] .+ P[2].Vpl)
             hypo = P[3].FltX[indx]
             d_hypo = delfref[indx]
+            write(delfsec_each_timestep, join(2*d[P[4].iFlt] .+ P[2].Vpl*t, " "), "\n")
 
         end
 
@@ -464,7 +466,7 @@ function main(P, alphaa, cos_reduction)
             delfafter = 2*d[P[4].iFlt] .+ P[2].Vpl*t .- delfref     # coseismic slip
             
             tEnd = t 
-            tauafter = (tau +P[3].tauo)./1e6
+            tauafter = (tau +P[3].tauo)./1e6    # once switch into quasi-static solution, record the shear stress
             
             # Save start and end time and stress
             write(event_time, join(hcat(tStart,tEnd, -hypo, d_hypo), " "), "\n")
@@ -525,6 +527,7 @@ function main(P, alphaa, cos_reduction)
         end
 
         if Vfmax > P[2].Vevne
+            
             if idelevne == 0                  # record the first step
                 nevne = nevne + 1
                 idd += 1
@@ -532,7 +535,7 @@ function main(P, alphaa, cos_reduction)
                 tevneb = t
                 tevne = tevneinc      # 0.1s
 
-                #  write(stress, join((tau + P[3].tauo)./1e6, " "), "\n")
+                # write(stress, join((tau + P[3].tauo)./1e6, " "), "\n")
                 write(dfsec, join(2*d[P[4].iFlt] .+ P[2].Vpl*t, " "), "\n")
             end
 

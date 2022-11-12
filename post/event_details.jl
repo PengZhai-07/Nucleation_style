@@ -63,22 +63,62 @@ function moment_magnitude_new(mu, FltX, delfafter, stressdrops)
 end
 
 
-# # get index of start of rupture()
-# function get_index(seismic_stress, taubefore)
+function get_index(t, tStart, tEnd)  
 
-#     len = length(taubefore[:,1])
-#     index_start = zeros(Int, length(taubefore[1,:]))
-#     for i in 1:length(taubefore[1,:])
-#         temp = zeros(length(seismic_stress[1,:]))
-#         #  index_start[i] = findall(seismic_stress[len,:] .== taubefore[len,i])[1]
-#         for j in 1:length(seismic_stress[1,:])
-#             temp[j] = norm(seismic_stress[:,j] .- taubefore[:,i])
+    indx_start::Vector{Int64} = zeros(length(tStart[:,1]))
+    indx_end::Vector{Int64} = zeros(length(tEnd[:,1]))
+
+    for i = 1 : length(tStart[:,1])       # number of seismic events
+        temp_start = findall(t .<= tStart[i])[end]   
+        temp_end = findall(t .<= tEnd[i])[end]
+        indx_start[i]= floor(temp_start/10)
+        indx_end[i] = floor(temp_end/10)
+    end
+    return indx_start, indx_end
+
+end
+
+# seperate coseismic slip due to different events
+function get_index_delfsec(N_events, delfsec)
+
+    index_ds_start::Vector{Int} = zeros(N_events)
+    index_ds_end::Vector{Int} = zeros(N_events)
+    index_ds_start[1] = 1
+    index_ds_end[end] = size(delfsec)[1]
+    j = 1
+    for i = 1:length(delfsec[:,1])-1
+            if delfsec[i+1,1] - delfsec[i,1] >= 0.5
+                    index_ds_start[j+1] = i+1
+                    index_ds_end[j] = i
+                    j = j+1
+            end
+    end
+
+    return index_ds_start, index_ds_end
+
+end
+
+# # get index of start of rupture() to plot the shear stress change
+# function get_index(stress, taubefore, tauafter)        # timesteps, stress on points, 
+
+#     len = length(taubefore[1,:])    # how many points on Fault
+#     N = length(taubefore[:,1])    # how many seismic events on Fault
+#     n = length(stress[:,1])      # how many timesteps/10
+#     temp = 
+#     for i in 1:N
+#         temp_b = zeros(n)
+#         temp_a = zeros(n)
+#                 #  index_start[i] = findall(seismic_stress[len,:] .== taubefore[len,i])[1]
+#         for j in 1:n        # calculate the differene between taubefore and shear stress at all timesteps/10
+#             temp_b[j] = norm(stress[j,:] .- taubefore[i,:])
+#             temp_a[j] = norm(stress[j,:] .- tauafter[i,:])
 #         end
 
-#         index_start[i] = findmin(temp)[2]
+#         index_start[i] = findmin(temp_b)[2]
+#         index_end[i] = findmin(temp_a)[2]
 #     end
 
-#     index_start
+#     index_start, index_end
 # end
 
 

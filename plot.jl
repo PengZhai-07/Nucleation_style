@@ -11,22 +11,34 @@
 #FILE = "20000.0_500.0_20_0.85_0.05_5.0"   # resolution testing
 
 # Ru=11 test
-FILE = "20000_500_12_0.5_0.0_5_1.0"     # Ru number testing: no healing
-
+#FILE = "20000_500_12_0.5_0.0_5"     # Ru number testing: no healing
+FILE = "20000_500_12_0.5_0.0_5_1.0_smooth_0.23"
 include("analyze_results.jl")   
 
-# # max slip rate versus timestep
-# VfmaxPlot(Vfmax)
+# total years to plots
+N = 1000
 
-# # culmulative slip
-#cumSlipPlot(delfsec[1:4:end,:], delfyr[1:end, :], FltX, hypo, d_hypo);
+depth = nucleation_depth
+#depth = propagation_depth
+# plot the variation of apparent stress
+apparent_friction(stress, index_start, index_end, delfsec, index_ds_start, index_ds_end, depth, t, 2, 50)
+
+# max slip rate versus timestep
+VfmaxPlot(Vfmax, N, t)
+
+# culmulative slip
+cumSlipPlot(delfsec[1:4:end,:], delfyr[1:end, :], FltX, hypo, d_hypo, N);
 # cumSlipPlot_no_hypocenter(delfsec[1:4:end,:], delfyr[1:end, :], FltX);
 
-# # healing analysis: Vfmax and regidity ratio vs. time
-#healing_analysis(Vfmax, alphaa, t, yr2sec)
+# healing analysis: Vfmax and regidity ratio vs. time
+healing_analysis(Vfmax, alphaa, t, yr2sec)
 
 # # plot the b value in rate and state friction law
 # velocity_dependence(b_value, Vfmax, t, yr2sec)
+
+# # slip rate vs timesteps
+# # how many years to plot
+# eqCyclePlot(sliprate', FltX, N, t)
 
 # # stress drop of the first artificial event 
 # # stressdrop_1(taubefore[1,:], tauafter[1,:], FltX)    # the row is the number of event
@@ -35,13 +47,10 @@ include("analyze_results.jl")
 # stressdrop_2(taubefore, tauafter, FltX, 6)    # the row is the number of event
 # # default is the first event, so taubefore is the initial shear stress: 0.6*normal stress
 
-# slip rate vs timesteps
-#eqCyclePlot(sliprate', FltX)
-
 
 # # # sliprate versus time for the last event
 # N = 500      # time steps to plot in sliprate
-# n = 6           # plot the last 4 events
+# n = 2           # plot the last 4 events
 # Nucleation(sliprate', FltX, tStart, t, N, n)
 # eqCyclePlot_last_1(sliprate', FltX, tStart, t, N, n)
 # eqCyclePlot_last_2(sliprate', FltX, tStart, t, N, n)
@@ -52,5 +61,5 @@ include("analyze_results.jl")
 # # Plot friction parameters
 # icsPlot(a_b, Seff, tauo, FltX)
 
-# Plot velocity dependence of b
-velocity_dependence_b(1e-5, 1e-3, 0.019, 0.025)
+## Plot velocity dependence of b
+# velocity_dependence_b(1e-5, 1e-3, 0.019, 0.025)
