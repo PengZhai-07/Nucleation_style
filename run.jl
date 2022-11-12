@@ -18,7 +18,7 @@ include("$(@__DIR__)/par.jl")	    #	Set Parameters
 
 # Put the resolution for the simulation here: should be an integer
 
-res::Int = 12   # resolution of mesh
+res::Int = 8   # resolution of mesh
 
 # 4: 481 GLL nodes, average 100m on fault  
 # 6: 721 GLL nodes, average 67m on fault
@@ -37,6 +37,7 @@ halfwidth::Int = parse(Float64, ARGS[2])   # half width of damage zone   unit:m
 Lc= parse(Float64, ARGS[3])  # characteristic slip distance      unit:m
 multiple::Int = parse(Float64, ARGS[4])# effective normal stress on fault: 10MPa*multiple
 cos_reduction = parse(Float64, ARGS[5])    # coseismic rigidity reduction 
+coseismic_b = parse(Float64, ARGS[6])    # coseismic b increase 
 
 println("doamin size: ",Domain)   # default is 40km*32km
 println("rigidity ratio of damage zone: ",alpha)
@@ -44,6 +45,7 @@ println("halfwidth of fault zone(m): ",halfwidth)
 println("characteristic slip distance(m): ", Lc)
 println("effective normal stress(10MPa*multiple): ", multiple)
 println("cos_reduction: ", cos_reduction)
+println("cos_b: ", coseismic_b)
 
 # vs: 2%   3%       4%         
 # 0.9604   0.9409   0.9216
@@ -53,7 +55,7 @@ println("cos_reduction: ", cos_reduction)
 project = "velocity_dependence_b"
 
 # Output directory to save data
-out_dir = "$(@__DIR__)/data/$(project)/$(FZdepth)_$(halfwidth)_$(res)_$(alpha)_$(cos_reduction)_$(multiple)_$(Domain)_smooth/"    
+out_dir = "$(@__DIR__)/data/$(project)/$(FZdepth)_$(halfwidth)_$(res)_$(alpha)_$(cos_reduction)_$(multiple)_$(Domain)_$(coseismic_b)/"    
 
 # # clean old files 
 # if isdir(out_dir)
@@ -81,7 +83,7 @@ include("$(@__DIR__)/src/otherFunctions.jl")
 
 include("$(@__DIR__)/src/main.jl")
 
-simulation_time = @elapsed @time main(P, alpha, cos_reduction)    # all parameters, rigidity ratio 
+simulation_time = @elapsed @time main(P, alpha, cos_reduction, coseismic_b)    # all parameters, rigidity ratio 
 
 println("\n")
 

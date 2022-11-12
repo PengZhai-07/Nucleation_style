@@ -36,7 +36,7 @@ function healing2(t,tStart,dam, cos_reduction)
     hmax*(1 .- exp.(-r*(t .- tStart)/P[1].yr2sec)) .+ dam     # hmax*(1 .- exp.(-r*(t .- tStart)/P[1].yr2sec)) > 0, when time is about 10 years, alphaa = dam + 0.05, healing completely!
 end
 
-function main(P, alphaa, cos_reduction)
+function main(P, alphaa, cos_reduction, coseismic_b)
     # please refer to par.jl to see the specific meaning of P
     # P[1] = integer  Nel, FltNglob, yr2sec, Total_time, IDstate, nglob
     # P[2] = float    ETA, Vpl, Vthres, Vevne, dt
@@ -423,7 +423,7 @@ function main(P, alphaa, cos_reduction)
                 # sin increase in Cartesian velocity
                 # normalization
                 K_b = (1+sin((Vfmax - 1e-5)/(1e-3 - 1e-5)*pi-pi/2))/2
-                P[3].ccb[seismogenic_depth] .= 0.019 + (0.025-0.019) * K_b
+                P[3].ccb[seismogenic_depth] .= 0.019 + (coseismic_b -0.019) * K_b
 
                 # linear increase in log scale velocity
                 # K_b = (0.025-0.019)/(log10(1e-3) - log10(1e-5))
@@ -435,7 +435,7 @@ function main(P, alphaa, cos_reduction)
                 # SSS = SSS + 1
 
             elseif Vfmax >= 1e-3
-                P[3].ccb[seismogenic_depth] .= 0.025
+                P[3].ccb[seismogenic_depth] .= coseismic_b
             end    
         end
 
@@ -456,7 +456,6 @@ function main(P, alphaa, cos_reduction)
             vhypo, indx = findmax(2*v[P[4].iFlt] .+ P[2].Vpl)
             hypo = P[3].FltX[indx]
             d_hypo = delfref[indx]
-            write(delfsec_each_timestep, join(2*d[P[4].iFlt] .+ P[2].Vpl*t, " "), "\n")
 
         end
 
@@ -526,8 +525,10 @@ function main(P, alphaa, cos_reduction)
             tvsx = tvsx + tvsxinc     # output frequency: 2 years
         end
 
-        if Vfmax > P[2].Vevne
-            
+        if Vfmax > 1.01*P[2].Vthres
+
+            write(dfsec_et, join(2*d[P[4].iFlt] .+ P[2].Vpl*t, " "), "\n")
+
             if idelevne == 0                  # record the first step
                 nevne = nevne + 1
                 idd += 1
@@ -535,8 +536,8 @@ function main(P, alphaa, cos_reduction)
                 tevneb = t
                 tevne = tevneinc      # 0.1s
 
-                # write(stress, join((tau + P[3].tauo)./1e6, " "), "\n")
                 write(dfsec, join(2*d[P[4].iFlt] .+ P[2].Vpl*t, " "), "\n")
+            
             end
 
             if idelevne == 1 && (t - tevneb) > tevne      # output at least every 0.1 s in the following steps
@@ -558,7 +559,6 @@ function main(P, alphaa, cos_reduction)
             @printf("Time (yr) = %1.5g\n", t/P[1].yr2sec) 
             #  println("Vfmax = ", maximum(current_sliprate))
         end
-
 
         # Write stress, sliprate, slip to file every 5 timesteps
         if mod(it,10) == 0
@@ -600,5 +600,7 @@ end
 end
 end
 end
-
 end
+end
+
+# These ends are for opened output files

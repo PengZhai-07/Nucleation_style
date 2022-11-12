@@ -18,20 +18,20 @@ include("analyze_results.jl")
 # total years to plots
 N = 1000
 
-depth = nucleation_depth
-#depth = propagation_depth
-# plot the variation of apparent stress
-apparent_friction(stress, index_start, index_end, delfsec, index_ds_start, index_ds_end, depth, t, 2, 50)
+# depth = nucleation_depth
+# #depth = propagation_depth
+# # plot the variation of apparent stress
+# apparent_friction(stress, index_start, index_end, delfsec, index_ds_start, index_ds_end, depth, t, 2, 50)
 
-# max slip rate versus timestep
-VfmaxPlot(Vfmax, N, t)
+# # max slip rate versus timestep
+# VfmaxPlot(Vfmax, N, t)
 
 # culmulative slip
 cumSlipPlot(delfsec[1:4:end,:], delfyr[1:end, :], FltX, hypo, d_hypo, N);
 # cumSlipPlot_no_hypocenter(delfsec[1:4:end,:], delfyr[1:end, :], FltX);
 
-# healing analysis: Vfmax and regidity ratio vs. time
-healing_analysis(Vfmax, alphaa, t, yr2sec)
+# # healing analysis: Vfmax and regidity ratio vs. time
+# healing_analysis(Vfmax, alphaa, t, yr2sec)
 
 # # plot the b value in rate and state friction law
 # velocity_dependence(b_value, Vfmax, t, yr2sec)
