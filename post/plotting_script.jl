@@ -35,51 +35,105 @@ function plot_params()
 
 end
 
+# Plot apparent_friction: with only every 0.1 second output
+# function apparent_friction(stress, index_start, index_end, delfsec, index_ds_start,
+#      index_ds_end, depth, t, N, normal_stress)
+
+#     plot_params()
+#     fig = PyPlot.figure(figsize=(7.2, 6))
+#     ax = fig.add_subplot(111)
+
+#     # average stress drop in nucleation_depth
+#     seismic_stress = stress[index_start[N]:index_end[N], depth]
+#     average_shear_stress_temp = mean(seismic_stress, dims = 2)
+#     println(size(average_shear_stress_temp))
+#     # average coseismic slip at nucleation_depth
+#     seismic_delfsec = delfsec[index_ds_start[N]:index_ds_end[N], depth]
+#     for i = 1:size(seismic_delfsec)[1]
+#         seismic_delfsec[i,:] = seismic_delfsec[i,:] .- seismic_delfsec[1,:]
+#     end
+#     average_seismic_delfsec = mean(seismic_delfsec, dims = 2)
+
+#     # resamlple the average shear stress to 0.1 s
+#     t_real = t[10*index_start[N]: 10*index_end[N]]    # real timestep for average_shear_stress
+#     len::Int = floor(t_real[end]-t_real[1])/0.1
+#     average_shear_stress = zeros(len)
+#     println(len)
+#     j = 0
+#     for i = 1:size(average_shear_stress_temp)[1]
+#         if (t_real[i] - t_real[1]) >= 0.1*j
+#             j = j+1
+#             average_shear_stress[j] = average_shear_stress_temp[i]
+#         end
+#     end
+
+#     apparent_friction_coefficient = average_shear_stress ./ normal_stress
+
+#     # calculate the minimum length
+#     a = length(apparent_friction_coefficient)
+#     b = length(average_seismic_delfsec)
+#     len = minimum([a, b])
+
+#     # println(apparent_friction_coefficient)
+#     ax.plot(average_seismic_delfsec[1:len],apparent_friction_coefficient[1:len], lw = 2.0)
+#     ax.set_xlabel("Slip(m)")
+#     ax.set_ylabel("Apparent friction")
+#     ax.set_ylim([0.0, 1.0])
+#     ax.set_xlim([0.0, 6])
+    
+#     show()
+    
+#     figname = string(path, "apparent_friction.png")
+#     fig.savefig(figname, dpi = 300)
+# end
+
 # Plot apparent_friction
-function apparent_friction(stress, index_start, index_end, delfsec, index_ds_start,
-     index_ds_end, depth, t, N, normal_stress)
+function apparent_friction_new(stress, index_start, index_end, delfsec_et, index_ds_start,
+    index_ds_end, NS_width, normal_stress)
 
     plot_params()
     fig = PyPlot.figure(figsize=(7.2, 6))
     ax = fig.add_subplot(111)
+    print(size(NS_width)[1]) 
+    for i = 1: size(NS_width)[1]       
 
-    # average stress drop in nucleation_depth
-    seismic_stress = stress[index_start[N]:index_end[N], depth]
-    average_shear_stress_temp = mean(seismic_stress, dims = 2)
-    println(size(average_shear_stress_temp))
-    # average coseismic slip at nucleation_depth
-    seismic_delfsec = delfsec[index_ds_start[N]:index_ds_end[N], depth]
-    for i = 1:size(seismic_delfsec)[1]
-        seismic_delfsec[i,:] = seismic_delfsec[i,:] .- seismic_delfsec[1,:]
+        depth = findall(abs(NS_width[i,3]) .<= abs.(FltX) .<= abs(NS_width[i,4]))
+        #println(depth)
+        # average stress drop in nucleation_depth
+        seismic_stress = stress[index_start[i+1]:index_end[i+1], depth]
+        average_shear_stress = mean(seismic_stress, dims = 2)
+        #println(size(average_shear_stress))
+        #println(size(delfsec_et))
+        # average coseismic slip at nucleation_depth
+        seismic_delfsec = delfsec_et[index_ds_start[i+1]:10:index_ds_end[i+1], depth]
+        #println(size(seismic_delfsec))
+        # seismic_delfsec_temp = zeros(size(seismic_delfsec))
+
+        # for j = 1:size(seismic_delfsec)[1]
+        #     seismic_delfsec_temp[j,:] = seismic_delfsec[j,:] - seismic_delfsec[1,:]
+        # end
+
+        average_seismic_delfsec = mean(seismic_delfsec, dims = 2)
+        #println("maximum value of displacement:", maximum(average_seismic_delfsec))
+        apparent_friction_coefficient = average_shear_stress ./ normal_stress
+
+        # calculate the minimum length
+        a = length(apparent_friction_coefficient)
+        #print(a)
+        b = length(average_seismic_delfsec)
+        #print(b)
+        len = minimum([a, b])
+
+        # println(apparent_friction_coefficient)
+
+        ax.plot(average_seismic_delfsec[1:len], apparent_friction_coefficient[1:len], lw = 2.0,  label = i)
+
     end
-    average_seismic_delfsec = mean(seismic_delfsec, dims = 2)
-
-    # resamlple the average shear stress to 0.1 s
-    t_real = t[10*index_start[N]: 10*index_end[N]]    # real timestep for average_shear_stress
-    len::Int = floor(t_real[end]-t_real[1])/0.1
-    average_shear_stress = zeros(len)
-    println(len)
-    j = 0
-    for i = 1:size(average_shear_stress_temp)[1]
-        if (t_real[i] - t_real[1]) >= 0.1*j
-            j = j+1
-            average_shear_stress[j] = average_shear_stress_temp[i]
-        end
-    end
-
-    apparent_friction_coefficient = average_shear_stress ./ normal_stress
-
-    # calculate the minimum length
-    a = length(apparent_friction_coefficient)
-    b = length(average_seismic_delfsec)
-    len = minimum([a, b])
-
-    # println(apparent_friction_coefficient)
-    ax.plot(average_seismic_delfsec[1:len],apparent_friction_coefficient[1:len], lw = 2.0)
     ax.set_xlabel("Slip(m)")
     ax.set_ylabel("Apparent friction")
-    ax.set_ylim([0.0, 1.0])
-    ax.set_xlim([0.0, 6])
+    ax.set_ylim([0.4, 0.7])
+    # ax.set_xlim([0.0, 6])
+    ax.legend(loc="upper right") 
     
     show()
     
@@ -131,7 +185,7 @@ function eqCyclePlot(sliprate, FltX, N, t)
     ax = fig.add_subplot(111)
 
     c = ax.imshow(value, cmap="viridis", aspect="auto",
-                  norm=matplotlib.colors.LogNorm(vmin=1e-9, vmax=1e-3),
+                  norm=matplotlib.colors.LogNorm(vmin=1e-15, vmax=1e-3),
                   interpolation="none",    # the interpolation method decide the final slip rate distrbution!!
                   extent=[0,length(value[1,:]), 0,20])
 
@@ -217,15 +271,15 @@ function healing_analysis(Vf, alphaa, t, yr2sec)
 end
 
 # Plot the stressdrops after each earthquake
-function stressdrop_2(taubefore, tauafter, FltX, N)
-    # N: number of subplots
+function stressdrop_2(taubefore, tauafter, FltX, tStart)
+    N = length(tStart)
     plot_params()
     fig = PyPlot.figure(figsize=(10, 20));
     for i = 1:N 
     ax = fig.add_subplot(N,1,i)
-      ax.plot(taubefore[end-i+1,:], FltX, lw = 2.0, color="tab:orange", 
+      ax.plot(taubefore[i,:], FltX, lw = 2.0, color="tab:orange", 
               label="Shear stress before the earthquake", alpha=1.0);
-      ax.plot(tauafter[end-i+1,:], FltX, lw = 2.0, color="tab:blue", 
+      ax.plot(tauafter[i,:], FltX, lw = 2.0, color="tab:blue", 
               label="Shear stress after the earthquake", alpha=1.0);
       ax.set_xlabel("Stress drop (MPa)");
       ax.set_ylabel("Depth (km)");
@@ -324,13 +378,14 @@ function cumSlipPlot_no_hypocenter(delfsec, delfyr, FltX)
 
 end
 
-function Nucleation(sliprate, FltX, tStart, t, N, n)
-    NS_width = zeros(n,1)
+function Nucleation(sliprate, FltX, tStart, t, N)
+    n = length(tStart)         # how many seimsic events
+    NS_width = zeros(n-1,4)
     plot_params()
     fig = PyPlot.figure(figsize=(10, 20))
-    for i = length(tStart)-n+1: length(tStart)
+    for i = 1: n-1
         #println("Time of the last seismic event(s):",tStart[end])
-        indx_last = findall(t .<= tStart[i])[end]   # last event!
+        indx_last = findall(t .<= tStart[i+1])[end]   # last event!
         indx_last_int::Int = floor(indx_last/10)
         #println("Index of timestep in sliprate(output every 10) at the beginning of last seismic event:", indx_last_int)
 
@@ -340,13 +395,18 @@ function Nucleation(sliprate, FltX, tStart, t, N, n)
 
         # measure the width of nucleation zone
         indx_nucleation = findall(value[:,2] .>= 1e-4)       # using the second line
-        new_depth = FltX[indx_nucleation]
+        #println(indx_nucleation)
+        new_depth = FltX[indx:end][indx_nucleation]
         downdip_depth = maximum(new_depth)
         updip_depth = minimum(new_depth)
-        NS_width[i-length(tStart)+n] = downdip_depth - updip_depth
+
+        NS_width[i, 1] = (downdip_depth + updip_depth)/2       # middle point 
+        NS_width[i, 2] = downdip_depth - updip_depth        # width of nucleation zone
+        NS_width[i, 3] = updip_depth                   # updip
+        NS_width[i, 4] = downdip_depth          # downdip
 
         # plot slip rate profile
-        ax = fig.add_subplot(n,1, i+n-length(tStart))
+        ax = fig.add_subplot(n-1, 1, i)
         # println(size(t[indx_last_int:indx_last_int + N]))
         # println(size(value))
         ax.plot(value[:,2], depth, color="red" )
@@ -356,13 +416,15 @@ function Nucleation(sliprate, FltX, tStart, t, N, n)
         ax.set_xlim([1e-4, 1e-2])
         ax.set_xlabel("Slip Velocity(m/s)")
         ax.invert_yaxis()
-        title = string(NS_width[i-length(tStart)+n]," km")
+        title = string(NS_width[i,2]," km")
         ax.set_title(title)
     end
-    println("Full length of all seismic events' nucleation zone(km):", NS_width)
+    return NS_width
+    # println("Location and Full length of all seismic events' nucleation zone(km):", NS_width)
     show()
     figname = string(path, "sliprate_time_nucleation.png")
     fig.savefig(figname, dpi = 300)
+
 end
 
 # not yet working

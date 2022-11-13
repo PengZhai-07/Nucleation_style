@@ -11,49 +11,52 @@
 #FILE = "20000.0_500.0_20_0.85_0.05_5.0"   # resolution testing
 
 # Ru=11 test
-#FILE = "20000_500_12_0.5_0.0_5"     # Ru number testing: no healing
-FILE = "20000_500_12_0.5_0.0_5_1.0_smooth_0.23"
+FILE = "20000_500_8_0.7_0.0_5_1.0_0.025"     # Ru number testing: no healing
+#FILE = "20000_500_12_0.5_0.0_5_1.0_smooth_0.23"
 include("analyze_results.jl")   
 
 # total years to plots
-N = 1000
+N = 500
 
-# depth = nucleation_depth
+# calculate the nucleation size and plot the nucleation process
+N_timestep = 500      # time steps to use in sliprate
+NS_width = Nucleation(sliprate', FltX, tStart, t, N_timestep)
+
 # #depth = propagation_depth
 # # plot the variation of apparent stress
-# apparent_friction(stress, index_start, index_end, delfsec, index_ds_start, index_ds_end, depth, t, 2, 50)
+# # apparent_friction(stress, index_start, index_end, delfsec, index_ds_start, index_ds_end, depth, t, 2, 50)
+apparent_friction_new(stress, index_start, index_end, delfsec_et, index_ds_start, index_ds_end, NS_width, 50)
 
-# # max slip rate versus timestep
-# VfmaxPlot(Vfmax, N, t)
+# plot the b value in rate and state friction law
+velocity_dependence(b_value, Vfmax, t, yr2sec)
+
+# max slip rate versus timestep
+VfmaxPlot(Vfmax, N, t)
 
 # culmulative slip
 cumSlipPlot(delfsec[1:4:end,:], delfyr[1:end, :], FltX, hypo, d_hypo, N);
 # cumSlipPlot_no_hypocenter(delfsec[1:4:end,:], delfyr[1:end, :], FltX);
 
-# # healing analysis: Vfmax and regidity ratio vs. time
-# healing_analysis(Vfmax, alphaa, t, yr2sec)
-
-# # plot the b value in rate and state friction law
-# velocity_dependence(b_value, Vfmax, t, yr2sec)
-
-# # slip rate vs timesteps
-# # how many years to plot
-# eqCyclePlot(sliprate', FltX, N, t)
-
-# # stress drop of the first artificial event 
-# # stressdrop_1(taubefore[1,:], tauafter[1,:], FltX)    # the row is the number of event
-
-# # coseismic stress drop
-# stressdrop_2(taubefore, tauafter, FltX, 6)    # the row is the number of event
-# # default is the first event, so taubefore is the initial shear stress: 0.6*normal stress
+# healing analysis: Vfmax and regidity ratio vs. time
+healing_analysis(Vfmax, alphaa, t, yr2sec)
 
 
-# # # sliprate versus time for the last event
-# N = 500      # time steps to plot in sliprate
-# n = 2           # plot the last 4 events
-# Nucleation(sliprate', FltX, tStart, t, N, n)
-# eqCyclePlot_last_1(sliprate', FltX, tStart, t, N, n)
-# eqCyclePlot_last_2(sliprate', FltX, tStart, t, N, n)
+# slip rate vs timesteps
+# how many years to plot
+eqCyclePlot(sliprate', FltX, N, t)
+
+# stress drop of the first artificial event 
+# stressdrop_1(taubefore[1,:], tauafter[1,:], FltX)    # the row is the number of event
+
+# coseismic stress drop
+stressdrop_2(taubefore, tauafter, FltX, tStart)    # the row is the number of event
+# default is the first event, so taubefore is the initial shear stress: 0.6*normal stress
+
+
+# # sliprate versus time for the last event
+# n = 2        # how many seismic events to plot
+# eqCyclePlot_last_1(sliprate', FltX, tStart, t, N_timestep, n)
+# eqCyclePlot_last_2(sliprate', FltX, tStart, t, N_timestep, n)
 
 # #Plot hypo(km) vs event number, average stress drop(MPa), duration(s), moment magnitude.
 # hypo_Mw_stressdrop(hypo, Mw, del_sigma, delfafter,FltX)
@@ -61,5 +64,5 @@ cumSlipPlot(delfsec[1:4:end,:], delfyr[1:end, :], FltX, hypo, d_hypo, N);
 # # Plot friction parameters
 # icsPlot(a_b, Seff, tauo, FltX)
 
-## Plot velocity dependence of b
+# # Plot velocity dependence of b
 # velocity_dependence_b(1e-5, 1e-3, 0.019, 0.025)

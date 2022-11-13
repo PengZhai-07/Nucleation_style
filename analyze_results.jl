@@ -30,7 +30,7 @@ t = time_vel[:,1]             # all real timsteps
 Vfmax = time_vel[:,2]
 Vsurface = time_vel[:,3]
 alphaa = time_vel[:,4]         # initial background rigidity ratio
-# b_value = time_vel[:,6]
+b_value = time_vel[:,6]
 
 
 # Order of storage: Seff, tauo, FltX, cca, ccb, xLf
@@ -39,7 +39,7 @@ params = readdlm(string(out_path, "params.out"), header=false)
 Seff = params[1,:]
 tauo = params[2,:]
 FltX = params[3,:]
-println("Dimension of FltX:",size(FltX))
+#println("Dimension of FltX:",size(FltX))
 cca = params[4,:]
 ccb = params[5,:]
 a_b = cca .- ccb
@@ -68,7 +68,9 @@ println("Total number of all on-fault GLL nodes:",size(delfafter,2))
 
 # displacement on fault line for different time 
 delfsec = readdlm(string(out_path, "delfsec.out"))   # every 0.1 second
-index_ds_start, index_ds_end = get_index_delfsec(N_events, delfsec)
+delfsec_et = readdlm(string(out_path, "delfsec_each_timestep.out"), header=false)    # every 10 timesteps in coseismic phase
+index_ds_start, index_ds_end = get_index_delfsec(N_events, delfsec_et)
+# println(size(delfsec_et))
 # println(index_ds_start)
 # println(index_ds_end)
 delfyr = readdlm(string(out_path, "delfyr.out"))
@@ -85,12 +87,11 @@ tauafter = event_stress[:,indx+1:end]
 stressdrops = taubefore .- tauafter
 
 stress = readdlm(string(out_path, "stress.out"), header=false)   # timesteps/10, shear stress on fault line points
+# get the start and end time of every seismic event
 index_start, index_end = get_index(t, tStart, tEnd)   
-nucleation_depth = findall(abs(4) .< abs.(FltX) .<= abs(5))
-propagation_depth = findall(abs(2.9) .< abs.(FltX) .<= abs(3.1))
-println(nucleation_depth)
-println(index_start)
-println(index_end)
+# println(index_start)
+# println(index_end)
+
 
 # Event_details
 

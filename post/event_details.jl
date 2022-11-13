@@ -63,7 +63,7 @@ function moment_magnitude_new(mu, FltX, delfafter, stressdrops)
 end
 
 
-function get_index(t, tStart, tEnd)  
+function get_index(t, tStart, tEnd)     # get the index of time when earthquake begins and ends
 
     indx_start::Vector{Int64} = zeros(length(tStart[:,1]))
     indx_end::Vector{Int64} = zeros(length(tEnd[:,1]))
@@ -79,7 +79,7 @@ function get_index(t, tStart, tEnd)
 end
 
 # seperate coseismic slip due to different events
-function get_index_delfsec(N_events, delfsec)
+function get_index_delfsec(N_events, delfsec)    # get the index of coseismic slip when earthquake begins and ends
 
     index_ds_start::Vector{Int} = zeros(N_events)
     index_ds_end::Vector{Int} = zeros(N_events)
@@ -87,7 +87,7 @@ function get_index_delfsec(N_events, delfsec)
     index_ds_end[end] = size(delfsec)[1]
     j = 1
     for i = 1:length(delfsec[:,1])-1
-            if delfsec[i+1,1] - delfsec[i,1] >= 0.5
+            if delfsec[i+1,1] - delfsec[i,1] >= 0.1
                     index_ds_start[j+1] = i+1
                     index_ds_end[j] = i
                     j = j+1

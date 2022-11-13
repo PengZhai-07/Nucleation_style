@@ -527,7 +527,9 @@ function main(P, alphaa, cos_reduction, coseismic_b)
 
         if Vfmax > 1.01*P[2].Vthres
 
-            write(dfsec_et, join(2*d[P[4].iFlt] .+ P[2].Vpl*t, " "), "\n")
+            if mod(it,10) == 0             # output the shear stress every 10 steps as the shear stess
+                write(dfsec_et, join(2*d[P[4].iFlt] .+ P[2].Vpl*t, " "), "\n")
+            end
 
             if idelevne == 0                  # record the first step
                 nevne = nevne + 1
