@@ -68,13 +68,15 @@ println("Total number of all on-fault GLL nodes:",size(delfafter,2))
 
 # displacement on fault line for different time 
 delfsec = readdlm(string(out_path, "delfsec.out"))   # every 0.1 second
+delfyr = readdlm(string(out_path, "delfyr.out"))
+# print(size(delfyr))
+
 delfsec_et = readdlm(string(out_path, "delfsec_each_timestep.out"), header=false)    # every 10 timesteps in coseismic phase
 index_ds_start, index_ds_end = get_index_delfsec(N_events, delfsec_et)
 # println(size(delfsec_et))
 # println(index_ds_start)
 # println(index_ds_end)
-delfyr = readdlm(string(out_path, "delfyr.out"))
-# print(size(delfyr))
+
 
 # Index of fault from 0 to 18 km
 flt18k = findall(FltX .<= 18)[1]
@@ -93,21 +95,21 @@ index_start, index_end = get_index(t, tStart, tEnd)
 # println(index_end)
 
 
-# Event_details
+#Event_details
 
-# rho1 = 2670
-# vs1 = 3462
-# rho2 = 2670
-# vs2 = sqrt(alphaa[1])*vs1
-# mu = rho2*vs2^2    # to calculate seismic moment
-# println("Shear modulus of damage zone:",mu)
+rho1 = 2670
+vs1 = 3462
+rho2 = 2670
+vs2 = sqrt(alphaa[1])*vs1
+mu = rho2*vs2^2    # to calculate seismic moment
+println("Shear modulus of damage zone:",mu)
 
-# Mw, del_sigma, fault_slip, rupture_len =
-#         moment_magnitude_new(mu, FltX, delfafter', stressdrops');
+Mw, del_sigma, fault_slip, rupture_len =
+        moment_magnitude_new(mu, FltX, delfafter', stressdrops');
 
-# println("Moment magnitudes of all seismic events:", Mw)
-# println("Average stress drops of all seismic events(MPa):", del_sigma)
-# println("Average fault slips of all seismic events(m):", fault_slip)
-# println("Rupture lengths along depth of all seismic events(km):", rupture_len./1e3)
+println("Moment magnitudes of all seismic events:", Mw)
+println("Average stress drops of all seismic events(MPa):", del_sigma)
+println("Average fault slips of all seismic events(m):", fault_slip)
+println("Rupture lengths along depth of all seismic events(km):", rupture_len./1e3)
 
 

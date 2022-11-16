@@ -105,7 +105,7 @@ function apparent_friction_new(stress, index_start, index_end, delfsec_et, index
         #println(size(average_shear_stress))
         #println(size(delfsec_et))
         # average coseismic slip at nucleation_depth
-        seismic_delfsec = delfsec_et[index_ds_start[i+1]:10:index_ds_end[i+1], depth]
+        seismic_delfsec = delfsec_et[index_ds_start[i+1]:index_ds_end[i+1], depth]   # the output frequency of coseismic slip is every 10 seconds
         #println(size(seismic_delfsec))
         # seismic_delfsec_temp = zeros(size(seismic_delfsec))
 
@@ -394,7 +394,7 @@ function Nucleation(sliprate, FltX, tStart, t, N)
         depth = FltX[indx:end]
 
         # measure the width of nucleation zone
-        indx_nucleation = findall(value[:,2] .>= 1e-4)       # using the second line
+        indx_nucleation = findall(value[:,2] .>= 1e-4)       # using the second line to define the width of nucleation size
         #println(indx_nucleation)
         new_depth = FltX[indx:end][indx_nucleation]
         downdip_depth = maximum(new_depth)
@@ -409,7 +409,8 @@ function Nucleation(sliprate, FltX, tStart, t, N)
         ax = fig.add_subplot(n-1, 1, i)
         # println(size(t[indx_last_int:indx_last_int + N]))
         # println(size(value))
-        ax.plot(value[:,2], depth, color="red" )
+        # ax.plot(value[:,1:10], depth, color="red")
+        ax.plot(value[:,2], depth, color="red")
         ax.set_xscale("log")
         ax.set_ylim([2,12])    
         ax.set_ylabel("Depth(km)")
@@ -419,12 +420,11 @@ function Nucleation(sliprate, FltX, tStart, t, N)
         title = string(NS_width[i,2]," km")
         ax.set_title(title)
     end
-    return NS_width
     # println("Location and Full length of all seismic events' nucleation zone(km):", NS_width)
     show()
-    figname = string(path, "sliprate_time_nucleation.png")
+    figname = string(path, "sliprate_time_nucleation_alone.png")
     fig.savefig(figname, dpi = 300)
-
+    return NS_width
 end
 
 # not yet working
@@ -676,10 +676,10 @@ function hypo_Mw_stressdrop(hypo, Mw, del_sigma, delfafter, FltX)
     ax = fig.add_subplot(143)
     xaxis = del_sigma[Mw .>2.8]   # choose seismic event larger than Mw2.8 
 
-    ax.hist(xaxis[2:end], bins=collect(1.45:0.1:3.55), orientation="horizontal", rwidth=0.9)
+    ax.hist(xaxis[2:end], bins=collect(0.05:0.2:5.05), orientation="horizontal", rwidth=0.9)
     ax.set_ylabel("Stress drop(MPa)")
     ax.set_xlabel("Event Number")
-    ax.set_ylim([1.5,3.5])
+    # ax.set_ylim([1.5,3.5])
     ax.invert_yaxis()
 
     ax = fig.add_subplot(144)
@@ -699,10 +699,6 @@ function hypo_Mw_stressdrop(hypo, Mw, del_sigma, delfafter, FltX)
     figname = string(path, "hypo_Mw_stressdrop.png")
     fig.savefig(figname, dpi = 300)
 end
-
-
-
-
 
 # Plot shear stress comparison between full rupture and partial rupture in Prithvi(2021)
 function shear_stress_comp(shear1b, shear1a, shear2b, shear2a, FltX1, FltX2)
