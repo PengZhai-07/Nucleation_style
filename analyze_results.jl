@@ -73,6 +73,7 @@ delfyr = readdlm(string(out_path, "delfyr.out"))
 
 delfsec_et = readdlm(string(out_path, "delfsec_each_timestep.out"), header=false)    # every 10 timesteps in coseismic phase
 index_ds_start, index_ds_end = get_index_delfsec(N_events, delfsec_et)
+
 # println(size(delfsec_et))
 # println(index_ds_start)
 # println(index_ds_end)

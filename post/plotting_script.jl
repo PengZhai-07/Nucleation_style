@@ -98,7 +98,6 @@ function apparent_friction_new(stress, index_start, index_end, delfsec_et, index
     for i = 1: size(NS_width)[1]       
 
         depth = findall(abs(NS_width[i,3]) .<= abs.(FltX) .<= abs(NS_width[i,4]))
-        #println(depth)
         # average stress drop in nucleation_depth
         seismic_stress = stress[index_start[i+1]:index_end[i+1], depth]
         average_shear_stress = mean(seismic_stress, dims = 2)
@@ -138,6 +137,60 @@ function apparent_friction_new(stress, index_start, index_end, delfsec_et, index
     show()
     
     figname = string(path, "apparent_friction.png")
+    fig.savefig(figname, dpi = 300)
+end
+
+# Plot apparent_friction
+function apparent_friction_new_prapogation(stress, index_start, index_end, delfsec_et, index_ds_start,
+    index_ds_end, NS_width, normal_stress)
+
+    plot_params()
+    fig = PyPlot.figure(figsize=(7.2, 6))
+    ax = fig.add_subplot(111)
+    print(size(NS_width)[1]) 
+    for i = 1: size(NS_width)[1]       
+
+        d = NS_width[i, 3] - 2.0   # 2 km shallower than the updip of nucleation zone
+        depth = findall(abs(d)-0.1 .<= abs.(FltX) .<= abs(d)+0.1)
+        # average stress drop in nucleation_depth
+        seismic_stress = stress[index_start[i+1]:index_end[i+1], depth]
+        average_shear_stress = mean(seismic_stress, dims = 2)
+        #println(size(average_shear_stress))
+        #println(size(delfsec_et))
+        # average coseismic slip at nucleation_depth
+        seismic_delfsec = delfsec_et[index_ds_start[i+1]:index_ds_end[i+1], depth]   # the output frequency of coseismic slip is every 10 seconds
+        #println(size(seismic_delfsec))
+        # seismic_delfsec_temp = zeros(size(seismic_delfsec))
+
+        # for j = 1:size(seismic_delfsec)[1]
+        #     seismic_delfsec_temp[j,:] = seismic_delfsec[j,:] - seismic_delfsec[1,:]
+        # end
+
+        average_seismic_delfsec = mean(seismic_delfsec, dims = 2)
+        #println("maximum value of displacement:", maximum(average_seismic_delfsec))
+        apparent_friction_coefficient = average_shear_stress ./ normal_stress
+
+        # calculate the minimum length
+        a = length(apparent_friction_coefficient)
+        #print(a)
+        b = length(average_seismic_delfsec)
+        #print(b)
+        len = minimum([a, b])
+
+        # println(apparent_friction_coefficient)
+
+        ax.plot(average_seismic_delfsec[1:len], apparent_friction_coefficient[1:len], lw = 2.0,  label = i)
+
+    end
+    ax.set_xlabel("Slip(m)")
+    ax.set_ylabel("Apparent friction")
+    ax.set_ylim([0.4, 1.0])
+    # ax.set_xlim([0.0, 6])
+    ax.legend(loc="upper right") 
+    
+    show()
+    
+    figname = string(path, "apparent_friction_propagation_point.png")
     fig.savefig(figname, dpi = 300)
 end
 
@@ -394,7 +447,7 @@ function Nucleation(sliprate, FltX, tStart, t, N)
         depth = FltX[indx:end]
 
         # measure the width of nucleation zone
-        indx_nucleation = findall(value[:,2] .>= 1e-4)       # using the second line to define the width of nucleation size
+        indx_nucleation = findall(value[:,2] .>= 1e-3)       # using the second line to define the width of nucleation size
         #println(indx_nucleation)
         new_depth = FltX[indx:end][indx_nucleation]
         downdip_depth = maximum(new_depth)
