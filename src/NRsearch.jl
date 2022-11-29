@@ -8,9 +8,9 @@ function FBC!(IDstate, P::params_farray, NFBC, FltNglob, psi1, Vf1, tau1, psi2, 
     #  tauNR::Vector{BigFloat} = zeros(FltNglob)
     tauNR::BigFloat = 0.
 
-   for j = NFBC:FltNglob 
+    for j = NFBC[1]: NFBC[2]
 
-       tauNR = 0.
+        tauNR = 0.
         psi1[j] = IDS!(P.xLf[j], P.Vo[j], psi[j], dt, Vf[j], 1e-5, IDstate)
 
         Vf1[j], tau1[j] = NRsearch!(P.fo[j], P.Vo[j], P.cca[j], P.ccb[j], P.Seff[j],

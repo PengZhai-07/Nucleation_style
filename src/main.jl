@@ -140,8 +140,19 @@ function main(P, alphaa, cos_reduction, coseismic_b)
     # Here v is not zero!!!  0.5e-3 m/s
     v = v[:] .- 0.5*P[2].Vpl   # initial slip rate on the whole model    ???
     Vf = 2*v[P[4].iFlt]      # about 1e-3
-    iFBC::Vector{Int64} = findall(abs.(P[3].FltX) .> 20e3)   # index for points below the damage zone
-    NFBC::Int64 = length(iFBC) + 1
+    
+    # Creeping fault
+    iFBC_a::Vector{Int64} = findall(abs.(P[3].FltX) .> 22e3)
+    iFBC_b::Vector{Int64} = findall(abs.(P[3].FltX) .< 8e3)
+    iFBC = vcat(iFBC_a, iFBC_b)
+    println(iFBC)
+
+    # index for the points on the boundary of seismogenic zone
+    NFBC_a::Int64 = iFBC_a[end] + 1
+    NFBC_b::Int64 = iFBC_b[1] - 1
+    NFBC = [NFBC_a, NFBC_b]
+    println(NFBC)
+
     Vf[iFBC] .= 0.             # set the initial fault slip rate (within creeping fault) to be zero
     v[P[4].FltIglobBC] .= 0.   # set the initial fault slip rate (within creeping fault) to be zero
     # but intial slip rate on dynamic fault is not zero!!
@@ -223,7 +234,7 @@ function main(P, alphaa, cos_reduction, coseismic_b)
  
     # time dependence of b value
     SSS = 0
-    seismogenic_depth = findall(abs(2e3) .< abs.(P[3].FltX) .<= abs(12e3))
+    seismogenic_depth = findall(abs(10e3) .< abs.(P[3].FltX) .<= abs(20e3))
 
     while t < P[1].Total_time
         it = it + 1

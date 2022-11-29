@@ -31,7 +31,6 @@ Vsurface = time_vel[:,3]
 alphaa = time_vel[:,4]         # initial background rigidity ratio
 #b_value = time_vel[:,6]
 
-
 # Order of storage: Seff, tauo, FltX, cca, ccb, xLf
 params = readdlm(string(out_path, "params.out"), header=false)
 

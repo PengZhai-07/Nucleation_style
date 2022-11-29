@@ -65,7 +65,8 @@ function slrFunc!(P::params_farray, NFBC, FltNglob, psi, psi1, Vf, Vf1, IDstate,
 
     #  temp::Float64 = 0.
 
-    for j = NFBC:FltNglob
+    # for j = NFBC:FltNglob
+    for j = NFBC[1]: NFBC[2]
 
         #  temp = 0.
         psi1[j] = IDS!(P.xLf[j], P.Vo[j], psi[j], dt, Vf[j], 1e-6, IDstate)
