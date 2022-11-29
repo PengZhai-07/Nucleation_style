@@ -30,7 +30,7 @@ t = time_vel[:,1]             # all real timsteps
 Vfmax = time_vel[:,2]
 Vsurface = time_vel[:,3]
 alphaa = time_vel[:,4]         # initial background rigidity ratio
-b_value = time_vel[:,6]
+#b_value = time_vel[:,6]
 
 
 # Order of storage: Seff, tauo, FltX, cca, ccb, xLf
@@ -43,7 +43,7 @@ FltX = params[3,:]
 cca = params[4,:]
 ccb = params[5,:]
 a_b = cca .- ccb
-# Lc = params[6,:]
+Lc = params[6,:]
 
 event_time = readdlm(string(out_path, "event_time.out"), header=false)
 tStart = event_time[:,1]

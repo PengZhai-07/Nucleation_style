@@ -431,7 +431,7 @@ function cumSlipPlot_no_hypocenter(delfsec, delfyr, FltX)
 
 end
 
-function Nucleation(sliprate, FltX, tStart, t, N)
+function Nucleation(sliprate, FltX, tStart, t, N, criteria)
     n = length(tStart)         # how many seimsic events
     NS_width = zeros(n-1,4)
     plot_params()
@@ -447,7 +447,7 @@ function Nucleation(sliprate, FltX, tStart, t, N)
         depth = FltX[indx:end]
 
         # measure the width of nucleation zone
-        indx_nucleation = findall(value[:,2] .>= 1e-3)       # using the second line to define the width of nucleation size
+        indx_nucleation = findall(value[:,2] .>= criteria)       # using the second line to define the width of nucleation size
         #println(indx_nucleation)
         new_depth = FltX[indx:end][indx_nucleation]
         downdip_depth = maximum(new_depth)
