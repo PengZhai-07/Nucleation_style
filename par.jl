@@ -167,7 +167,7 @@ function setParameters(FZdepth::Int, halfwidth::Int, res::Int, T::Int, alpha::Fl
     # println(M[1:100])
     # println(a)          # total number of elements
     # Material properties for a narrow rectangular damaged zone of half-thickness ThickY and depth ThickX: shear modulus
-    W = MaterialProperties(NelX, NelY, NGLL, dxe, dye, ThickX, ThickY, wgll2, rho1, vs1, rho2, vs2)
+    W = MaterialProperties(NelX, NelY, NGLL, dxe, dye, ThickX, ThickY, wgll2, rho1, vs1, rho2, vs2, Domain)
     # W[:,:,eo] = wgll2.*mu
 
     # Material properties for trapezoid damaged zone: need to calculate mass matrix again!! may not calculate the dt again,

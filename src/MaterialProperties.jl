@@ -1,6 +1,6 @@
 # Material properties for a narrow rectangular damaged zone of half-thickness ThickY and depth ThickX 
 # define the properties of fault damage zone using locations of elements: on the level of elements, no change of properties inside elements  
-function MaterialProperties(NelX, NelY,NGLL, dxe, dye, ThickX, ThickY, wgll2, rho1, vs1, rho2, vs2)
+function MaterialProperties(NelX, NelY,NGLL, dxe, dye, ThickX, ThickY, wgll2, rho1, vs1, rho2, vs2, Domain)
     mu::Matrix{Float64} = zeros(NGLL, NGLL)
     W::Array{Float64,3} = zeros(NGLL, NGLL, NelX*NelY)
     
@@ -12,7 +12,7 @@ function MaterialProperties(NelX, NelY,NGLL, dxe, dye, ThickX, ThickY, wgll2, rh
             eo = (ey-1)*NelX + ex
 
             # Properties of damage zone
-            if ex*dxe >= ThickX && (dye <= ey*dye <= ThickY)
+            if (40e3*Domain-ThickX) >= ex*dxe >= ThickX && (dye <= ey*dye <= ThickY)   # ThickX: # ~distance from low boundary to fault zone low boundary
                 mu .= rho2*vs2^2
                 #  damage_idx[eo] = eo
             # Properties of host rock    

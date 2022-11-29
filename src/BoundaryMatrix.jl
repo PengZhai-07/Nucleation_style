@@ -12,6 +12,10 @@
 # 	     1  6 11 16 21 26
 # 	           (L)B
 
+## Reflection coefficient: R22 = (Z2-Z1)/(Z2+Z1)
+## Transmission coefficient: T21 = 2Z2/(Z2+Z1)
+## wave from 2 to 1
+
 function BoundaryMatrix!(NGLL, NelX, NelY, rho1, vs1, rho2, vs2, 
                          dy_deta, dx_dxi, wgll, iglob, side)
 
@@ -27,7 +31,7 @@ function BoundaryMatrix!(NGLL, NelX, NelY, rho1, vs1, rho2, vs2,
 		igll = 1
 		jgll = collect(1:NGLL)
         jac1D = dy_deta
-        impedance = rho1*vs1          # 9248880
+        impedance = rho1*vs1          # 9248880: large impedance means absorbing boundary
 
 	elseif side == 'T'
 		eB = collect(0:NelY-1)*NelX .+ NelX
@@ -42,14 +46,14 @@ function BoundaryMatrix!(NGLL, NelX, NelY, rho1, vs1, rho2, vs2,
 		jgll = NGLL
         jac1D = dx_dxi
         impedance = rho1*vs1
-	
-    # fault surface
-	else 
+
+    # fault line
+	else
 		eB = collect(1:NelX)
 		igll = collect(1:NGLL)
 		jgll = 1
         jac1D = dx_dxi
-        impedance = 1   # why the impedance of fault line is 1? actually, the fault line is not a boundary?
+        impedance = 1    # why the impedance of fault line is 1? Actually, the fault line is a reflecting boundary?
 	end
 
 	NelB = length(eB)  # number of all elements at one boundary
