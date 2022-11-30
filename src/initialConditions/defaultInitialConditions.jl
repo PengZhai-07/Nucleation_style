@@ -16,12 +16,12 @@ function fricDepth(FltX)
 
     a_b = cca - ccb     # -0.004 is the initial value of a-B
     # [a-b, depth]   key points of friction coefficient change
-    fP1 = [0.024, 0e3]   # fP1 = [-0.003, 0e3]
-    fP2 = [0.012, -8e3]
+    fP1 = [0.015, 0e3]   # fP1 = [-0.003, 0e3]
+    fP2 = [0.015, -8e3]
     fP3 = [-0.004, -10e3]
     fP4 = [-0.004, -20e3]
-    fP5 = [0.012, -22e3]
-    fP6 = [0.024, -30e3]
+    fP5 = [0.015, -22e3]
+    fP6 = [0.015, -30e3]
 
     # Return a vector I of the indices or keys of A
     fric_depth1 = findall(abs.(FltX) .<= abs(fP2[2]))
