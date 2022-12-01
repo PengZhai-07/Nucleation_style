@@ -99,7 +99,7 @@ function setParameters(FZdepth::Int, halfwidth::Int, res::Int, T::Int, alpha::Fl
     Vo::Vector{Float64} = repeat([1e-6], FltNglob)		#	Reference velocity 'Vo'  unit: m/s
     xLf::Vector{Float64} = repeat([Lc], FltNglob)    #	Dc (Lc)
 
-    Vthres::Float64 = 0.001     # unit: m/s  if slip rate is higher than this value, earthquake happens
+    Vthres::Float64 = 0.001     # unit: m/s  if max slip rate is higher than this value, earthquake happens
     Vevne::Float64 = Vthres     # redefine the velocity threshold!!
 
     #-----------#
@@ -219,6 +219,7 @@ function setParameters(FZdepth::Int, halfwidth::Int, res::Int, T::Int, alpha::Fl
     # iFlt: index of GLL nodes on the fault!!
     FltL::Vector{Float64}, iFlt::Vector{Int} = BoundaryMatrix!(NGLL, NelX, NelY, 
                        rho1, vs1, rho2, vs2, dy_deta, dx_dxi, wgll, iglob, 'L')
+    println(iFlt)
 
     # what is FltZ?  FltZ = jac1D(dy_deta)*wgll*rho1/dt_min  used in NRsearch
     # M = wgll2.*rho1 (damage zone).*jac (dx_dxi*dy_deta)

@@ -76,10 +76,6 @@ index_ds_start, index_ds_end = get_index_delfsec(N_events, delfsec_et)
 # println(index_ds_start)
 # println(index_ds_end)
 
-
-# Index of fault from 0 to 18 km
-flt18k = findall(FltX .<= 18)[1]
-
 event_stress = readdlm(string(out_path, "event_stress.out"), header=false)
 indx = Int(length(event_stress[1,:])/2)
 

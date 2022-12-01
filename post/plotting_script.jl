@@ -225,7 +225,7 @@ function eqCyclePlot(sliprate, FltX, N, t)
     indx_last = findall(t .<= t_seconds)[end]   # last event!
     indx_last_int::Int = floor(indx_last/10)
 
-    indx = findall(abs.(FltX) .<= 20)[1]
+    indx = findall(abs.(FltX) .<= 30)[1]
     value = sliprate[indx:end,1:indx_last_int]
     
     # print(findall(abs.(sliprate) .<= 1e-12))
@@ -240,7 +240,7 @@ function eqCyclePlot(sliprate, FltX, N, t)
     c = ax.imshow(value, cmap="viridis", aspect="auto",
                   norm=matplotlib.colors.LogNorm(vmin=1e-15, vmax=1e-3),
                   interpolation="none",    # the interpolation method decide the final slip rate distrbution!!
-                  extent=[0,length(value[1,:]), 0,20])
+                  extent=[0,length(value[1,:]), 0,30])
 
     # for stress
     #  c = ax.imshow(value, cmap="inferno", aspect="auto",
@@ -373,9 +373,10 @@ end
 
 # Plot cumulative slip
 function cumSlipPlot(delfsec, delfyr, FltX, hypo, d_hypo, N)
-    indx = findall(abs.(FltX) .<= 20)[1]
+    indx_1 = findall(abs.(FltX) .<= 8)[end]
+    indx_2 = findall(abs.(FltX) .<= 22)[end]
 
-    delfsec2 = transpose(delfsec[:,indx:end])
+    delfsec2 = transpose(delfsec[:,indx_1:indx_2])
     delfyr2 = transpose(delfyr)
 
     plot_params()
@@ -388,7 +389,7 @@ function cumSlipPlot(delfsec, delfyr, FltX, hypo, d_hypo, N)
     ax.plot(d_hypo, hypo./1000 , "*", color="saddlebrown", markersize=25)
     ax.set_xlabel("Cumulative Slip (m)")
     ax.set_ylabel("Depth (km)")
-    ax.set_ylim([0,24])
+    ax.set_ylim([0,30])
 
     L = N * 365 * 24 * 60 * 60 * 1e-9
     ax.set_xlim([0,L])
@@ -465,7 +466,7 @@ function Nucleation(sliprate, FltX, tStart, t, N, criteria)
         # ax.plot(value[:,1:10], depth, color="red")
         ax.plot(value[:,2], depth, color="red")
         ax.set_xscale("log")
-        ax.set_ylim([2,12])    
+        ax.set_ylim([10,20])    
         ax.set_ylabel("Depth(km)")
         ax.set_xlim([1e-4, 1e-2])
         ax.set_xlabel("Slip Velocity(m/s)")
@@ -652,7 +653,7 @@ function icsPlot(a_b, Seff, tauo, FltX )
     ax2 = ax.twiny()
     ax2.plot(a_b, FltX, "g",label="(a-b)")
     #println(FltX)
-    seismogenic_depth = findall(abs(2) .< abs.(FltX) .<= abs(12))   # note: unit of FltX here is km
+    seismogenic_depth = findall(abs(10) .< abs.(FltX) .<= abs(20))   # note: unit of FltX here is km
     a_b[seismogenic_depth] .= a_b[seismogenic_depth] .- 0.006
     #println(a_b)
     ax2.plot(a_b, FltX, "r",label="coseismic (a-b)", linestyle=":")
@@ -662,7 +663,7 @@ function icsPlot(a_b, Seff, tauo, FltX )
     ax2.set_xlim([-0.015,0.040])
     ax2.legend(loc="lower left") 
 
-    ax.set_ylim([0,20])
+    ax.set_ylim([0,30])
     ax.invert_yaxis()
     show()
     

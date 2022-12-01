@@ -145,13 +145,13 @@ function main(P, alphaa, cos_reduction, coseismic_b)
     iFBC_a::Vector{Int64} = findall(abs.(P[3].FltX) .> 22e3)
     iFBC_b::Vector{Int64} = findall(abs.(P[3].FltX) .< 8e3)
     iFBC = vcat(iFBC_a, iFBC_b)
-    println(iFBC)
+    # println(iFBC)
 
     # index for the points on the boundary of seismogenic zone
     NFBC_a::Int64 = iFBC_a[end] + 1
     NFBC_b::Int64 = iFBC_b[1] - 1
     NFBC = [NFBC_a, NFBC_b]
-    println(NFBC)
+    println("Index of nodes in weakenign zone:", NFBC)
 
     Vf[iFBC] .= 0.             # set the initial fault slip rate (within creeping fault) to be zero
     v[P[4].FltIglobBC] .= 0.   # set the initial fault slip rate (within creeping fault) to be zero
