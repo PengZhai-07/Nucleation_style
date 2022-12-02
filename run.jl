@@ -27,7 +27,7 @@ res::Int = 8   # resolution of mesh
 # 12: 1441 GLL nodes,  average 33m on fault
 # 16: 1921 GLL nodes, average 25m on fault
 # 20: 1921 GLL nodes, average 20m on fault
-T::Int = 1    # total simulation years 
+T::Int = 10    # total simulation years 
 Domain = 0.75    # amplify factor of the domain size
 FZdepth::Int = 20e3   # depth of lower boundary of damage zone  unit: m     20km is the maximum depth
 
@@ -64,7 +64,7 @@ out_dir = "$(@__DIR__)/data/$(project)/$(FZdepth)_$(halfwidth)_$(res)_$(alpha)_$
 mkpath(out_dir)
 
 P = setParameters(FZdepth, halfwidth, res, T, alpha, multiple, Lc, Domain)   
-# # println(size(P[4].FltNI))   # total number of off-fault GLL nodes
+# println(size(P[4].FltNI))   # total number of off-fault GLL nodes
 
 include("$(@__DIR__)/NucleationSize.jl") 
 # calculate the nucleation size of initial rigidity ratio!!

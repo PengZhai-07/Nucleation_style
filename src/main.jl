@@ -142,12 +142,12 @@ function main(P, alphaa, cos_reduction, coseismic_b)
     Vf = 2*v[P[4].iFlt]      # about 1e-3
     
     # Creeping fault
-    iFBC_a::Vector{Int64} = findall(abs.(P[3].FltX) .> 22e3)
-    iFBC_b::Vector{Int64} = findall(abs.(P[3].FltX) .< 8e3)
+    iFBC_a::Vector{Int64} = findall(abs.(P[3].FltX) .> 25e3)
+    iFBC_b::Vector{Int64} = findall(abs.(P[3].FltX) .< 5e3)
     iFBC = vcat(iFBC_a, iFBC_b)
-    # println(iFBC)
+    println(iFBC)
 
-    # index for the points on the boundary of seismogenic zone
+    # index for the points on the boundary of seismogenic zone: same with FltIglobBC in par.jl
     NFBC_a::Int64 = iFBC_a[end] + 1
     NFBC_b::Int64 = iFBC_b[1] - 1
     NFBC = [NFBC_a, NFBC_b]
@@ -396,12 +396,14 @@ function main(P, alphaa, cos_reduction, coseismic_b)
 
             # step5: add the fault boundary term to the sum of internal forces
             tau .= tau2 .- P[3].tauo
+
             tau[iFBC] .= 0.
+
+            # here I don not need to set the cosesimic slip on creeping zone to be plate motion rate
             psi .= psi2
             # 
             a[P[4].iFlt] .= a[P[4].iFlt] .- P[3].FltL.*tau
             ########## End of fault boundary condition ##############
-
 
             # step6: Solve for a_new acceleration 
             a .= a./P[3].M
@@ -595,7 +597,7 @@ function main(P, alphaa, cos_reduction, coseismic_b)
             # Vfmax: max slip rate on the fault
             # Vf[end] is fault slip rate on the surface!!
             # alphaa: current rigidity ratio of fault damage zone
-        write(Vf_time, join(hcat(t, Vfmax, Vf[end], alphaa, isolver, maximum(P[3].ccb)), " "), "\n")
+        write(Vf_time, join(hcat(t, Vfmax, alphaa, isolver, maximum(P[3].ccb)), " "), "\n")
         
         # Compute next timestep dt: adaptive!!
         dt = dtevol!(dt , dtmin, P[3].XiLf, P[1].FltNglob, NFBC, current_sliprate, isolver)

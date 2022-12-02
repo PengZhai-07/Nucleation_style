@@ -27,9 +27,8 @@ yr2sec = 365*24*60*60
 time_vel = readdlm(string(out_path, "time_velocity.out"), header=false)
 t = time_vel[:,1]             # all real timsteps
 Vfmax = time_vel[:,2]
-Vsurface = time_vel[:,3]
-alphaa = time_vel[:,4]         # initial background rigidity ratio
-#b_value = time_vel[:,6]
+alphaa = time_vel[:,3]         # initial background rigidity ratio
+#b_value = time_vel[:,5]
 
 # Order of storage: Seff, tauo, FltX, cca, ccb, xLf
 params = readdlm(string(out_path, "params.out"), header=false)
