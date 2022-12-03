@@ -29,12 +29,14 @@ function BoundaryMatrix!(NGLL, NelX, NelY, rho1, vs1, rho2, vs2,
         jac1D = dy_deta
         impedance = rho1*vs1          # 9248880
 
+		# Why for the free surface boundary, the impedance is also Pho*Vs?
 	elseif side == 'T'
 		eB = collect(0:NelY-1)*NelX .+ NelX
 		igll = NGLL
 		jgll = collect(1:NGLL)
         jac1D = dy_deta
-        impedance = rho1*vs1
+        # impedance = rho1*vs1
+		impedance = 1
 
 	elseif side == 'R'
 		eB = (NelY-1)*NelX .+ collect(1:NelX)
@@ -49,7 +51,7 @@ function BoundaryMatrix!(NGLL, NelX, NelY, rho1, vs1, rho2, vs2,
 		igll = collect(1:NGLL)
 		jgll = 1
         jac1D = dx_dxi
-        impedance = 1   # why the impedance of fault line is 1? actually, the fault line is not a boundary?
+        impedance = 1   # why the impedance of fault line is 1? Actually, the fault line is a reflecting boundary.
 	end
 
 	NelB = length(eB)  # number of all elements at one boundary

@@ -373,7 +373,7 @@ end
 
 # Plot cumulative slip
 function cumSlipPlot(delfsec, delfyr, FltX, hypo, d_hypo, N)
-    indx = findall(abs.(FltX) .<= 20)[1]
+    indx = findall(abs.(FltX) .<= 30)[1]
 
     delfsec2 = transpose(delfsec[:,indx:end])
     delfyr2 = transpose(delfyr)
@@ -388,7 +388,7 @@ function cumSlipPlot(delfsec, delfyr, FltX, hypo, d_hypo, N)
     ax.plot(d_hypo, hypo./1000 , "*", color="saddlebrown", markersize=25)
     ax.set_xlabel("Cumulative Slip (m)")
     ax.set_ylabel("Depth (km)")
-    ax.set_ylim([0,24])
+    ax.set_ylim([0,30])
 
     L = N * 365 * 24 * 60 * 60 * 1e-9
     ax.set_xlim([0,L])
