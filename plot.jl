@@ -16,7 +16,7 @@ FILE = "20000_500_8_0.8_0.0_4_0.75_0.019"
 include("analyze_results.jl")   
 
 # # total years to plots
-N = 10
+N = 500
 
 # calculate the nucleation size and plot the nucleation process
 N_timestep = 500      # time steps to use in sliprate

@@ -27,9 +27,9 @@ res::Int = 8   # resolution of mesh
 # 12: 1441 GLL nodes,  average 33m on fault
 # 16: 1921 GLL nodes, average 25m on fault
 # 20: 1921 GLL nodes, average 20m on fault
-T::Int = 10    # total simulation years 
+T::Int = 500    # total simulation years 
 Domain = 0.75    # amplify factor of the domain size
-FZdepth::Int = 20e3   # depth of lower boundary of damage zone  unit: m     20km is the maximum depth
+FZdepth::Int = 30e3   # depth of lower boundary of damage zone  unit: m     20km is the maximum depth
 
 # note the sequence of all imput parameters
 alpha = parse(Float64,ARGS[1])   # initial(background) rigidity ratio: fault zone/host rock
@@ -87,4 +87,3 @@ simulation_time = @elapsed @time main(P, alpha, cos_reduction, coseismic_b)    #
 println("\n")
 
 @info("Simulation Complete!");
-
