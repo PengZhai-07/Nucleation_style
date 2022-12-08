@@ -10,7 +10,7 @@
 # FILE = "20000.0_1500.0_8_0.85_0.05_4.0"   # normal stress testing
 #FILE = "20000.0_500.0_20_0.85_0.05_5.0"   # resolution testing
 
-FILE = "20000_500_8_0.8_0.0_4_0.75_0.019"
+FILE = "30000_500_8_0.8_0.0_4_0.75_0.019"
 #FILE = "20000_500_8_0.8_0.0_4_1.0_0.023"     # Ru number testing: no healing
 #FILE = "20000_500_12_0.5_0.0_5_1.0_smooth_0.23"
 include("analyze_results.jl")   
@@ -31,9 +31,9 @@ end
 
 # # plot the variation of apparent stress
 # # apparent_friction(stress, index_start, index_end, delfsec, index_ds_start, index_ds_end, depth, t, 2, 50)
-# apparent_friction_new(stress, index_start, index_end, delfsec_et, index_ds_start, index_ds_end, NS_width, 50)
+apparent_friction_new(stress, index_start, index_end, delfsec_et, index_ds_start, index_ds_end, NS_width, 40, N_events)
 apparent_friction_new_prapogation(stress, index_start, index_end, delfsec_et, index_ds_start,
-    index_ds_end, NS_width, 40)
+    index_ds_end, NS_width, 40, N_events)
 
 # max slip rate versus timestep
 VfmaxPlot(Vfmax, N, t)

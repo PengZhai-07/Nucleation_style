@@ -89,13 +89,13 @@ end
 
 # Plot apparent_friction
 function apparent_friction_new(stress, index_start, index_end, delfsec_et, index_ds_start,
-    index_ds_end, NS_width, normal_stress)
+    index_ds_end, NS_width, normal_stress, N_events)
 
     plot_params()
     fig = PyPlot.figure(figsize=(7.2, 6))
     ax = fig.add_subplot(111)
     print(size(NS_width)[1]) 
-    for i = 1: size(NS_width)[1]       
+    for i = 1: N_events-1          # how many normal seismic events
 
         depth = findall(abs(NS_width[i,3]) .<= abs.(FltX) .<= abs(NS_width[i,4]))
         # average stress drop in nucleation_depth
@@ -142,16 +142,16 @@ end
 
 # Plot apparent_friction
 function apparent_friction_new_prapogation(stress, index_start, index_end, delfsec_et, index_ds_start,
-    index_ds_end, NS_width, normal_stress)
+    index_ds_end, NS_width, normal_stress, N_events)
 
     plot_params()
     fig = PyPlot.figure(figsize=(7.2, 6))
     ax = fig.add_subplot(111)
     print(size(NS_width)[1]) 
-    for i = 1: size(NS_width)[1]       
+    for i = 1: N_events-1      
 
-        d = NS_width[i, 3] - 2.0   # 2 km shallower than the updip of nucleation zone
-        depth = findall(abs(d)-0.1 .<= abs.(FltX) .<= abs(d)+0.1)
+        d = NS_width[i, 3] - 2    # 2 km shallower than the updip of the nucleation zone
+        depth = findall(abs(d) - 0.5 .<= abs.(FltX) .<= abs(d) + 0.5)
         # average stress drop in nucleation_depth
         seismic_stress = stress[index_start[i+1]:index_end[i+1], depth]
         average_shear_stress = mean(seismic_stress, dims = 2)
@@ -440,14 +440,15 @@ function Nucleation(sliprate, FltX, tStart, t, N, criteria)
     n = length(tStart)         # how many seimsic events
     NS_width = zeros(n-1,4)
     plot_params()
-    fig = PyPlot.figure(figsize=(10, 20))
-    for i = 1: n-1
+    fig = PyPlot.figure(figsize=(10, 30))
+    for i = 1: n-1       
+        
         #println("Time of the last seismic event(s):",tStart[end])
         indx_last = findall(t .<= tStart[i+1])[end]   # last event!
         indx_last_int::Int = floor(indx_last/10)
         #println("Index of timestep in sliprate(output every 10) at the beginning of last seismic event:", indx_last_int)
 
-        indx = findall(abs.(FltX) .<= 20)[1]
+        indx = findall(abs.(FltX) .<= 30)[1]
         value = sliprate[indx:end,indx_last_int:indx_last_int+N]       # depth, timestep
         depth = FltX[indx:end]
 
@@ -489,7 +490,7 @@ end
 function Nucleation_animation(sliprate, FltX, tStart, t, N, n)
     NS_width = zeros(n,1)
     plot_params()
-    fig = PyPlot.figure(figsize=(5, 20))
+    fig = PyPlot.figure(figsize=(5, 30))
 for i = length(tStart)-n+1: length(tStart)
     #println("Time of the last seismic event(s):",tStart[end])
     indx_last = findall(t .<= tStart[i])[end]   # last event!

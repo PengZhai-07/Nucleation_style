@@ -79,15 +79,17 @@ function get_index(t, tStart, tEnd)     # get the index of time when earthquake 
 end
 
 # seperate coseismic slip due to different events
-function get_index_delfsec(N_events, delfsec)    # get the index of coseismic slip when earthquake begins and ends
+function get_index_delfsec(N_events, delfsec)    # get the index of all coseismic slip when earthquake begins and ends
+                                                # include the first artificial seismic event
 
-    index_ds_start::Vector{Int} = zeros(N_events)
+    index_ds_start::Vector{Int} = zeros(N_events)     
     index_ds_end::Vector{Int} = zeros(N_events)
     index_ds_start[1] = 1
     index_ds_end[end] = size(delfsec)[1]
     j = 1
-    for i = 1:length(delfsec[:,1])-1
-            if delfsec[i+1,1] - delfsec[i,1] >= 0.1
+    for i = 1:length(delfsec[:,1]) - 1
+            if delfsec[i+1,1] - delfsec[i,1] >= 0.5    # the differnce of two group of 
+                # coseismic slip is at least 1 m, so as to get the index of start and end of cosesimic slip
                     index_ds_start[j+1] = i+1
                     index_ds_end[j] = i
                     j = j+1
