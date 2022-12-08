@@ -35,8 +35,7 @@ function BoundaryMatrix!(NGLL, NelX, NelY, rho1, vs1, rho2, vs2,
 		igll = NGLL
 		jgll = collect(1:NGLL)
         jac1D = dy_deta
-        # impedance = rho1*vs1
-		impedance = 1
+        impedance = rho1*vs1
 
 	elseif side == 'R'
 		eB = (NelY-1)*NelX .+ collect(1:NelX)

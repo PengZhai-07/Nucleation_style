@@ -201,9 +201,9 @@ function setParameters(FZdepth::Int, halfwidth::Int, res::Int, T::Int, alpha::Fl
     BcBC::Vector{Float64}, iBcB::Vector{Int} = BoundaryMatrix!(NGLL, NelX, NelY, 
                         rho1, vs1, rho2, vs2, dy_deta, dx_dxi, wgll, iglob, 'B') 
     
-    # Top Boundary = free surface: nothing to do
-    BcTC::Vector{Float64}, iBcT::Vector{Int} = BoundaryMatrix!(NGLL, NelX, NelY,
-                        rho1, vs1, rho2, vs2, dy_deta, dx_dxi, wgll, iglob, 'T')
+    # # Top Boundary = free surface: nothing to do, just commit it
+    # BcTC::Vector{Float64}, iBcTs::Vector{Int} = BoundaryMatrix!(NGLL, NelX, NelY,
+    #                     rho1, vs1, rho2, vs2, dy_deta, dx_dxi, wgll, iglob, 'T')
 
     # Right Boundary: absorbing
     BcRC::Vector{Float64}, iBcR::Vector{Int} = BoundaryMatrix!(NGLL, NelX, NelY, 
