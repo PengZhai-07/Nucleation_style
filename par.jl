@@ -309,7 +309,7 @@ function setParameters(FZdepth::Int, halfwidth::Int, res::Int, T::Int, alpha::Fl
     return params_int(Nel, FltNglob, yr2sec, Total_time, IDstate, nglob),
             params_float(ETA, Vpl, Vthres, Vevne, dt, mu, ThickY),
             # arrary = vector
-            params_farray(fo, Vo, xLf, M, BcBC, BcRC, BcTc, FltL, FltZ, FltX, cca, ccb, Seff, Snormal, SSpp, 
+            params_farray(fo, Vo, xLf, M, BcBC, BcRC, BcTC, FltL, FltZ, FltX, cca, ccb, Seff, Snormal, SSpp, 
             tauo, XiLf, x_out, y_out),
             params_iarray(iFlt, iBcB, iBcR, iBcT, FltIglobBC, FltNI, out_seis), 
             Ksparse, iglob, NGLL, wgll2, nglob, did

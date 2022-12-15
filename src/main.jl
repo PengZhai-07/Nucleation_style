@@ -382,7 +382,7 @@ function main(P, alphaa, cos_reduction, coseismic_b)
             # Enforce K*d to be zero for velocity boundary
             a[P[4].FltIglobBC] .= 0.     # creeping fault
 
-            # Absorbing boundaries(Top, Bottom and right)    ??? no stress or acceleration
+            # Absorbing boundaries(Top, Bottom and right)    
             a[P[4].iBcB] .= a[P[4].iBcB] .- P[3].BcBC.*v[P[4].iBcB]
             a[P[4].iBcR] .= a[P[4].iBcR] .- P[3].BcRC.*v[P[4].iBcR]
             a[P[4].iBcT] .= a[P[4].iBcT] .- P[3].BcTC.*v[P[4].iBcT]
