@@ -213,7 +213,7 @@ function setParameters(FZdepth::Int, halfwidth::Int, res::Int, T::Int, alpha::Fl
     #  Mq = M[:]
     M[iBcB] .= M[iBcB] .+ half_dt*BcBC
     M[iBcR] .= M[iBcR] .+ half_dt*BcRC
-    #  M[iBcT] .= M[iBcT] .+ half_dt*BcRT
+    #  M[iBcT] .= M[iBcT] .+ half_dt*BcRT       # Top boundary is free surface, don't need any setup, just commit it
 
     # for boundary conditions on fault line   : 'L' 
     # iFlt: index of GLL nodes on the fault!!
