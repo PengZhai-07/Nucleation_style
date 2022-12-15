@@ -27,7 +27,7 @@ Domain = 0.75    # amplify factor of the domain size, the current domain size is
 
 T::Int = 500    # total simulation years 
 
-FZdepth::Int = 30e3   # depth of lower boundary of damage zone  unit: m     20km is the maximum depth
+FZdepth::Int = 0e3   # depth of lower boundary of damage zone  unit: m     20km is the maximum depth
 
 # note the sequence of all imput parameters
 alpha = parse(Float64,ARGS[1])   # initial(background) rigidity ratio: fault zone/host rock
