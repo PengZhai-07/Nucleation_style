@@ -444,7 +444,7 @@ function Nucleation(sliprate, FltX, tStart, t, N, criteria)
     for i = 1: n-1       
         
         #println("Time of the last seismic event(s):",tStart[end])
-        indx_last = findall(t .<= tStart[i+1])[end]   # last event!
+        indx_last = findall(t .<= tStart[i+1])[end]   # only use the slip rate data before the seismic threshold!
         indx_last_int::Int = floor(indx_last/10)
         #println("Index of timestep in sliprate(output every 10) at the beginning of last seismic event:", indx_last_int)
 

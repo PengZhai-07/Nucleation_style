@@ -59,7 +59,7 @@ println("Dimension of sliprate:",size(sliprate))
 # coseismic slip on fault for all different events(row)
 delfafter = readdlm(string(out_path, "coseismic_slip.out"), header=false)
 println("Dimension of cosesimic slip:",size(delfafter))
-N_events = size(delfafter,1)-1   # here the number of event should depend on the event_time.out file, ignore some small events 
+N_events = size(delfafter,1)   # here the number of event should depend on the event_time.out file, ignore some small events 
 println("Total number of all seismic events:", N_events)
 println("Total number of all on-fault GLL nodes:",size(delfafter,2))    
 

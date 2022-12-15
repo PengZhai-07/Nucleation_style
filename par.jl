@@ -100,7 +100,7 @@ function setParameters(FZdepth::Int, halfwidth::Int, res::Int, T::Int, alpha::Fl
     xLf::Vector{Float64} = repeat([Lc], FltNglob)    #	Dc (Lc)
 
     Vthres::Float64 = 0.001     # unit: m/s  if max slip rate is higher than this value, earthquake happens
-    Vevne::Float64 = Vthres     # redefine the velocity threshold!!
+    Vevne::Float64 = Vthres  s   # redefine the velocity threshold!!
 
     #-----------#
     #-----------#
