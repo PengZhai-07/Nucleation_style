@@ -213,7 +213,8 @@ function setParameters(FZdepth::Int, halfwidth::Int, res::Int, T::Int, alpha::Fl
     #  Mq = M[:]
     M[iBcB] .= M[iBcB] .+ half_dt*BcBC
     M[iBcR] .= M[iBcR] .+ half_dt*BcRC
-    M[iBcT] .= M[iBcT] .+ half_dt*BcTC      # upper absorbing boundary
+    # top absorbing boundary, very important line!!!
+    M[iBcT] .= M[iBcT] .+ half_dt*BcTC     
 
     
     # for boundary conditions on fault line   : 'L' 
@@ -308,7 +309,7 @@ function setParameters(FZdepth::Int, halfwidth::Int, res::Int, T::Int, alpha::Fl
     return params_int(Nel, FltNglob, yr2sec, Total_time, IDstate, nglob),
             params_float(ETA, Vpl, Vthres, Vevne, dt, mu, ThickY),
             # arrary = vector
-            params_farray(fo, Vo, xLf, M, BcBC, BcRC, FltL, FltZ, FltX, cca, ccb, Seff, Snormal, SSpp, 
+            params_farray(fo, Vo, xLf, M, BcBC, BcRC, BcTc, FltL, FltZ, FltX, cca, ccb, Seff, Snormal, SSpp, 
             tauo, XiLf, x_out, y_out),
             params_iarray(iFlt, iBcB, iBcR, FltIglobBC, FltNI, out_seis), 
             Ksparse, iglob, NGLL, wgll2, nglob, did
@@ -362,6 +363,7 @@ struct params_farray{T<:Vector{Float64}}
 
     BcBC::T    # boundary condition on the Bottom(mass)
     BcRC::T    # boundary condition on the right(mass)
+    BcTC::T    # boundary condition on the top(mass)
 
     FltL::T    # boundary condition on the fault(mass)
     FltZ::T     # 

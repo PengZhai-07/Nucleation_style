@@ -41,7 +41,7 @@ function main(P, alphaa, cos_reduction, coseismic_b)
     # P[1] = integer  Nel, FltNglob, yr2sec, Total_time, IDstate, nglob
     # P[2] = float    ETA, Vpl, Vthres, Vevne, dt
     # P[3] = float array   fo, Vo, xLf, M, BcBC, BcRC, FltL, FltZ, FltX, cca, ccb, Seff, tauo, XiLf, x_out, y_out
-    # P[4] = integer array   iFlt, iBcB, iBcR, FltIglobBC, FltNI, out_seis
+    # P[4] = integer array   iFlt, iBcB, iBcR, iBcT, FltIglobBC, FltNI, out_seis
     # P[5] = ksparse   
     # P[6] = iglob, 
     # P[7] = NGLL
@@ -382,9 +382,10 @@ function main(P, alphaa, cos_reduction, coseismic_b)
             # Enforce K*d to be zero for velocity boundary
             a[P[4].FltIglobBC] .= 0.     # creeping fault
 
-            # Absorbing boundaries(Bottom and right)    ??? no stress or acceleration
+            # Absorbing boundaries(Top, Bottom and right)    ??? no stress or acceleration
             a[P[4].iBcB] .= a[P[4].iBcB] .- P[3].BcBC.*v[P[4].iBcB]
             a[P[4].iBcR] .= a[P[4].iBcR] .- P[3].BcRC.*v[P[4].iBcR]
+            a[P[4].iBcT] .= a[P[4].iBcT] .- P[3].BcTC.*v[P[4].iBcT]
 
             ###### Fault Boundary Condition: Rate and State #############
             FltVfree .= 2*v[P[4].iFlt] .+ 2*half_dt*a[P[4].iFlt]./P[3].M[P[4].iFlt]
