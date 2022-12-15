@@ -215,6 +215,7 @@ function setParameters(FZdepth::Int, halfwidth::Int, res::Int, T::Int, alpha::Fl
     M[iBcR] .= M[iBcR] .+ half_dt*BcRC
     M[iBcT] .= M[iBcT] .+ half_dt*BcTC      # upper absorbing boundary
 
+    
     # for boundary conditions on fault line   : 'L' 
     # iFlt: index of GLL nodes on the fault!!
     FltL::Vector{Float64}, iFlt::Vector{Int} = BoundaryMatrix!(NGLL, NelX, NelY, 
