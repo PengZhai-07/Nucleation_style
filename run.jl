@@ -18,14 +18,14 @@ include("$(@__DIR__)/par.jl")	    #	Set Parameters
 
 # Put the resolution for the simulation here: should be an integer
 
-res::Int = 8   # resolution of mesh
+res::Int = 16    # resolution of mesh
 Domain = 0.75    # amplify factor of the domain size, the current domain size is 30km*24km for 0.75 domain size
 
 # 4: 301 GLL nodes, average 100m on fault  
 # 8: 601 GLL nodes, average 50m on fault
 # 16: 1201 GLL nodes, average 25m on fault
 
-T::Int = 500    # total simulation years 
+T::Int = 300    # total simulation years 
 
 FZdepth::Int = 0e3   # depth of lower boundary of damage zone  unit: m     20km is the maximum depth
 
