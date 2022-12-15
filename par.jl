@@ -311,7 +311,7 @@ function setParameters(FZdepth::Int, halfwidth::Int, res::Int, T::Int, alpha::Fl
             # arrary = vector
             params_farray(fo, Vo, xLf, M, BcBC, BcRC, BcTc, FltL, FltZ, FltX, cca, ccb, Seff, Snormal, SSpp, 
             tauo, XiLf, x_out, y_out),
-            params_iarray(iFlt, iBcB, iBcR, FltIglobBC, FltNI, out_seis), 
+            params_iarray(iFlt, iBcB, iBcR, iBcT, FltIglobBC, FltNI, out_seis), 
             Ksparse, iglob, NGLL, wgll2, nglob, did
 
 end
@@ -387,6 +387,7 @@ struct params_iarray{T<:Vector{Int}}
     iFlt::T        # index of GLL nodes on the fault
     iBcB::T        # index of GLL nodes on the bottom boundary
     iBcR::T        # index of GLL nodes on the right boundary
+    iBcT::T        # index of GLL nodes on the Top boundary
     FltIglobBC::T  # index of GLL nodes within the creep fault (twice of the shared nodes)
     FltNI::T       # index of off-fault GLL nodes
     out_seis::T    # index of off-fault GLL nodes which are nearest to the predefined output locations
