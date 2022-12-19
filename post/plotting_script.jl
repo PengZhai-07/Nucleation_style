@@ -372,7 +372,7 @@ function stressdrop_1(taubefore, tauafter, FltX)
 end
 
 # Plot cumulative slip
-function cumSlipPlot(delfsec, delfyr, FltX, hypo, d_hypo, N)
+function cumSlipPlot(delfsec, delfyr, FltX, hypo, d_hypo, N, )
     
     indx_1 = findall(abs.(FltX) .<= 25)[1]
     indx_2 = findall(abs.(FltX) .>= 5)[end]
@@ -390,7 +390,7 @@ function cumSlipPlot(delfsec, delfyr, FltX, hypo, d_hypo, N)
     plt.rc("font",size=12)
     ax.plot(delfyr2, FltX, color="royalblue", lw=1.0)
     ax.plot(delfsec2, FltX[indx_1:indx_2], color="chocolate", lw=1.0)
-    ax.plot(d_hypo, hypo./1000 , "*", color="saddlebrown", markersize=25)
+    ax.plot(d_hypo, hypo./1000, "*", color="saddlebrown", markersize=25)
     ax.set_xlabel("Cumulative Slip (m)")
     ax.set_ylabel("Depth (km)")
     ax.set_ylim([0,30])
@@ -473,7 +473,7 @@ function Nucleation(sliprate, FltX, tStart, t, N, criteria)
         ax.set_xscale("log")
         ax.set_ylim([10,20])    
         ax.set_ylabel("Depth(km)")
-        ax.set_xlim([1e-4, 1e-2])
+        ax.set_xlim([1e-4, 1e0])
         ax.set_xlabel("Slip Velocity(m/s)")
         ax.invert_yaxis()
         title = string(NS_width[i,2]," km")
