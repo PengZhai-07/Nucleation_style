@@ -100,14 +100,14 @@ for i = 1: length(b)
     for j = 1: length(NS_width[:,1])
         if hypo[j] < 6000
           N_shallow = N_shallow + 1
-          if i==2&&N_shallow==1
+          if i==1&&N_shallow==1
             ax.plot(b[i], NS_width[j,2], "o", color = "blue",  markersize=10, label="Shallow events")
           else
             ax.plot(b[i], NS_width[j,2], "o", color = "blue",  markersize=10)
           end
         else
           N_deep = N_deep + 1
-          if i==2&&N_deep==1
+          if i==1&&N_deep==1
             ax.plot(b[i], NS_width[j,2], "o", color = "green", markersize=10, label="Deep events")
           else
             ax.plot(b[i], NS_width[j,2], "o", color = "green", markersize=10)
