@@ -3,8 +3,9 @@ using DelimitedFiles
 include("$(@__DIR__)/post/event_details.jl")
 include("$(@__DIR__)/post/plotting_script.jl")
 
-#project = "immature_fully_healing"
-project = "velocity_dependence_b"
+#project = "immature_fully_healing"             # normal stress
+# project = "velocity_dependence_b"
+project = "domain_size_test"
 
 # path to save files
 global path = "$(@__DIR__)/plots/$(project)/$(FILE)/"
@@ -45,16 +46,16 @@ ccb = params[5,:]
 a_b = cca .- ccb
 Lc = params[6,:]
 
-event_time = readdlm(string(out_path, "event_time.out"), header=false)
-tStart = event_time[:,1]
-println("Start time of all seismic events(s):",tStart) 
-tEnd = event_time[:,2]
-println("Duration of all seismic events(s):",tEnd-tStart)
+# event_time = readdlm(string(out_path, "event_time.out"), header=false)
+# tStart = event_time[:,1]
+# println("Start time of all seismic events(s):",tStart) 
+# tEnd = event_time[:,2]
+# println("Duration of all seismic events(s):",tEnd-tStart)
 
-hypo = event_time[:,3]
-d_hypo = event_time[:,4]    # unit: m 
-println("Cumulative slips when earthquakes happen:",d_hypo) 
-println("Depth of all seismic events:",hypo)
+# hypo = event_time[:,3]
+# d_hypo = event_time[:,4]    # unit: m 
+# println("Cumulative slips when earthquakes happen:",d_hypo) 
+# println("Depth of all seismic events:",hypo)
 
 sliprate = readdlm(string(out_path, "sliprate.out"), header=false)   # every 10 timesteps
 println("Dimension of sliprate:",size(sliprate))
@@ -89,9 +90,11 @@ taubefore = event_stress[:,1:indx]
 tauafter = event_stress[:,indx+1:end]
 stressdrops = taubefore .- tauafter
 
-stress = readdlm(string(out_path, "stress.out"), header=false)   # timesteps/10, shear stress on fault line points
+# stress = readdlm(string(out_path, "stress.out"), header=false)   # timesteps/10, shear stress on fault line points
 # get the start and end time of every seismic event
-index_start, index_end = get_index(t, tStart, tEnd)   
+
+# index_start, index_end = get_index(t, tStart, tEnd)
+
 # println(index_start)
 # println(index_end)
 
