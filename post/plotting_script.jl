@@ -437,6 +437,7 @@ function cumSlipPlot_no_hypocenter(delfsec, delfyr, FltX)
 end
 
 function Nucleation(sliprate, FltX, tStart, t, N, criteria)
+    n_before = 200             # 200 time steps before seismic threshold 
     n = length(tStart)         # how many seimsic events
     NS_width = zeros(n-1,4)
     plot_params()
@@ -444,16 +445,16 @@ function Nucleation(sliprate, FltX, tStart, t, N, criteria)
     for i = 1: n-1       
         
         #println("Time of the last seismic event(s):",tStart[end])
-        indx_last = findall(t .<= tStart[i+1])[end]   # only use the slip rate data before the seismic threshold!
+        indx_last = findall(t .<= tStart[i+1])[end]   
         indx_last_int::Int = floor(indx_last/10)
         #println("Index of timestep in sliprate(output every 10) at the beginning of last seismic event:", indx_last_int)
 
         indx = findall(abs.(FltX) .<= 30)[1]
-        value = sliprate[indx:end,indx_last_int:indx_last_int+N]       # depth, timestep
+        value = sliprate[indx:end,indx_last_int-n_before:indx_last_int+N]       # depth, timestep  # only use the slip rate data after the seismic threshold!
         depth = FltX[indx:end]
 
         # measure the width of nucleation zone
-        indx_nucleation = findall(value[:,2] .>= criteria)       # using the second line to define the width of nucleation size
+        indx_nucleation = findall(value[:,n_before+2] .>= criteria)       # using the second line to define the width of nucleation size
         #println(indx_nucleation)
         new_depth = FltX[indx:end][indx_nucleation]
         downdip_depth = maximum(new_depth)
@@ -468,12 +469,12 @@ function Nucleation(sliprate, FltX, tStart, t, N, criteria)
         ax = fig.add_subplot(n-1, 1, i)
         # println(size(t[indx_last_int:indx_last_int + N]))
         # println(size(value))
-        # ax.plot(value[:,1:10], depth, color="red")
-        ax.plot(value[:,2], depth, color="red")
+        ax.plot(value[:,1:5:20+n_before], depth, color="red")
+        # ax.plot(value[:,2], depth, color="red")
         ax.set_xscale("log")
         ax.set_ylim([10,20])    
         ax.set_ylabel("Depth(km)")
-        ax.set_xlim([1e-4, 1e0])
+        ax.set_xlim([1e-6, 1e-0])
         ax.set_xlabel("Slip Velocity(m/s)")
         ax.invert_yaxis()
         title = string(NS_width[i,2]," km")
