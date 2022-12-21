@@ -18,7 +18,7 @@ include("$(@__DIR__)/par.jl")	    #	Set Parameters
 
 # Put the resolution for the simulation here: should be an integer
 
-res::Int = 16   # resolution of mesh
+res::Int = 12   # resolution of mesh
 
 # for dimain factor = 1 (40 km) 
 # 4: 401 GLL nodes, average 100m on fault  
@@ -49,7 +49,8 @@ println("cos_b: ", coseismic_b)
 # 0.9604   0.9409   0.9216
 # 0.0396   0.0591   0.0784
 
-project = "velocity_dependence_b"
+# project = "velocity_dependence_b"
+project = "domain_size_test"
 
 # Output directory to save data
 out_dir = "$(@__DIR__)/data/$(project)/$(FZdepth)_$(halfwidth)_$(res)_$(alpha)_$(cos_reduction)_$(multiple)_$(Domain)_$(coseismic_b)/"    

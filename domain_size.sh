@@ -14,7 +14,7 @@
 #SBATCH --partition=standard
 
 #SBATCH --account=yiheh1
-#SBATCH --ntasks-per-node=16 
+#SBATCH --ntasks-per-node=8 
 
 # The application(s) to execute along with its input arguments and options:
 # half-width(m) rigidity_ratio Lc(m) multiple(normal stress) cos_reduction
@@ -22,8 +22,8 @@
 #Uncomment the following words to submit different simulations!!! 
 
 
-#SBATCH --job-name=case85 
+#SBATCH --job-name=case92 
 #SBATCH --output=/home/%u/log/%x-%j.log 
 #SBATCH --error=/home/%u/log/error-%x-%j.log 
-julia --threads 16 run.jl 0.8 500 0.01 4 0.00 0.019    
+julia --threads 8 run.jl 0.8 500 0.01 4 0.00 0.019    
 
