@@ -423,11 +423,11 @@ function main(P, alphaa, cos_reduction, coseismic_b)
         Vfmax = 2*maximum(v[P[4].iFlt]) .+ P[2].Vpl   # background plate motion rate: P[2].Vpl
 
 # velocity dependent b (evolution effect)
-
+        b_initial = 0.019
         if t > 10*P[1].yr2sec
 
             if  Vfmax <= 1e-5          
-                P[3].ccb[seismogenic_depth] .= 0.019
+                P[3].ccb[seismogenic_depth] .= b_initial
 
             elseif 1e-5 < Vfmax < 1e-3  
                 # linear increase in Cartesian velocity
@@ -437,7 +437,7 @@ function main(P, alphaa, cos_reduction, coseismic_b)
                 # sin increase in Cartesian velocity
                 # normalization
                 K_b = (1+sin((Vfmax - 1e-5)/(1e-3 - 1e-5)*pi-pi/2))/2
-                P[3].ccb[seismogenic_depth] .= 0.019 + (coseismic_b -0.019) * K_b
+                P[3].ccb[seismogenic_depth] .= b_initial + (coseismic_b - b_initial) * K_b
 
                 # linear increase in log scale velocity
                 # K_b = (0.025-0.019)/(log10(1e-3) - log10(1e-5))
