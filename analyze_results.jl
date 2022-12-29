@@ -3,7 +3,7 @@ using DelimitedFiles
 include("$(@__DIR__)/post/event_details.jl")
 include("$(@__DIR__)/post/plotting_script.jl")
 
-project = "wholespace"
+project = "wholespace/constant b"
 
 # path to save files
 global path = "$(@__DIR__)/plots/$(project)/$(FILE)/"

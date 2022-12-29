@@ -10,7 +10,7 @@
 # FILE = "20000.0_1500.0_8_0.85_0.05_4.0"   # normal stress testing
 #FILE = "20000.0_500.0_20_0.85_0.05_5.0"   # resolution testing
 
-FILE = "0_500_8_0.8_0.0_4_0.75_0.021"
+FILE = "0_500_8_0.8_0.0_4_0.75_0.019"             # wholespace
 #FILE = "20000_500_8_0.8_0.0_4_1.0_0.023"     # Ru number testing: no healing
 #FILE = "20000_500_12_0.5_0.0_5_1.0_smooth_0.23"
 include("analyze_results.jl")   
@@ -21,19 +21,16 @@ N = 500
 # calculate the nucleation size and plot the nucleation process
 N_timestep = 500      # time steps to use in sliprate
 criteria = 1e-3    # seismic threshold to measure the nucleation size
-NS_width = Nucleation(sliprate', FltX, tStart, t, N_timestep, criteria)
 
-open(string(path,"nucleation info.out"), "w") do io
-    for i = 1: size(NS_width)[1]
-        write(io, join(NS_width[i,:], " "), "\n") 
-    end
-end
+Nucleation_example(sliprate', FltX, tStart, t, N_timestep, criteria)    # only plot the last seismic event
 
-# # # plot the variation of apparent stress
-# # # apparent_friction(stress, index_start, index_end, delfsec, index_ds_start, index_ds_end, depth, t, 2, 50)
-# apparent_friction_new(stress, index_start, index_end, delfsec_et, index_ds_start, index_ds_end, NS_width, 40, N_events)
-# apparent_friction_new_prapogation(stress, index_start, index_end, delfsec_et, index_ds_start,
-#     index_ds_end, NS_width, 40, N_events)
+# NS_width = Nucleation(sliprate', FltX, tStart, t, N_timestep, criteria)
+
+# open(string(path,"nucleation info.out"), "w") do io
+#     for i = 1: size(NS_width)[1]
+#         write(io, join(NS_width[i,:], " "), "\n") 
+#     end
+# end
 
 # # max slip rate versus timestep
 # VfmaxPlot(Vfmax, N, t)
@@ -48,6 +45,15 @@ end
 # # slip rate vs timesteps
 # # how many years to plot
 # eqCyclePlot(sliprate', FltX, N, t)
+
+
+
+
+# # # plot the variation of apparent stress
+# # # apparent_friction(stress, index_start, index_end, delfsec, index_ds_start, index_ds_end, depth, t, 2, 50)
+# apparent_friction_new(stress, index_start, index_end, delfsec_et, index_ds_start, index_ds_end, NS_width, 40, N_events)
+# apparent_friction_new_prapogation(stress, index_start, index_end, delfsec_et, index_ds_start,
+#     index_ds_end, NS_width, 40, N_events)
 
 # stress drop of the first artificial event 
 # # stressdrop_1(taubefore[1,:], tauafter[1,:], FltX)    # the row is the number of event

@@ -35,6 +35,124 @@ function plot_params()
 
 end
 
+function Nucleation(sliprate, FltX, tStart, t, N, criteria)
+    n_before = 50             # 200 time steps before seismic threshold 
+    n = length(tStart)         # how many seimsic events
+    # n = 6
+    NS_width = zeros(n-1,4)
+    plot_params()
+    fig = PyPlot.figure(figsize=(10, 30))
+    for i = 1: n-1 
+        
+        #println("Time of the last seismic event(s):",tStart[end])
+        indx_last = findall(t .<= tStart[i+1])[end]   
+        indx_last_int::Int = floor(indx_last/10)
+        #println("Index of timestep in sliprate(output every 10) at the beginning of last seismic event:", indx_last_int)
+
+        indx = findall(abs.(FltX) .<= 30)[1]
+        value = sliprate[indx:end,indx_last_int-n_before:indx_last_int+N]       # depth, timestep  # only use the slip rate data after the seismic threshold!
+        depth = FltX[indx:end]
+
+        # measure the width of nucleation zone
+        indx_nucleation = findall(value[:,n_before+2] .>= criteria)       # using the second line to define the width of nucleation size
+        #println(indx_nucleation)
+        new_depth = FltX[indx:end][indx_nucleation]
+        downdip_depth = maximum(new_depth)
+        updip_depth = minimum(new_depth)
+
+        NS_width[i, 1] = (downdip_depth + updip_depth)/2       # middle point 
+        NS_width[i, 2] = downdip_depth - updip_depth        # width of nucleation zone
+        NS_width[i, 3] = updip_depth                   # updip
+        NS_width[i, 4] = downdip_depth          # downdip
+
+        # plot slip rate profile
+        ax = fig.add_subplot(n-1, 1, i)
+        # println(size(t[indx_last_int:indx_last_int + N]))
+        # println(size(value))
+
+        ax.plot(value[:,1:1:2+n_before], depth, color="red", )        # plot every five steps
+        # ax.plot(value[:,2], depth, color="red")        # only plot the slip rate over seismicthreshold
+        ax.set_xscale("log")
+        ax.set_ylim([10,20])    
+        ax.set_ylabel("Depth(km)")
+        ax.set_xlim([1e-6, 1e-2])
+        ax.set_xlabel("Slip Velocity(m/s)")
+        ax.invert_yaxis()
+
+        title = string(NS_width[i,2]," km")
+        ax.set_title(title)
+    end
+    # println("Location and Full length of all seismic events' nucleation zone(km):", NS_width)
+    show()
+    figname = string(path, "sliprate_time_nucleation_alone.png")
+    fig.savefig(figname, dpi = 300)
+    return NS_width
+end
+
+function Nucleation_example(sliprate, FltX, tStart, t, N, criteria)
+    n_before = 100             # 200 time steps before seismic threshold 
+    n = length(tStart)         # how many seimsic events
+    # n = 5
+    NS_width = zeros(n-1,4)
+    plot_params()
+    fig = PyPlot.figure(figsize=(10, 30))
+    # for i = 1: n-1 
+    for i = n-1        # plot the i_th normal earthquake(third event): choose by yourself    if i=n-1, then plot the last one!!
+
+        #println("Time of the last seismic event(s):",tStart[end])
+        indx_last = findall(t .<= tStart[i+1])[end]   
+        indx_last_int::Int = floor(indx_last/10)
+        #println("Index of timestep in sliprate(output every 10) at the beginning of last seismic event:", indx_last_int)
+
+        indx = findall(abs.(FltX) .<= 30)[1]
+        value = sliprate[indx:end,indx_last_int-n_before:indx_last_int+N]       # depth, timestep  # only use the slip rate data after the seismic threshold!
+        depth = FltX[indx:end]
+
+        # measure the width of nucleation zone
+        indx_nucleation = findall(value[:,n_before+2] .>= criteria)       # using the second line to define the width of nucleation size
+        #println(indx_nucleation)
+        new_depth = FltX[indx:end][indx_nucleation]
+        downdip_depth = maximum(new_depth)
+        updip_depth = minimum(new_depth)
+
+        NS_width[i, 1] = (downdip_depth + updip_depth)/2       # middle point 
+        NS_width[i, 2] = downdip_depth - updip_depth        # width of nucleation zone
+        NS_width[i, 3] = updip_depth                   # updip
+        NS_width[i, 4] = downdip_depth          # downdip
+
+        # plot slip rate profile
+        # ax = fig.add_subplot(n-1, 1, i)
+        ax = fig.add_subplot(1, 1, 1)
+        # println(size(t[indx_last_int:indx_last_int + N]))
+        # println(size(value))
+        
+        ax.plot(depth, value[:,1:5:120 + n_before],color="red", )        # plot every five steps
+        ax.set_yscale("log")
+        ax.set_xlim([10,20])    
+        ax.set_xlabel("Depth(km)")
+        ax.set_ylim([1e-15, 1e1])
+        ax.set_ylabel("Slip Velocity(m/s)")
+
+        
+        # ax.plot(value[:,1:1:2+n_before], depth, color="red", )        # plot every five steps
+        # # ax.plot(value[:,2], depth, color="red")        # only plot the slip rate over seismicthreshold
+        # ax.set_xscale("log")
+        # ax.set_ylim([10,20])    
+        # ax.set_ylabel("Depth(km)")
+        # ax.set_xlim([1e-6, 1e-2])
+        # ax.set_xlabel("Slip Velocity(m/s)")
+        # ax.invert_yaxis()
+
+        title = string(NS_width[i,2]," km")
+        ax.set_title(title)
+    end
+    # println("Location and Full length of all seismic events' nucleation zone(km):", NS_width)
+    show()
+    figname = string(path, "sliprate_time_nucleation_example.png")
+    fig.savefig(figname, dpi = 300)
+end
+
+
 # Plot apparent_friction: with only every 0.1 second output
 # function apparent_friction(stress, index_start, index_end, delfsec, index_ds_start,
 #      index_ds_end, depth, t, N, normal_stress)
@@ -86,6 +204,7 @@ end
 #     figname = string(path, "apparent_friction.png")
 #     fig.savefig(figname, dpi = 300)
 # end
+
 
 # Plot apparent_friction
 function apparent_friction_new(stress, index_start, index_end, delfsec_et, index_ds_start,
@@ -436,56 +555,6 @@ function cumSlipPlot_no_hypocenter(delfsec, delfyr, FltX)
 
 end
 
-function Nucleation(sliprate, FltX, tStart, t, N, criteria)
-    n_before = 200             # 200 time steps before seismic threshold 
-    n = length(tStart)         # how many seimsic events
-    NS_width = zeros(n-1,4)
-    plot_params()
-    fig = PyPlot.figure(figsize=(10, 30))
-    for i = 1: n-1       
-        
-        #println("Time of the last seismic event(s):",tStart[end])
-        indx_last = findall(t .<= tStart[i+1])[end]   
-        indx_last_int::Int = floor(indx_last/10)
-        #println("Index of timestep in sliprate(output every 10) at the beginning of last seismic event:", indx_last_int)
-
-        indx = findall(abs.(FltX) .<= 30)[1]
-        value = sliprate[indx:end,indx_last_int-n_before:indx_last_int+N]       # depth, timestep  # only use the slip rate data after the seismic threshold!
-        depth = FltX[indx:end]
-
-        # measure the width of nucleation zone
-        indx_nucleation = findall(value[:,n_before+2] .>= criteria)       # using the second line to define the width of nucleation size
-        #println(indx_nucleation)
-        new_depth = FltX[indx:end][indx_nucleation]
-        downdip_depth = maximum(new_depth)
-        updip_depth = minimum(new_depth)
-
-        NS_width[i, 1] = (downdip_depth + updip_depth)/2       # middle point 
-        NS_width[i, 2] = downdip_depth - updip_depth        # width of nucleation zone
-        NS_width[i, 3] = updip_depth                   # updip
-        NS_width[i, 4] = downdip_depth          # downdip
-
-        # plot slip rate profile
-        ax = fig.add_subplot(n-1, 1, i)
-        # println(size(t[indx_last_int:indx_last_int + N]))
-        # println(size(value))
-        ax.plot(value[:,1:5:20+n_before], depth, color="red")
-        # ax.plot(value[:,2], depth, color="red")
-        ax.set_xscale("log")
-        ax.set_ylim([10,20])    
-        ax.set_ylabel("Depth(km)")
-        ax.set_xlim([1e-6, 1e-0])
-        ax.set_xlabel("Slip Velocity(m/s)")
-        ax.invert_yaxis()
-        title = string(NS_width[i,2]," km")
-        ax.set_title(title)
-    end
-    # println("Location and Full length of all seismic events' nucleation zone(km):", NS_width)
-    show()
-    figname = string(path, "sliprate_time_nucleation_alone.png")
-    fig.savefig(figname, dpi = 300)
-    return NS_width
-end
 
 # not yet working
 function Nucleation_animation(sliprate, FltX, tStart, t, N, n)

@@ -305,7 +305,7 @@ function main(P, alphaa, cos_reduction, coseismic_b)
 
             end
             
-            # update current variable
+            # update current state variable
             psi .= psi1[:]
             tau .= tau1[:]
 
@@ -424,7 +424,7 @@ function main(P, alphaa, cos_reduction, coseismic_b)
 
 # velocity dependent b (evolution effect)
         b_initial = 0.019
-        if t > 10*P[1].yr2sec
+        if t > 1*P[1].yr2sec
 
             if  Vfmax <= 1e-5          
                 P[3].ccb[seismogenic_depth] .= b_initial
