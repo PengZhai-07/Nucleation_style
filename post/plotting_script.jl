@@ -90,7 +90,7 @@ function Nucleation(sliprate, FltX, tStart, t, N, criteria)
 end
 
 function Nucleation_example(sliprate, FltX, tStart, t, N, criteria)
-    n_before = 100             # 200 time steps before seismic threshold 
+    n_before = 150             # 200 time steps before seismic threshold 
     n = length(tStart)         # how many seimsic events
     # n = 5
     NS_width = zeros(n-1,4)
@@ -126,7 +126,7 @@ function Nucleation_example(sliprate, FltX, tStart, t, N, criteria)
         # println(size(t[indx_last_int:indx_last_int + N]))
         # println(size(value))
         
-        ax.plot(depth, value[:,1:5:120 + n_before],color="red", )        # plot every five steps
+        ax.plot(depth, value[:,1:5:150 + n_before],color="red", )        # plot every five steps
         ax.set_yscale("log")
         ax.set_xlim([10,20])    
         ax.set_xlabel("Depth(km)")
