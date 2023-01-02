@@ -46,16 +46,16 @@ ccb = params[5,:]
 a_b = cca .- ccb
 Lc = params[6,:]
 
-# event_time = readdlm(string(out_path, "event_time.out"), header=false)
-# tStart = event_time[:,1]
-# println("Start time of all seismic events(s):",tStart) 
-# tEnd = event_time[:,2]
-# println("Duration of all seismic events(s):",tEnd-tStart)
+event_time = readdlm(string(out_path, "event_time.out"), header=false)
+tStart = event_time[:,1]
+println("Start time of all seismic events(s):",tStart) 
+tEnd = event_time[:,2]
+println("Duration of all seismic events(s):",tEnd-tStart)
 
-# hypo = event_time[:,3]
-# d_hypo = event_time[:,4]    # unit: m 
-# println("Cumulative slips when earthquakes happen:",d_hypo) 
-# println("Depth of all seismic events:",hypo)
+hypo = event_time[:,3]
+d_hypo = event_time[:,4]    # unit: m 
+println("Cumulative slips when earthquakes happen:",d_hypo) 
+println("Depth of all seismic events:",hypo)
 
 sliprate = readdlm(string(out_path, "sliprate.out"), header=false)   # every 10 timesteps
 println("Dimension of sliprate:",size(sliprate))

@@ -197,11 +197,12 @@ end
 
 # Plot Vfmax
 function VfmaxPlot(Vfmax, N, t)
+
     plot_params()
     fig = PyPlot.figure(figsize=(7.2, 3.45))
     ax = fig.add_subplot(111)
 
-    t_seconds = N * 365 * 24 * 60 * 60 
+    t_seconds= N * 365 * 24 * 60 * 60 
     indx_last = findall(t .<= t_seconds)[end]   # last event!
 
     ax.plot(Vfmax[1:indx_last], lw = 2.0)

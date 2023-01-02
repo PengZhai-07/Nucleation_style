@@ -10,13 +10,13 @@
 # FILE = "20000.0_1500.0_8_0.85_0.05_4.0"   # normal stress testing
 #FILE = "20000.0_500.0_20_0.85_0.05_5.0"   # resolution testing
 
-FILE = "20000_500_16_0.8_0.0_4_1.5_0.019"
+FILE = "20000_500_12_0.8_0.0_4_1_0.019"
 #FILE = "20000_500_8_0.8_0.0_4_1.0_0.023"     # Ru number testing: no healing
 #FILE = "20000_500_12_0.5_0.0_5_1.0_smooth_0.23"
 include("analyze_results.jl")   
 
 # # total years to plots
-N = 300
+N = 500
 
 # # calculate the nucleation size and plot the nucleation process
 # N_timestep = 500      # time steps to use in sliprate
@@ -35,6 +35,7 @@ N = 300
 # apparent_friction_new_prapogation(stress, index_start, index_end, delfsec_et, index_ds_start,
     # index_ds_end, NS_width, 40)
 
+print(typeof(t))
 # max slip rate versus timestep
 VfmaxPlot(Vfmax, N, t)
 
@@ -42,12 +43,16 @@ VfmaxPlot(Vfmax, N, t)
 # cumSlipPlot(delfsec[1:4:end,:], delfyr[1:end, :], FltX, hypo, d_hypo, N);
 cumSlipPlot_no_hypocenter(delfsec[1:4:end,:], delfyr[1:end, :], FltX);
 
-# # healing analysis: Vfmax and regidity ratio vs. time
-# healing_analysis(Vfmax, alphaa, t, yr2sec)
+# healing analysis: Vfmax and regidity ratio vs. time
+healing_analysis(Vfmax, alphaa, t, yr2sec)
 
-# # slip rate vs timesteps
-# # how many years to plot
-# eqCyclePlot(sliprate', FltX, N, t)
+# slip rate vs timesteps
+# how many years to plot
+eqCyclePlot(sliprate', FltX, N, t)
+
+
+
+
 
 # stress drop of the first artificial event 
 # # stressdrop_1(taubefore[1,:], tauafter[1,:], FltX)    # the row is the number of event
