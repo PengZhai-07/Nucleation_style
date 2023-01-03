@@ -202,7 +202,7 @@ function VfmaxPlot(Vfmax, N, t)
     fig = PyPlot.figure(figsize=(7.2, 3.45))
     ax = fig.add_subplot(111)
 
-    t_seconds= N * 365 * 24 * 60 * 60 
+    t_seconds= N * 365 * 24 * 60 * 60.0
     indx_last = findall(t .<= t_seconds)[end]   # last event!
 
     ax.plot(Vfmax[1:indx_last], lw = 2.0)
@@ -218,16 +218,50 @@ function VfmaxPlot(Vfmax, N, t)
     fig.savefig(figname, dpi = 300)
 end
 
+
+# Plot cumulative slip
+function cumSlipPlot(delfsec, delfyr, FltX, hypo, d_hypo, N)
+    indx = findall(abs.(FltX) .<= 30)[1]
+
+    delfsec2 = transpose(delfsec[:,indx:end])
+    delfyr2 = transpose(delfyr)
+
+    plot_params()
+    fig = PyPlot.figure(figsize=(7.2, 4.45))
+
+    ax = fig.add_subplot(111)
+    plt.rc("font",size=12)
+    ax.plot(delfyr2, FltX, color="royalblue", lw=1.0)
+    ax.plot(delfsec2, FltX[indx:end], color="chocolate", lw=1.0)
+    ax.plot(d_hypo, hypo./1000 , "*", color="saddlebrown", markersize=25)
+    ax.set_xlabel("Cumulative Slip (m)")
+    ax.set_ylabel("Depth (km)")
+    ax.set_ylim([0,20])
+
+    L = N * 365 * 24 * 60 * 60 * 1e-9
+    ax.set_xlim([0,L])
+    #ax.set_xlim([0,9.0])
+    ax.invert_yaxis()
+
+    show()
+    
+    figname = string(path, "cumulative_slip.png")
+    fig.savefig(figname, dpi = 300)
+
+end
+
 # sliprate versus time plot
 # N is the number of years to plot
 function eqCyclePlot(sliprate, FltX, N, t)
 
-    t_seconds = N * 365 * 24 * 60 * 60 
-    indx_last = findall(t .<= t_seconds)[end]   # last event!
-    indx_last_int::Int = floor(indx_last/10)
+    # t_seconds = N * 365 * 24 * 60 * 60 
+    # indx_last = findall(t .<= t_seconds)[end]   # last event!
+    # indx_last_int::Int = floor(indx_last/10)
 
     indx = findall(abs.(FltX) .<= 20)[1]
-    value = sliprate[indx:end,1:indx_last_int]
+
+    # value = sliprate[indx:end,1:indx_last_int]
+    value = sliprate[indx:end,:]
     
     # print(findall(abs.(sliprate) .<= 1e-12))
     value[findall(abs.(value) .<= 1e-15)] .= 1e-15 
@@ -372,36 +406,7 @@ function stressdrop_1(taubefore, tauafter, FltX)
     #  end
 end
 
-# Plot cumulative slip
-function cumSlipPlot(delfsec, delfyr, FltX, hypo, d_hypo, N)
-    indx = findall(abs.(FltX) .<= 30)[1]
 
-    delfsec2 = transpose(delfsec[:,indx:end])
-    delfyr2 = transpose(delfyr)
-
-    plot_params()
-    fig = PyPlot.figure(figsize=(7.2, 4.45))
-
-    ax = fig.add_subplot(111)
-    plt.rc("font",size=12)
-    ax.plot(delfyr2, FltX, color="royalblue", lw=1.0)
-    ax.plot(delfsec2, FltX[indx:end], color="chocolate", lw=1.0)
-    ax.plot(d_hypo, hypo./1000 , "*", color="saddlebrown", markersize=25)
-    ax.set_xlabel("Cumulative Slip (m)")
-    ax.set_ylabel("Depth (km)")
-    ax.set_ylim([0,30])
-
-    L = N * 365 * 24 * 60 * 60 * 1e-9
-    ax.set_xlim([0,L])
-    #ax.set_xlim([0,9.0])
-    ax.invert_yaxis()
-
-    show()
-    
-    figname = string(path, "cumulative_slip.png")
-    fig.savefig(figname, dpi = 300)
-
-end
 
 function cumSlipPlot_no_hypocenter(delfsec, delfyr, FltX)
 
