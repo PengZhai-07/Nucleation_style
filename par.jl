@@ -223,11 +223,11 @@ function setParameters(FZdepth::Int, halfwidth::Int, res::Int, T::Int, alpha::Fl
                        rho1, vs1, rho2, vs2, dy_deta, dx_dxi, wgll, iglob, 'L')
     # println(iFlt)
 
-    # what is FltZ?  FltZ = jac1D(dy_deta)*wgll*rho1/dt_min  used in NRsearch
+    # what is FltZ? Faulr impedance matrix  FltZ = jac1D(dy_deta)*wgll*rho1/dt_min  used in NRsearch
     # M = wgll2.*rho1 (damage zone).*jac (dx_dxi*dy_deta)
     # FltL = dx_dxi.*wgll.*1 (impedance)
     # half_dt = 0.5*dtmin
-    FltZ::Vector{Float64} = M[iFlt]./FltL/half_dt * 0.5   #  times 0.5 due to the symmetry 
+    FltZ::Vector{Float64} = M[iFlt]./FltL/half_dt * 0.5   #  times 0.5: equation (7) in kaneko(2008)
     #println(FltZ)
     # X (vertical) of all GLL nodes at fault surface
     FltX::Vector{Float64} = x[iFlt]   

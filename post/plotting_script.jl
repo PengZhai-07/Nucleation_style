@@ -55,7 +55,10 @@ function moment_release_example(sliprate, FltX, tStart, t, N, criteria, measure_
         value = sliprate[indx:end, indx_last_int:indx_last_int+N]       # depth, timestep  # only use the slip rate data after the seismic threshold!
         t_coseismic = t[indx_last:10:indx_last+N*10]   # accurate time for each sliprate
         crack_length = zeros(length(t_coseismic))
-
+        V = zeros(length(t_coseismic))
+        moment_rate = zeros(length(t_coseismic))
+        moment_acceleration = zeros(length(t_coseismic))
+        rupture_speed = zeros(length(t_coseismic))
         # find the timestep when sliprate first exceeds 1e-1 m/s
         for j = 2:N
             if maximum(value[:, j]) >= criteria               # 1e-1 m/s
@@ -65,6 +68,7 @@ function moment_release_example(sliprate, FltX, tStart, t, N, criteria, measure_
         end
         t_coseismic = t_coseismic .- t_coseismic[nn]
 
+        moment_before = 0
         # calculate the crack length
         for k = 2:length(t_coseismic)
             # measure the width of nucleation zone for each timestep
@@ -72,34 +76,82 @@ function moment_release_example(sliprate, FltX, tStart, t, N, criteria, measure_
             new_depth = FltX[indx:end][indx_nucleation]
             downdip_depth = maximum(new_depth)
             updip_depth = minimum(new_depth)
+            V[k] = maximum(value[:, k])
+            # expanding crack
             crack_length[k] = downdip_depth - updip_depth        # width of nucleation zone
+            rupture_speed[k] = (crack_length[k] - crack_length[k-1])/(t_coseismic[k] - t_coseismic[k-1])
+            # moment release: assuming that the rupture width is the same with rupture length
+            moment_rate[k] = 3.2e10 * (crack_length[k]*1000)^2 * mean(value[indx_nucleation, k])   # unit: Nm/s
+            moment_acceleration[k] = (moment_rate[k] - moment_rate[k-1])/(t_coseismic[k] - t_coseismic[k-1])
+            if k < nn
+                moment_before = moment_before + 0.5*(moment_rate[k] + moment_rate[k-1])*(t_coseismic[k] - t_coseismic[k-1])
+            end
         end
+        println("The moment released during nucleation phase(Nm):", moment_before)
+        println("The moment magnitude during nucleation phase(Nm):", log10(moment_before)/1.5-6.07)
 
         # plot slip rate profile
         # ax = fig.add_subplot(n-1, 1, i)
-        ax = fig.add_subplot(111)
+        ax = fig.add_subplot(211)
         # println(size(t[indx_last_int:indx_last_int + N]))
         # println(size(value))
         
-        ax.plot([-5, 5], [crack_length[nn], crack_length[nn]], color="black", label="measured nucleation size")
-        ax.scatter(t_coseismic[2:end], crack_length[2:end], color="red", label="crack length")        # plot every five steps
+        ax.plot(t_coseismic[2:end], crack_length[2:end], color="red", label="crack length")        # plot every five steps
+        ax.plot(0, crack_length[nn], "*",color="black", markersize=15, label="measured nucleation size")
         ax.set_xlabel("t(s)")
-        ax.set_ylim([0, 10])
+        ax.set_ylim([0, 15])
         ax.set_ylabel("Crack length(km)")
         ax.legend(loc="upper left")
 
-        col="tab:green"
+        col="tab:blue"
         ax2 = ax.twinx()
-        index_middle::Int = floor(size(sliprate)[1]/2)+1
-        print(index_middle)
-        ax2.plot(t_coseismic[2:end], value[index_middle, 2:end], color="green", label="Slip rate at the middle of nucleation zone")   
-        ax2.get_xaxis().set_tick_params(color=col)
-        ax2.tick_params(axis="x", labelcolor=col) 
+        # index_middle::Int = floor(size(sliprate)[1]/2)+1
+        # println(index_middle)
+        # ax2.plot(t_coseismic[2:end], value[index_middle, 2:end], color="green", label="slip rate at the middle of nucleation zone")    
+        # ax2.plot(t_coseismic[2:end], V[2:end], color="green", label="Maximum slip rate")    
+        # ax2.get_xaxis().set_tick_params(color=col)
+        # ax2.tick_params(axis="x", labelcolor=col) 
         # ax2.set_yscale("log")
-        ax2.set_ylim([1e-3,1e0])    
-        ax2.set_ylabel("Slip rate at the middle of nucleation zone(m/s)")
-        ax2.legend(loc="upper right")
+        # ax2.set_ylim([1e-4,1e0])    
+        # # ax2.set_ylabel("Slip rate at the middle of nucleation zone(m/s)")
+        # ax2.set_ylabel("Maximum slip rate(m/s)")
+        # ax2.legend(loc="upper right")
+
+        ax2.plot(t_coseismic[2:end], rupture_speed[2:end], "o",color=col, label="rupture speed", markersize=5)    
+        ax2.plot([minimum(t_coseismic), maximum(t_coseismic)], [3.464, 3.464], "k:", label="Vs(km/s)")  
+        ax2.plot([minimum(t_coseismic), maximum(t_coseismic)], [5.996, 5.996], "k:", label="Vp(km/s)")    
+        ax2.get_xaxis().set_tick_params(color=col)
+        ax2.tick_params(axis="x", labelcolor=col)   
+        # ax2.set_ylabel("Slip rate at the middle of nucleation zone(m/s)")
+        ax2.set_ylabel("Rupture speed(km/s)")
+        ax2.legend(loc="lower left")
+        ax2.set_ylim([0, 7])
+
+        # plot slip rate profile
+        # ax = fig.add_subplot(n-1, 1, i)
+        ax3 = fig.add_subplot(212)
+        # println(size(t[indx_last_int:indx_last_int + N]))
+        # println(size(value))
         
+        println("The maximum moment release rate(Nm/s) is:", maximum(moment_rate))        
+        ax3.plot(t_coseismic[2:end], moment_rate[2:end], color="red", label="moment rate")   
+        # ax3.plot(0, moment_rate[nn], "*", color="black", markersize=15, label="nucleation to propagation")      
+        ax3.set_xlabel("t(s)")
+        ax3.set_yscale("log")
+        # ax3.set_ylim([0, 10])
+        ax3.set_ylabel("Moment rate(Nm/s)")
+        ax3.legend(loc="upper left")
+
+        col="tab:blue"
+        ax4 = ax3.twinx()
+        ax4.plot(t_coseismic[2:end], moment_acceleration[2:end], "o",color=col, label="moment acceleration") 
+        # ax4.plot(0, moment_acceleration[nn], "*", color="black", markersize=15, label="Onset of rupture propagation")
+        ax4.plot([0, 0], [maximum(moment_acceleration), minimum(moment_acceleration)], color="black")
+        ax4.get_xaxis().set_tick_params(color=col)
+        ax4.tick_params(axis="x", labelcolor=col) 
+        ax4.set_yscale("log")
+        ax4.set_ylabel("Moment acceleartion(Nm/s^{2})")
+        ax4.legend(loc="lower left")
 
     end
     # println("Location and Full length of all seismic events' nucleation zone(km):", NS_width)

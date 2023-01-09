@@ -99,13 +99,15 @@ function main(P, alphaa, cos_reduction, coseismic_b)
     tau2::Vector{Float64} = zeros(P[1].FltNglob)
     tau3::Vector{Float64} = zeros(P[1].FltNglob)
 
-    # Initial state variable
+    # after earthquake, normal stress reduces and psi increase: how can normal stress influence state variable
+    
+    # Initial state variable psi = tau/sigma/b - f0/b - a*ln(V/V0)/b = ln(V0*theta/Dc)
     # log.(P[3].Vo.*theta./xLf)
 
-    # after earthquake, normal stress reduces and psi increase: how can normal stress influence state variable
     psi = P[3].tauo./(P[3].Seff.*P[3].ccb) - P[3].fo./P[3].ccb - (P[3].cca./P[3].ccb).*log.(2*v[P[4].iFlt]./P[3].Vo)
     #psi0 .= psi[:]
-    # which kind of solver to use
+
+    # which kind of solver to use at first
     isolver::Int = 1         # quasi-static
 
     # # Some more initializations
@@ -151,7 +153,7 @@ function main(P, alphaa, cos_reduction, coseismic_b)
     NFBC_a::Int64 = iFBC_a[end] + 1
     NFBC_b::Int64 = iFBC_b[1] - 1
     NFBC = [NFBC_a, NFBC_b]
-    println("Index of nodes in weakenign zone:", NFBC)
+    println("Index of nodes in weakening zone:", NFBC)
 
     Vf[iFBC] .= 0.             # set the initial fault slip rate (within creeping fault) to be zero
     v[P[4].FltIglobBC] .= 0.   # set the initial fault slip rate (within creeping fault) to be zero
@@ -288,13 +290,13 @@ function main(P, alphaa, cos_reduction, coseismic_b)
                 # there is no traction on creeping fault 
                 a[P[4].FltIglobBC] .= 0.       # for creeping fault, traction is zero 
 
-                # step4
-                tau1 .= -a[P[4].iFlt]./P[3].FltL
+                tau1 .= -a[P[4].iFlt]./P[3].FltL        # the change of shear stress due to prescribed displacement
                 
                 # step5
                 # Function to calculate on-fault sliprate on whole fault line
 
-                # note that slrFunc! depends on ccb
+                # note that slrFunc! depends on ccb           
+                # update the new state psi1
                 psi1, Vf1 = slrFunc!(P[3], NFBC, P[1].FltNglob, psi, psi1, Vf, Vf1, P[1].IDstate, tau1, dt)   # from other functions
                 
                 # step6: correct slip rate on the fault
@@ -306,7 +308,7 @@ function main(P, alphaa, cos_reduction, coseismic_b)
             end
             
             # update current state variable
-            psi .= psi1[:]
+            psi .= psi1[:]          # update the initial state
             tau .= tau1[:]
 
             # # creeping fault
@@ -392,7 +394,7 @@ function main(P, alphaa, cos_reduction, coseismic_b)
             Vf .= 2*vPre[P[4].iFlt] .+ P[2].Vpl
 
             # step4: find fault traction and slip velocity satisfying a friction law and the relation
-            # Sliprate and NR search
+            # Sliprate and NR search           NRsearch.jl
             psi1, Vf1, tau1, psi2, Vf2, tau2 = FBC!(P[1].IDstate, P[3], NFBC, P[1].FltNglob, psi1, Vf1, tau1, psi2, Vf2, tau2, psi, Vf, FltVfree, dt)
 
             # step5: add the fault boundary term to the sum of internal forces
