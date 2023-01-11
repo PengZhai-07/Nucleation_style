@@ -11,12 +11,12 @@ function FBC!(IDstate, P::params_farray, NFBC, FltNglob, psi1, Vf1, tau1, psi2, 
     for j = NFBC[1]: NFBC[2]
 
         tauNR = 0.
-        psi1[j] = IDS!(P.xLf[j], P.Vo[j], psi[j], dt, Vf[j], 1e-5, IDstate)          # state variable evolution
+        psi1[j] = IDS!(P.xLf[j], P.Vo[j], psi[j], dt, Vf[j], 1e-6, IDstate)          # state variable evolution
 
         Vf1[j], tau1[j] = NRsearch!(P.fo[j], P.Vo[j], P.cca[j], P.ccb[j], P.Seff[j],
                                     tauNR, P.tauo[j], psi1[j], P.FltZ[j], FltVfree[j])
     
-        if Vf1[j] > 1e5 || isnan(Vf1[j]) == 1 || isnan(tau1[j]) == 1         
+        if Vf1[j] > 1e10 || isnan(Vf1[j]) == 1 || isnan(tau1[j]) == 1         
             
             println("Fault Location = ", j)
             println(" Vf1 = ", Vf1[j])
@@ -32,7 +32,7 @@ function FBC!(IDstate, P::params_farray, NFBC, FltNglob, psi1, Vf1, tau1, psi2, 
         end
         
         # correct the state variable again!!
-        psi2[j] = IDS2!(P.xLf[j], P.Vo[j], psi[j], psi1[j], dt, Vf[j], Vf1[j], 1e-5, IDstate)
+        psi2[j] = IDS2!(P.xLf[j], P.Vo[j], psi[j], psi1[j], dt, Vf[j], Vf1[j], 1e-6, IDstate)
         
         # NRsearch 2nd loop: using new state variable psi2
         Vf2[j], tau2[j] = NRsearch!(P.fo[j], P.Vo[j], P.cca[j], P.ccb[j], P.Seff[j],
@@ -76,7 +76,7 @@ function NRsearch!(fo, Vo, cca, ccb, Seff, tau, tauo, psi, FltZ, FltVfree)
 
         Vf = Vo*(help1 - help2)         # calculate the slip rate first time
 
-        Vfprime = fact*(Vo/(cca*Seff))*(help1 + help2)       # Vf/(a*sigma)        ?? why it is "+" here?
+        Vfprime = fact*(Vo/(cca*Seff))*(help1 - help2)       # Vf/(a*sigma)        ?? why it is "+" here?
 
         delta = (FltZ*FltVfree - FltZ*Vf + tauo - tau)/(1 + FltZ*Vfprime)
 
