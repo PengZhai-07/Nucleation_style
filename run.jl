@@ -49,10 +49,10 @@ println("cos_b: ", coseismic_b)
 # 0.9604   0.9409   0.9216
 # 0.0396   0.0591   0.0784
 
-project = "wholespace"
+project = "wholespace/constant_b_0.7143"
 
 # Output directory to save data
-out_dir = "$(@__DIR__)/data/$(project)/$(FZdepth)_$(halfwidth)_$(res)_$(alpha)_$(cos_reduction)_$(multiple)_$(Domain)_$(coseismic_b)/"    
+out_dir = "$(@__DIR__)/data/$(project)/$(FZdepth)_$(halfwidth)_$(res)_$(alpha)_$(cos_reduction)_$(multiple)_$(Domain)_$(coseismic_b)_$(Lc)/"    
 
 # # clean old files 
 # if isdir(out_dir)
