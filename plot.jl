@@ -10,7 +10,7 @@
 # FILE = "20000.0_1500.0_8_0.85_0.05_4.0"   # normal stress testing
 #FILE = "20000.0_500.0_20_0.85_0.05_5.0"   # resolution testing
 
-FILE = "0_500_8_0.8_0.0_4_0.75_0.021"             # wholespace
+FILE = "0_500_16_0.8_0.0_4_0.75_0.021"             # wholespace
 #FILE = "20000_500_8_0.8_0.0_4_1.0_0.023"     # Ru number testing: no healing
 #FILE = "20000_500_12_0.5_0.0_5_1.0_smooth_0.23"
 include("analyze_results.jl")     
@@ -24,31 +24,31 @@ criteria = 1e-1    # seismic threshold to measure the nucleation size
 measure_threshold = 1e-3    # where measure the width of nucleation zone: 1e-7m/s for 
                             # constant weakening(expanding crack) and 1e-3m/s for fixed length patch
 
-moment_release_example(sliprate', FltX, tStart, t, N_timestep, criteria, measure_threshold)       
+# moment_release_example(sliprate', FltX, tStart, t, N_timestep, criteria, measure_threshold)       
                      
-# Nucleation_example(sliprate', FltX, tStart, t, N_timestep, criteria, measure_threshold)    # only plot the last seismic event
+Nucleation_example(sliprate', FltX, tStart, t, N_timestep, criteria, measure_threshold)    # only plot the last seismic event
 
-# NS_width = Nucleation(sliprate', FltX, tStart, t, N_timestep, criteria, measure_threshold)
+NS_width = Nucleation(sliprate', FltX, tStart, t, N_timestep, criteria, measure_threshold)
 
-# open(string(path,"nucleation info.out"), "w") do io
-#     for i = 1: size(NS_width)[1]
-#         write(io, join(NS_width[i,:], " "), "\n") 
-#     end
-# end
+open(string(path,"nucleation info.out"), "w") do io
+    for i = 1: size(NS_width)[1]
+        write(io, join(NS_width[i,:], " "), "\n") 
+    end
+end
 
-# # max slip rate versus timestep
-# VfmaxPlot(Vfmax, N, t)
+# max slip rate versus timestep
+VfmaxPlot(Vfmax, N, t)
 
-# # culmulative slip
-# cumSlipPlot(delfsec[1:4:end,:], delfyr[1:end, :], FltX, hypo, d_hypo, N);
-# # cumSlipPlot_no_hypocenter(delfsec[1:4:end,:], delfyr[1:end, :], FltX);
+# culmulative slip
+cumSlipPlot(delfsec[1:4:end,:], delfyr[1:end, :], FltX, hypo, d_hypo, N);
+# cumSlipPlot_no_hypocenter(delfsec[1:4:end,:], delfyr[1:end, :], FltX);
 
-# # healing analysis: Vfmax and regidity ratio vs. time
-# healing_analysis(Vfmax, alphaa, t, yr2sec)
+# healing analysis: Vfmax and regidity ratio vs. time
+healing_analysis(Vfmax, alphaa, t, yr2sec)
 
-# # slip rate vs timesteps
-# # how many years to plot
-# eqCyclePlot(sliprate', FltX, N, t)
+# slip rate vs timesteps
+# how many years to plot
+eqCyclePlot(sliprate', FltX, N, t)
 
 
 # # # plot the variation of apparent stress

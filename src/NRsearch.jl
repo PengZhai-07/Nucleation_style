@@ -51,14 +51,17 @@ function NRsearch!(fo, Vo, cca, ccb, Seff, tau, tauo, psi, FltZ, FltVfree)
 
     # psi maybe psi1 or psi2
 
-    Vw = 1e10
-    fact = 1. + (Vo/Vw)*exp(-psi)            # this is a number which is very close to 1
+    # limit direct effect by limiting the slip velocity
+    Vw = 1e10       # Vlimit
+
+    fact = 1. + (Vo/Vw)*exp(-psi)      # fact = 1 + L/(Vw*theta)    # this is a number which is very close to 1
     fa::BigFloat = 0.
     help1::BigFloat = 0.
     help2::BigFloat = 0.
     delta::BigFloat = 0.
 
     # NR search point by point for tau if Vf < Vlimit
+
     eps = 0.001*cca*Seff
     k = 0
     delta = Inf
@@ -73,7 +76,7 @@ function NRsearch!(fo, Vo, cca, ccb, Seff, tau, tauo, psi, FltZ, FltVfree)
 
         Vf = Vo*(help1 - help2)         # calculate the slip rate first time
 
-        Vfprime = fact*(Vo/(cca*Seff))*(help1 - help2)
+        Vfprime = fact*(Vo/(cca*Seff))*(help1 + help2)       # Vf/(a*sigma)        ?? why it is "+" here?
 
         delta = (FltZ*FltVfree - FltZ*Vf + tauo - tau)/(1 + FltZ*Vfprime)
 
