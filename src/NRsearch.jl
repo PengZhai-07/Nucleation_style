@@ -51,9 +51,8 @@ function NRsearch!(fo, Vo, cca, ccb, Seff, tau, tauo, psi, FltZ, FltVfree)
 
     # psi maybe psi1 or psi2
 
-    # limit direct effect by limiting the slip velocity
-    Vw = 1e10       # Vlimit
-
+    Vw = 1e10       
+    
     fact = 1. + (Vo/Vw)*exp(-psi)      # fact = 1 + L/(Vw*theta)    # this is a number which is very close to 1
     fa::BigFloat = 0.
     help1::BigFloat = 0.
