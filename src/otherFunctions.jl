@@ -83,7 +83,7 @@ function slrFunc!(P::params_farray, NFBC, FltNglob, psi, psi1, Vf, Vf1, IDstate,
         # compute sliprate from a friction law together with total shear stress 
         fa = tauAB[j]/(P.Seff[j]*P.cca[j])      # tau_total/(a*sigma)
 
-        help = -(P.fo[j] + P.ccb[j]*psi1[j])/P.cca[j]
+        help = -(P.fo[j] + P.ccb[j]*psi1[j])/P.cca[j]            # psi1 should not be changed!!
 
         # help = -(P.fo[j] + P.ccb[j]*psi1[j])/P.cca[j]
         help1 = exp(help + fa)

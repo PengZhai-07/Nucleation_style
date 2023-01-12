@@ -10,12 +10,12 @@
 # FILE = "20000.0_1500.0_8_0.85_0.05_4.0"   # normal stress testing
 #FILE = "20000.0_500.0_20_0.85_0.05_5.0"   # resolution testing
 
-FILE = "0_500_16_0.8_0.0_4_0.75_0.021"             # wholespace
+FILE = "0_500_8_0.8_0.0_4_0.75_0.021_0.02"             # wholespace
 #FILE = "20000_500_8_0.8_0.0_4_1.0_0.023"     # Ru number testing: no healing
 #FILE = "20000_500_12_0.5_0.0_5_1.0_smooth_0.23"
 include("analyze_results.jl")     
 
-# # total years to plots
+# # total years to plotss
 N = 500
 
 # calculate the nucleation size and plot the nucleation process

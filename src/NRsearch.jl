@@ -76,8 +76,12 @@ function NRsearch!(fo, Vo, cca, ccb, Seff, tau, tauo, psi, FltZ, FltVfree)
 
         Vf = Vo*(help1 - help2)         # calculate the slip rate first time
 
-        Vfprime = fact*(Vo/(cca*Seff))*(help1 - help2)       # Vf/(a*sigma)        ?? why it is "+" here?
+        # Vfprime is the first derivative of Vf to the traction(shear stress tau)
+        Vfprime = fact*(Vo/(cca*Seff))*(help1 + help2)      
 
+        # Our target function is (FltZ*FltVfree - FltZ*Vf + tauo - tau), 
+        # which is a function of shear stress(traction): tau
+        # 
         delta = (FltZ*FltVfree - FltZ*Vf + tauo - tau)/(1 + FltZ*Vfprime)
 
         # (FltZ * FltVfree + tauo - tau) should be zero, then 
