@@ -13,8 +13,8 @@
 #SBATCH --time=14-00:00:00
 #SBATCH --partition=standard
 
-## SBATCH --account=yiheh1
-#SBATCH --account=lsa3
+#SBATCH --account=yiheh1
+##SBATCH --account=lsa3
 #SBATCH --ntasks-per-node=8 
 
 # The application(s) to execute along with its input arguments and options:

@@ -425,7 +425,7 @@ function main(P, alphaa, cos_reduction, coseismic_b)
         Vfmax = 2*maximum(v[P[4].iFlt]) .+ P[2].Vpl   # background plate motion rate: P[2].Vpl
 
 # velocity dependent b (evolution effect)
-        b_initial = 0.021
+        b_initial = coseismic_b
         if t > 1*P[1].yr2sec
 
             if  Vfmax <= 1e-5          

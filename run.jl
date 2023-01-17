@@ -18,7 +18,7 @@ include("$(@__DIR__)/par.jl")	    #	Set Parameters
 
 # Put the resolution for the simulation here: should be an integer
 
-res::Int = 8    # resolution of mesh
+res::Int = 16    # resolution of mesh
 Domain = 0.75    # amplify factor of the domain size, the current domain size is 30km*24km for 0.75 domain size
 
 # 4: 301 GLL nodes, average 100m on fault  
