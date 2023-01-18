@@ -111,7 +111,7 @@ scatter(P(:,1),P(:,2) ,'*','r' )
 
 % title([num2str(H)])
 %% 
-export_fig -dpng -r600 Nucleation_size_phase_diagram_b_L_universal
+% export_fig -dpng -r600 Nucleation_size_phase_diagram_b_L_universal
 
 %% output the bash script for sbatch in Great lakes
 
@@ -119,18 +119,22 @@ export_fig -dpng -r600 Nucleation_size_phase_diagram_b_L_universal
 fid  = fopen('./whole_space.sh','wt');%
 fprintf(fid,'#!/bin/bash\n\n');    
 [u, v] = size(P);
-N = 100;
-nn = 4;  % number of processors
- for i= 1:u
-    fprintf(fid,'#SBATCH --nodes=1\n');
-    fprintf(fid,'#SBATCH --mem=20000m\n');
-    fprintf(fid,'#SBATCH --time=14-00:00:00\n');
-    fprintf(fid,'#SBATCH --partition=standard\n');
-    fprintf(fid,'#SBATCH --account=yiheh1\n');
-    fprintf(fid,['#SBATCH --ntasks-per-node=',num2str(nn),'\n']);
-    fprintf(fid,['#SBATCH --job-name=case',num2str(N+i),'\n']);
-    fprintf(fid,'#SBATCH --output=/home/%%u/log/%%x-%%j.log\n');
-    fprintf(fid,'#SBATCH --error=/home/%%u/log/error-%%x-%%j.log\n');
-    fprintf(fid,['julia --threads ',num2str(nn),' run.jl 0.8 500 ',num2str(P(i,3)),' 4 0.00 ',num2str(P(i,4)),'\n\n']);
- end
+N = 133;
+NN = 2; % 9 task per node: 4*9=36 
+nn = 4;  % number of processors for each node
+
+fprintf(fid,['#SBATCH --array=',num2str(N),'-',num2str(N+NN-1),'\n']);
+fprintf(fid,'#SBATCH --nodes=1\n');   % only one node because current MPI doesn't work
+fprintf(fid,'#SBATCH --mem=20000m\n'); 
+fprintf(fid,'#SBATCH --time=14-00:00:00\n');
+fprintf(fid,'#SBATCH --partition=standard\n');
+fprintf(fid,'#SBATCH --account=yiheh1\n');   
+fprintf(fid,['#SBATCH --ntasks-per-node=',num2str(nn),'\n']);    % multitask(openmp)
+fprintf(fid,'#SBATCH --job-name=case');
+fprintf(fid,'#SBATCH --output=/home/%%u/log/%%x-%%j.log\n');
+fprintf(fid,'#SBATCH --error=/home/%%u/log/error-%%x-%%j.log\n\n');
+
+
+fprintf(fid,['srun julia --threads ',num2str(nn),' run.jl 0.8 500 ',num2str(P(i,3)),' 4 0.00 ',num2str(P(i,4)),'\n']);
+fprintf(fid,['srun julia --threads ',num2str(nn),' run.jl 0.8 500 ',num2str(P(i,3)),' 4 0.00 ',num2str(P(i,4)),'\n']);
    
