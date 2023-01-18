@@ -5,6 +5,7 @@ close all
 figure(1)
 set(0,'defaultfigurecolor','w')
 set(gcf,'Position',[20 20 800 400]);%左下角位置，宽高
+%%
 gamma = pi/4;  % empirical constant parameter 
 mu = 3.20e10;  % Pa 
 sigma = 40e6;  % Pa
