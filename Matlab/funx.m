@@ -15,4 +15,3 @@ function fx = funx(h_lay,)
     fx = h_lay*tanh(2*H*gamma/h_lay+atanh(mu_D/mu)) - h_hom;
 end
 
-

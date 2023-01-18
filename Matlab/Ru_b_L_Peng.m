@@ -116,7 +116,7 @@ export_fig -dpng -r600 Nucleation_size_phase_diagram_b_L_universal
 %% output the bash script for sbatch in Great lakes
 
 %%
-fid  = fopen('./whole_space.sh.','wt');%
+fid  = fopen('./whole_space.sh','wt');%
 fprintf(fid,'#!/bin/bash\n\n');    
 [u, v] = size(P);
 N = 100;
@@ -133,4 +133,4 @@ nn = 4;  % number of processors
     fprintf(fid,'#SBATCH --error=/home/%%u/log/error-%%x-%%j.log\n');
     fprintf(fid,['julia --threads ',num2str(nn),' run.jl 0.8 500 ',num2str(P(i,3)),' 4 0.00 ',num2str(P(i,4)),'\n\n']);
  end
-    
+   
