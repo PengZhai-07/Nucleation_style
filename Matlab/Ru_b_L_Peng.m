@@ -133,10 +133,26 @@ fprintf(fid,['#SBATCH --job-name=case',num2str(N),'_',num2str(N+u-1),'\n']);
 fprintf(fid,'#SBATCH --output=/home/%%u/log/%%x-%%j.log\n');
 fprintf(fid,'#SBATCH --error=/home/%%u/log/error-%%x-%%j.log\n\n');
 
+
+% information about output path
+project = "wholespace/phase_diagram_L_b/";
+FZdepth = "0_";
+halfwidth = "500_";
+res = "16_";
+alpha = "0.8_";
+cos_reduction = "0.0_";
+multiple = "4_";
+Domain = "0.75_";
+coseismic_b = "0.03_";
+Lc = "0.012";
+current_Folder = pwd;
+
 for i = 1:u
     fprintf(fid,['julia --threads ',num2str(nn),' run.jl 0.8 500 ',num2str(P(i,3)),' 4 0.00 ',num2str(P(i,4)),'\n']);
+    out_dir = strcat(current_Folder,"/../data/",project,FZdepth,halfwidth,res,alpha,cos_reduction,multiple,Domain,num2str(P(i,4)),'_',num2str(P(i,3)));
+    mkdir(out_dir)
 end
-   
+
 fclose(fid);
 
 

@@ -59,7 +59,7 @@ out_dir = "$(@__DIR__)/data/$(project)/$(FZdepth)_$(halfwidth)_$(res)_$(alpha)_$
 #     rm(out_dir, recursive = true)
 # end
 
-mkpath(out_dir)
+# mkpath(out_dir)
 
 P = setParameters(FZdepth, halfwidth, res, T, alpha, multiple, Lc, Domain)   
 # println(size(P[4].FltNI))   # total number of off-fault GLL nodes
