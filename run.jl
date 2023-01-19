@@ -17,7 +17,6 @@ using Base.Threads
 include("$(@__DIR__)/par.jl")	    #	Set Parameters
 
 # Put the resolution for the simulation here: should be an integer
-
 res::Int = 16    # resolution of mesh
 Domain = 0.75    # amplify factor of the domain size, the current domain size is 30km*24km for 0.75 domain size
 
@@ -26,16 +25,20 @@ Domain = 0.75    # amplify factor of the domain size, the current domain size is
 # 16: 1201 GLL nodes, average 25m on fault
 
 T::Int = 500    # total simulation years 
-
 FZdepth::Int = 0e3   # depth of lower boundary of damage zone  unit: m     20km is the maximum depth
 
+# read the model parameters from whole_space.csv
+index::Int = parse(Float64,ARGS[1])   
+println(index)
 # note the sequence of all imput parameters
-alpha = parse(Float64,ARGS[1])   # initial(background) rigidity ratio: fault zone/host rock
-halfwidth::Int = parse(Float64, ARGS[2])   # half width of damage zone   unit:m
-Lc= parse(Float64, ARGS[3])  # characteristic slip distance      unit:m
-multiple::Int = parse(Float64, ARGS[4])# effective normal stress on fault: 10MPa*multiple
-cos_reduction = parse(Float64, ARGS[5])    # coseismic rigidity reduction 
-coseismic_b = parse(Float64, ARGS[6])    # coseismic b increase 
+input_parameter = readdlm("$(@__DIR__)/whole_space.txt", ',',  header=false)
+
+alpha = input_parameter[index,1]   # initial(background) rigidity ratio: fault zone/host rock
+halfwidth::Int =  input_parameter[index,2]   # half width of damage zone   unit:m
+Lc= input_parameter[index,3]  # characteristic slip distance      unit:m
+multiple::Int = input_parameter[index,4]  # effective normal stress on fault: 10MPa*multiple
+cos_reduction = input_parameter[index,5]    # coseismic rigidity reduction 
+coseismic_b = input_parameter[index,6]   # coseismic b increase 
 
 println("doamin size: ",Domain)   # default is 40km*32km
 println("rigidity ratio of damage zone: ",alpha)
@@ -54,12 +57,14 @@ project = "wholespace/phase_diagram_L_b"
 # Output directory to save data
 out_dir = "$(@__DIR__)/data/$(project)/$(FZdepth)_$(halfwidth)_$(res)_$(alpha)_$(cos_reduction)_$(multiple)_$(Domain)_$(coseismic_b)_$(Lc)/"    
 
-# # clean old files 
-# if isdir(out_dir)
-#     rm(out_dir, recursive = true)
-# end
+# clean old files 
+if isdir(out_dir)
+    rm(out_dir, recursive = true)
+end
 
-# mkpath(out_dir)
+# To submit tens of jobs at a time(using jobarray of slurm), I need to generate the corresponding directories in advance
+# See those scripts under Matlab directory
+mkpath(out_dir)      
 
 P = setParameters(FZdepth, halfwidth, res, T, alpha, multiple, Lc, Domain)   
 # println(size(P[4].FltNI))   # total number of off-fault GLL nodes
