@@ -31,7 +31,7 @@ FZdepth::Int = 0e3   # depth of lower boundary of damage zone  unit: m     20km 
 index::Int = parse(Float64,ARGS[1])   
 println(index)
 # note the sequence of all imput parameters
-input_parameter = readdlm("$(@__DIR__)/whole_space.txt", ',',  header=false)
+input_parameter = readdlm("$(@__DIR__)/whole_space_1.txt", ',',  header=false)
 
 alpha = input_parameter[index,1]   # initial(background) rigidity ratio: fault zone/host rock
 halfwidth::Int =  input_parameter[index,2]   # half width of damage zone   unit:m
@@ -52,10 +52,11 @@ println("cos_b: ", coseismic_b)
 # 0.9604   0.9409   0.9216
 # 0.0396   0.0591   0.0784
 
+turbo = "nfs/turbo/lsa-yiheh/yiheh-mistorage/pengz/data"
 project = "wholespace/phase_diagram_L_b"
 
 # Output directory to save data
-out_dir = "$(@__DIR__)/data/$(project)/$(FZdepth)_$(halfwidth)_$(res)_$(alpha)_$(cos_reduction)_$(multiple)_$(Domain)_$(coseismic_b)_$(Lc)/"    
+out_dir = "$(turbo)/$(project)/$(FZdepth)_$(halfwidth)_$(res)_$(alpha)_$(cos_reduction)_$(multiple)_$(Domain)_$(coseismic_b)_$(Lc)/"    
 
 # clean old files 
 if isdir(out_dir)

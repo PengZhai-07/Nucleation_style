@@ -4,7 +4,7 @@ include("$(@__DIR__)/post/event_details.jl")
 include("$(@__DIR__)/post/plotting_script.jl")
 
 # project = "wholespace/variant"
-project = "wholespace/constant_b_0.7143"
+project = "wholespace/phase_diagram_L_b"
 
 # path to save files
 global path = "$(@__DIR__)/plots/$(project)/$(FILE)/"
@@ -16,7 +16,11 @@ global path = "$(@__DIR__)/plots/$(project)/$(FILE)/"
 
 mkpath(path)
 
-# global out_path = "$(@__DIR__)/data/$(FILE)/"
+# data storage path
+
+turbo = "nfs/turbo/lsa-yiheh/yiheh-mistorage/pengz/data"
+project = "wholespace/phase_diagram_L_b"
+# global out_path = "$(turbo)/$(project)/$(FILE)/"
 global out_path = "$(@__DIR__)/data/$(project)/$(FILE)/"
 
 # Global variables

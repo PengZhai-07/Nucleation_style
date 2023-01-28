@@ -44,7 +44,7 @@ function moment_release_example(sliprate, FltX, tStart, t, N, criteria, measure_
     fig = PyPlot.figure(figsize=(10, 8))
     # for i = 1: n-1 
     
-    for i = n-1        # plot the i_th normal earthquake(third event): choose by yourself    if i=n-1, then plot the last one!!
+    for i = n-2        # plot the i_th normal earthquake(third event): choose by yourself    if i=n-1, then plot the last one!!
         #println("Time of the last seismic event(s):",tStart[end])
         indx_last = findall(t .<= tStart[i+1])[end]   
         indx_last_int::Int = floor(indx_last/10)
@@ -63,6 +63,7 @@ function moment_release_example(sliprate, FltX, tStart, t, N, criteria, measure_
         for j = 2:N
             if maximum(value[:, j]) >= criteria               # 1e-1 m/s
                 nn = j
+                println("The maximum sliprate is over 0.1m/s")
                 break
             end
         end
@@ -155,7 +156,7 @@ function moment_release_example(sliprate, FltX, tStart, t, N, criteria, measure_
 
     end
     # println("Location and Full length of all seismic events' nucleation zone(km):", NS_width)
-    show()
+    # show()
     figname = string(path, "moment_release_example.png")
     fig.savefig(figname, dpi = 300)
 end
@@ -217,7 +218,7 @@ function Nucleation(sliprate, FltX, tStart, t, N, criteria, measure_threshold)
         ax.set_title(title)
     end
     # println("Location and Full length of all seismic events' nucleation zone(km):", NS_width)
-    show()
+    # show()
     figname = string(path, "sliprate_time_nucleation_alone.png")
     fig.savefig(figname, dpi = 300)
     return NS_width
@@ -289,7 +290,7 @@ function Nucleation_example(sliprate, FltX, tStart, t, N, criteria, measure_thre
         ax.set_title(title)
     end
     # println("Location and Full length of all seismic events' nucleation zone(km):", NS_width)
-    show()
+    # show()
     figname = string(path, "sliprate_time_nucleation_example.png")
     fig.savefig(figname, dpi = 300)
 end
@@ -472,7 +473,7 @@ function VfmaxPlot(Vfmax, N, t)
     ax.set_ylabel("Max. Slip rate (m/s)")
     ax.set_yscale("log")
     ax.set_ylim([1e-10,1e2])
-    show()
+    # show()
     
     figname = string(path, "Vfmax.png")
     fig.savefig(figname, dpi = 300)
@@ -516,7 +517,7 @@ function eqCyclePlot(sliprate, FltX, N, t)
     cbar = fig.colorbar(c, label = "Slip rate(m/s)")
     #   cbar.set_ticks(cbar.get_ticks()[1:2:end])
     
-    show()
+    # show()
     figname = string(path, "sliprate_time.png")
     fig.savefig(figname, dpi = 600)
     
@@ -578,7 +579,7 @@ function healing_analysis(Vf, alphaa, t, yr2sec)
     ax2.tick_params(axis="x", labelcolor=col)
 
     #  ax.legend([lab1, lab2], loc=0)
-    show()
+    # show()
     
     figname = string(path, "healing_analysis.png")
     fig.savefig(figname, dpi = 300)
@@ -661,7 +662,7 @@ function cumSlipPlot(delfsec, delfyr, FltX, hypo, d_hypo, N, )
     #ax.set_xlim([0,9.0])
     ax.invert_yaxis()
 
-    show()
+    # show()
     
     figname = string(path, "cumulative_slip.png")
     fig.savefig(figname, dpi = 300)
