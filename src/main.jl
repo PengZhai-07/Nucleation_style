@@ -119,7 +119,7 @@ function main(P, alphaa, cos_reduction, coseismic_b)
     F::Vector{Float64} = zeros(P[1].nglob)
     dPre::Vector{Float64} = zeros(P[1].nglob)
     vPre::Vector{Float64} = zeros(P[1].nglob)
-    dd::Vector{Float64} = zeros(P[1].nglob)
+    d::Vector{Float64} = zeros(P[1].nglob)
     dnew::Vector{Float64} = zeros(length(P[4].FltNI))  # save displacements for off-fault GLL nodes
 
     # Save output variables at certain timesteps: define output frequency
@@ -205,6 +205,7 @@ function main(P, alphaa, cos_reduction, coseismic_b)
     # Open files to begin writing
     open(string(out_dir,"stress.out"), "w") do stress    # shear stress 
     open(string(out_dir,"sliprate.out"), "w") do sliprate   # fault sliprate (Vpl+sliprate controlled by RSF)
+    open(string(out_dir,"weakeningrate.out"), "w") do weakeningrate   # fault sliprate (Vpl+sliprate controlled by RSF)
     #open(string(out_dir,"slip.out"), "w") do slip   
     open(string(out_dir,"delfsec.out"), "w") do dfsec   # cultivate displacement(coseismic)
     open(string(out_dir,"delfsec_each_timestep.out"), "w") do dfsec_et   # cultivate displacement(coseismic)
@@ -578,9 +579,10 @@ function main(P, alphaa, cos_reduction, coseismic_b)
             #  println("Vfmax = ", maximum(current_sliprate))
         end
 
-        # Write stress, sliprate, slip to file every 5 timesteps
+        # Write stress, sliprate, slip to file every 10 timesteps
         if mod(it,10) == 0
             write(sliprate, join(2*v[P[4].iFlt] .+ P[2].Vpl, " "), "\n")
+            write(weakeningrate, join(exp(psi), " "), "\n")
             write(stress, join((tau + P[3].tauo)./1e6, " "), "\n")
         end
 
