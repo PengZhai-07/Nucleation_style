@@ -1,7 +1,7 @@
 #!/bin/bash
 
-#SBATCH --job-name=case247
-#SBATCH --array=1
+#SBATCH --job-name=case251
+#SBATCH --array=19
 
 ##SBATCH --mail-user=pengzhai@umich.edu
 ##SBATCH --mail-type=FAIL,ARRAY_TASKS
@@ -9,7 +9,7 @@
 ##SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=36
 
-#SBATCH --mem=40000m
+#SBATCH --mem=100000m
 #SBATCH --time=14-00:00:00
 #SBATCH --partition=standard
 #SBATCH --account=yiheh1

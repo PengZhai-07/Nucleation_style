@@ -5,16 +5,16 @@
 using DelimitedFiles
 
 # Universal parameter
-res::Int = 16    # resolution of mesh
+res = 16    # resolution of mesh
 Domain = 0.75    # amplify factor of the domain size, the current domain size is 30km*24km for 0.75 domain size
-T::Int = 500    # total simulation years 
-FZdepth::Int = 0e3   # depth of lower boundary of damage zone  unit: m     20km is the maximum depth
+T = 500    # total simulation years 
+FZdepth = 0   # depth of lower boundary of damage zone  unit: m     20km is the maximum depth
 
 # other input parameter
-input_parameter = readdlm("$(@__DIR__)/whole_space.txt", ',',  header=false)
+input_parameter = readdlm("$(@__DIR__)/whole_space_1.txt", ',',  header=false)
 a = size(input_parameter)[1]
 
-for index = 7:30
+for index = 58
     alpha = input_parameter[index,1]   # initial(background) rigidity ratio: fault zone/host rock
     halfwidth::Int =  input_parameter[index,2]   # half width of damage zone   unit:m
     Lc= input_parameter[index,3]  # characteristic slip distance      unit:m
@@ -30,12 +30,12 @@ for index = 7:30
     N = 500           
 
     # calculate the nucleation size and plot the nucleation process
-    N_timestep = 1000      # time steps to use in sliprate
+    N_timestep = 2000      # time steps to use in sliprate
     criteria = 1e-1    # seismic threshold to measure the nucleation size
     measure_threshold = 1e-3    # where measure the width of nucleation zone: 1e-7m/s for 
                                 # constant weakening(expanding crack) and 1e-3m/s for fixed length patch
 
-    moment_release_example(sliprate', FltX, tStart, t, N_timestep, criteria, measure_threshold)       
+    # moment_release_example(sliprate', FltX, tStart, t, N_timestep, criteria, measure_threshold)       
                         
     Nucleation_example(sliprate', FltX, tStart, t, N_timestep, criteria, measure_threshold)    # only plot the last seismic event
 

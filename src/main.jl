@@ -12,6 +12,7 @@
 #
 ###############################################################################
 
+
 # Healing exponential function
 function healing2(t,tStart,dam, cos_reduction)
     """ hmax: coseismic damage amplitude
@@ -37,6 +38,7 @@ function healing2(t,tStart,dam, cos_reduction)
 end
 
 function main(P, alphaa, cos_reduction, coseismic_b)
+
     # please refer to par.jl to see the specific meaning of P
     # P[1] = integer  Nel, FltNglob, yr2sec, Total_time, IDstate, nglob
     # P[2] = float    ETA, Vpl, Vthres, Vevne, dt
@@ -119,7 +121,6 @@ function main(P, alphaa, cos_reduction, coseismic_b)
     F::Vector{Float64} = zeros(P[1].nglob)
     dPre::Vector{Float64} = zeros(P[1].nglob)
     vPre::Vector{Float64} = zeros(P[1].nglob)
-    d::Vector{Float64} = zeros(P[1].nglob)
     dnew::Vector{Float64} = zeros(length(P[4].FltNI))  # save displacements for off-fault GLL nodes
 
     # Save output variables at certain timesteps: define output frequency
@@ -580,9 +581,9 @@ function main(P, alphaa, cos_reduction, coseismic_b)
         end
 
         # Write stress, sliprate, slip to file every 10 timesteps
-        if mod(it,10) == 0
+        if mod(it,1) == 0
             write(sliprate, join(2*v[P[4].iFlt] .+ P[2].Vpl, " "), "\n")
-            write(weakeningrate, join(exp(psi), " "), "\n")
+            write(weakeningrate, join(psi, " "), "\n")
             write(stress, join((tau + P[3].tauo)./1e6, " "), "\n")
         end
 
@@ -612,6 +613,7 @@ function main(P, alphaa, cos_reduction, coseismic_b)
 
     # close files
 # end of writing data into files
+end
 end
 end
 end

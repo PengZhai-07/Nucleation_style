@@ -71,7 +71,7 @@ function get_index(t, tStart, tEnd)     # get the index of time when earthquake 
     for i = 1 : length(tStart[:,1])       # number of seismic events
         temp_start = findall(t .<= tStart[i])[end]   
         temp_end = findall(t .<= tEnd[i])[end]
-        indx_start[i]= floor(temp_start/10)
+        indx_start[i]= floor(temp_start/10)          # output every 10 timesteps
         indx_end[i] = floor(temp_end/10)
     end
     return indx_start, indx_end

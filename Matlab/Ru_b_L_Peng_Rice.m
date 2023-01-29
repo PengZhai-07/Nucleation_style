@@ -26,19 +26,19 @@ for i = 1:length(b)
     for j = 1:length(L)   
         for k = 1:length(H)
             syms y
-            exp = y*tanh(2*gamma*H(k)/y+atanh(mu_D/mu)) -...
-               2/pi*mu_D*L(j)*b(i)/sigma/(b(i)-a)^2;
+%             exp = y*tanh(2*gamma*H(k)/y+atanh(mu_D/mu)) -...
+%                2/pi*mu_D*L(j)*b(i)/sigma/(b(i)-a)^2;
 %                 exp = y*tanh(2*gamma*H(k)/y+atanh(mu_D(i)/mu)) -...
 %                  pi/4*mu_D(i)*L(j)/sigma/(b-a);
-%                exp = 1/y*tanh(2*H(k)*gamma/W*y+atanh(mu_D/mu)) -...
-%                        mu_D*L(j)/sigma/(a/a_b(i)-a)/W;    % without pi/4? 
+               exp = 1/y*tanh(2*H(k)*gamma/W*y+atanh(mu_D/mu)) -...
+                       mu_D*L(j)/sigma/(a/a_b(i)-a)/W;    % without pi/4? 
             y = double(vpasolve(exp,[0,1000000000]));
 %             if ( 2<= y) && (y<= 3)
-%             if ( 2 <= y) && (y <= 30)
-%                 m = m+1;
-%                 P(m,:) = [log10(L(j)*1000), a_b(i), L(j),b(i)];
-%             end
-            Ru(i,j,k) = W/y;
+            if ( 2 <= y) && (y <= 30)
+                m = m+1;
+                P(m,:) = [log10(L(j)*1000), a_b(i), L(j),b(i)];
+            end
+            Ru(i,j,k) = y;
             Cohesive(i,j,k) = (9*pi/32)*mu_D*r*L(j)/b(i)./sigma;
 %            Ru(i,j,k) = W/(mu_D*L(j)/sigma/(b(i)-a));
         end
@@ -47,9 +47,9 @@ end
 % Ru = W./NS;
 [Y,X] = meshgrid(a_b, log10(L*1000));
 % A = pcolor(X,Y,Ru');
-% v = [2,3,7.5,18.35,56.4,88];
+v = [2,3,7.5,18.35,56.4,88];
 % v = [2,3,5,10,15,20,30,40,50,60,70,80,100,200,400];
-v = [0.01, 0.1, 1, 4,10, 100];
+% v = [0.01, 0.1, 1,10, 100];
 figure(1)
 set(0,'defaultfigurecolor','w')
 set(gcf,'Position',[20 20 800 400]);%左下角位置，宽高
@@ -69,9 +69,8 @@ clabel(c,h,v)
 xlabel('Characteristic weakening distance(mm)')
 ylabel('a/b')
 box on
-load("Experiment_point.mat")
 scatter(P(:,1),P(:,2) ,'*','k' )
-% cohesive zone size
+save("Experiment_point.mat",'P')
 
 %%
 % yy = a./[0.018,0.019,0.020,0.021,0.022,0.023,0.025,0.027,0.029, 0.031];
@@ -122,7 +121,7 @@ scatter(P(:,1),P(:,2) ,'*','k' )
 
 % title([num2str(H)])
 %% 
-export_fig -dpng -r600 Nucleation_size_phase_diagram_b_L_Rubin_Ampuero
+export_fig -dpng -r600 Nucleation_size_phase_diagram_b_L_Rice
 
 %% output the bash script for sbatch in Great lakes
 
