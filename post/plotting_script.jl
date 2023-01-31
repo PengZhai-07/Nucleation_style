@@ -46,7 +46,7 @@ function moment_release_example(sliprate, FltX, tStart, t, N, criteria, measure_
     
     for i = n-3        # plot the i_th normal earthquake(third event): choose by yourself    if i=n-1, then plot the last one!!
         #println("Time of the last seismic event(s):",tStart[end])
-        indx_last = findall(t .<= tStart[i+1])[end]   
+        indx_last = findall(t[:] .<= tStart[i+1])[end]   
         indx_last_int::Int = floor(indx_last/10)
         #println("Index of timestep in sliprate(output every 10) at the beginning of last seismic event:", indx_last_int)
 
@@ -71,7 +71,7 @@ function moment_release_example(sliprate, FltX, tStart, t, N, criteria, measure_
 
         moment_before = 0
         # calculate the crack length
-        for k = 50:length(t_coseismic)
+        for k = 50:eachindex(t_coseismic)[end]
             # measure the width of nucleation zone for each timestep
             indx_nucleation = findall(value[:, k] .>= measure_threshold)       # using the second line(n_before+2) to define the width of nucleation size
             new_depth = FltX[indx:end][indx_nucleation]
@@ -156,7 +156,7 @@ function moment_release_example(sliprate, FltX, tStart, t, N, criteria, measure_
 
     end
     # println("Location and Full length of all seismic events' nucleation zone(km):", NS_width)
-    # show()
+    show()
     figname = string(path, "moment_release_example.png")
     fig.savefig(figname, dpi = 300)
 end
@@ -173,7 +173,7 @@ function Nucleation(sliprate, FltX, tStart, t, N, criteria, measure_threshold)
     for i = 1: n-1 
         
         #println("Time of the last seismic event(s):",tStart[end])
-        indx_last = findall(t .<= tStart[i+1])[end]   
+        indx_last = findall(t[:] .<= tStart[i+1])[end]   
         indx_last_int::Int = floor(indx_last/10)
         #println("Index of timestep in sliprate(output every 10) at the beginning of last seismic event:", indx_last_int)
 
@@ -218,7 +218,7 @@ function Nucleation(sliprate, FltX, tStart, t, N, criteria, measure_threshold)
         ax.set_title(title)
     end
     # println("Location and Full length of all seismic events' nucleation zone(km):", NS_width)
-    # show()
+    show()
     figname = string(path, "sliprate_time_nucleation_alone.png")
     fig.savefig(figname, dpi = 300)
     return NS_width
@@ -233,10 +233,10 @@ function Nucleation_example(sliprate, FltX, tStart, t, N, criteria, measure_thre
     plot_params()
     fig = PyPlot.figure(figsize=(10, 30))
     # for i = 1: n-1 
-    
+
     for i = n-2        # plot the i_th normal earthquake(third event): choose by yourself    if i=n-1, then plot the last one!!
         #println("Time of the last seismic event(s):",tStart[end])
-        indx_last = findall(t .<= tStart[i+1])[end]   
+        indx_last = findall(t[:].<= - tStart[i+1])[end]   
         indx_last_int::Int = floor(indx_last/10)
         #println("Index of timestep in sliprate(output every 10) at the beginning of last seismic event:", indx_last_int)
 
@@ -473,7 +473,7 @@ function VfmaxPlot(Vfmax, N, t)
     ax.set_ylabel("Max. Slip rate (m/s)")
     ax.set_yscale("log")
     ax.set_ylim([1e-10,1e2])
-    # show()
+    show()
     
     figname = string(path, "Vfmax.png")
     fig.savefig(figname, dpi = 300)
@@ -517,7 +517,7 @@ function eqCyclePlot(sliprate, FltX, N, t)
     cbar = fig.colorbar(c, label = "Slip rate(m/s)")
     #   cbar.set_ticks(cbar.get_ticks()[1:2:end])
     
-    # show()
+    show()
     figname = string(path, "sliprate_time.png")
     fig.savefig(figname, dpi = 600)
     
@@ -634,7 +634,7 @@ function stressdrop_1(taubefore, tauafter, FltX)
 end
 
 # Plot cumulative slip
-function cumSlipPlot(delfsec, delfyr, FltX, hypo, d_hypo, N, )
+function cumSlipPlot(delfsec, delfyr, FltX, hypo, d_hypo, N)
     
     indx_1 = findall(abs.(FltX) .<= 25)[1]
     indx_2 = findall(abs.(FltX) .>= 5)[end]
@@ -669,11 +669,15 @@ function cumSlipPlot(delfsec, delfyr, FltX, hypo, d_hypo, N, )
 
 end
 
-function cumSlipPlot_no_hypocenter(delfsec, delfyr, FltX)
+function cumSlipPlot_no_hypocenter(delfsec, delfyr, FltX, N)
 
-    indx = findall(abs.(FltX) .<= 17)[1]
+    indx_1 = findall(abs.(FltX) .<= 25)[1]
+    indx_2 = findall(abs.(FltX) .>= 5)[end]
 
-    delfsec2 = transpose(delfsec[:,indx:end])
+    print(indx_1)
+    print(indx_2)
+
+    delfsec2 = transpose(delfsec[:, indx_1:indx_2])
     delfyr2 = transpose(delfyr)
 
     plot_params()
@@ -682,16 +686,17 @@ function cumSlipPlot_no_hypocenter(delfsec, delfyr, FltX)
     ax = fig.add_subplot(111)
     plt.rc("font",size=12)
     ax.plot(delfyr2, FltX, color="royalblue", lw=1.0)
-    ax.plot(delfsec2, FltX[indx:end], color="chocolate", lw=1.0)
-    #ax.plot(d_hypo, hypo./1000 , "*", color="saddlebrown", markersize=25)
+    ax.plot(delfsec2, FltX[indx_1:indx_2], color="chocolate", lw=1.0)
+    ax.plot(d_hypo, hypo./1000, "*", color="saddlebrown", markersize=25)
     ax.set_xlabel("Cumulative Slip (m)")
     ax.set_ylabel("Depth (km)")
-    ax.set_ylim([0,20])
-    ax.set_xlim([0,maximum(delfyr2)])
+    ax.set_ylim([0,30])
+
+    L = N * 365 * 24 * 60 * 60 * 1e-9
+    ax.set_xlim([0,L])
     #ax.set_xlim([0,9.0])
     ax.invert_yaxis()
-
-    show()
+    # show()
     
     figname = string(path, "cumulative_slip_no_hypocenter.png")
     fig.savefig(figname, dpi = 300)
@@ -706,7 +711,7 @@ function Nucleation_animation(sliprate, FltX, tStart, t, N, n)
     fig = PyPlot.figure(figsize=(5, 30))
 for i = length(tStart)-n+1: length(tStart)
     #println("Time of the last seismic event(s):",tStart[end])
-    indx_last = findall(t .<= tStart[i])[end]   # last event!
+    indx_last = findall(t[:] .<= tStart[i])[end]   # last event!
     indx_last_int::Int = floor(indx_last/10)
     #println("Index of timestep in sliprate(output every 10) at the beginning of last seismic event:", indx_last_int)
 
@@ -752,7 +757,7 @@ function eqCyclePlot_last_1(sliprate, FltX, tStart, t, N, n)
         fig = PyPlot.figure(figsize=(7.2, 10))
     for i = length(tStart)-n+1: length(tStart)
         #println("Time of the last seismic event(s):",tStart[end])
-        indx_last = findall(t .<= tStart[i])[end]   # last event!
+        indx_last = findall(t[:] .<= tStart[i])[end]   # last event!
         indx_last_int::Int = floor(indx_last/10)
         #println("Index of timestep in sliprate(output every 10) at the beginning of last seismic event:", indx_last_int)
     
@@ -812,7 +817,7 @@ function eqCyclePlot_last_2(sliprate, FltX, tStart, t,N,n)
 
     for i = length(tStart)-n+1: length(tStart)
         #println("Time of the last seismic event(s):",tStart[end])
-        indx_last = findall(t .<= tStart[i])[end]   # last event!
+        indx_last = findall(t[:] .<= tStart[i])[end]   # last event!
         indx_last_int::Int = floor(indx_last/10)
         #println("Index of timestep in sliprate(output every 10) at the beginning of last seismic event:", indx_last_int)
 

@@ -30,7 +30,7 @@ yr2sec = 365*24*60*60
 # Read data
 
 time_vel = readdlm(string(out_path, "time_velocity.out"), header=false)
-t = time_vel[:,1]             # all real timsteps
+t = time_vel[:,1]         # all real timsteps
 Vfmax = time_vel[:,2]
 alphaa = time_vel[:,3]         # initial background rigidity ratio
 #b_value = time_vel[:,5]
@@ -64,7 +64,7 @@ println("Dimension of sliprate:",size(sliprate))
 # coseismic slip on fault for all different events(row)
 delfafter = readdlm(string(out_path, "coseismic_slip.out"), header=false)
 println("Dimension of cosesimic slip:",size(delfafter))
-N_events = size(delfafter,1)   # here the number of event should depend on the event_time.out file, ignore some small events 
+N_events = size(delfafter,1)   # here the number of event should depend on the event_time.out file
 println("Total number of all seismic events:", N_events)
 println("Total number of all on-fault GLL nodes:",size(delfafter,2))    
 
@@ -89,7 +89,7 @@ stressdrops = taubefore .- tauafter
 
 stress = readdlm(string(out_path, "stress.out"), header=false)   # timesteps/10, shear stress on fault line points
 # get the start and end time of every seismic event
-index_start, index_end = get_index(t, tStart, tEnd)   
+index_start, index_end = get_index(t, tStart, tEnd)         # 
 # println(index_start)
 # println(index_end)
 

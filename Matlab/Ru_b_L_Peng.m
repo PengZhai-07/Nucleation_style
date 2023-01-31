@@ -171,15 +171,15 @@ export_fig -dpng -r600 Nucleation_size_phase_diagram_b_L_Rubin_Ampuero
 % 
 % fclose(fid);
 
-%% output the model parameter file
-
-fid  = fopen('../whole_space.txt','wt');
-[u, v] = size(P);
-for i =1:u
-    fprintf(fid, ['0.8,500,',num2str(P(i,3)),',4,0.00,',num2str(P(i,4)),'\n']);       %  alpha, halfwidth, Lc, multiple, cos_reduction, coseismic_b
-end
-fclose(fid);
-
+% %% output the model parameter file
+% 
+% fid  = fopen('../whole_space.txt','wt');
+% [u, v] = size(P);
+% for i =1:u
+%     fprintf(fid, ['0.8,500,',num2str(P(i,3)),',4,0.00,',num2str(P(i,4)),'\n']);       %  alpha, halfwidth, Lc, multiple, cos_reduction, coseismic_b
+% end
+% fclose(fid);
+% 
 
 
 

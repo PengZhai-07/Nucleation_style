@@ -14,7 +14,7 @@ FZdepth = 0   # depth of lower boundary of damage zone  unit: m     20km is the 
 input_parameter = readdlm("$(@__DIR__)/whole_space_1.txt", ',',  header=false)
 a = size(input_parameter)[1]
 
-for index = 58
+for index = 59:78
     alpha = input_parameter[index,1]   # initial(background) rigidity ratio: fault zone/host rock
     halfwidth::Int =  input_parameter[index,2]   # half width of damage zone   unit:m
     Lc= input_parameter[index,3]  # characteristic slip distance      unit:m
@@ -27,7 +27,7 @@ for index = 58
     include("analyze_results.jl")     
 
     # # total years to plotss
-    N = 500           
+    N = 300          
 
     # calculate the nucleation size and plot the nucleation process
     N_timestep = 2000      # time steps to use in sliprate
@@ -37,22 +37,22 @@ for index = 58
 
     # moment_release_example(sliprate', FltX, tStart, t, N_timestep, criteria, measure_threshold)       
                         
-    Nucleation_example(sliprate', FltX, tStart, t, N_timestep, criteria, measure_threshold)    # only plot the last seismic event
+    # Nucleation_example(sliprate', FltX, tStart, t, N_timestep, criteria, measure_threshold)    # only plot the last seismic event
 
-    NS_width = Nucleation(sliprate', FltX, tStart, t, N_timestep, criteria, measure_threshold)
+    # NS_width = Nucleation(sliprate', FltX, tStart, t, N_timestep, criteria, measure_threshold)
 
-    open(string(path,"nucleation info.out"), "w") do io
-        for i = 1: size(NS_width)[1]
-            write(io, join(NS_width[i,:], " "), "\n") 
-        end
-    end
+    # open(string(path,"nucleation info.out"), "w") do io
+    #     for i = 1: size(NS_width)[1]
+    #         write(io, join(NS_width[i,:], " "), "\n") 
+    #     end
+    # end
 
     # max slip rate versus timestep
     VfmaxPlot(Vfmax, N, t)
 
     # culmulative slip
-    cumSlipPlot(delfsec[1:4:end,:], delfyr[1:end, :], FltX, hypo, d_hypo, N);
-    # cumSlipPlot_no_hypocenter(delfsec[1:4:end,:], delfyr[1:end, :], FltX);
+    #cumSlipPlot(delfsec[1:4:end,:], delfyr[1:end, :], FltX, hypo, d_hypo, N);
+    cumSlipPlot_no_hypocenter(delfsec[1:4:end,:], delfyr[1:end, :], FltX, N);
 
     # healing analysis: Vfmax and regidity ratio vs. time
     healing_analysis(Vfmax, alphaa, t, yr2sec)

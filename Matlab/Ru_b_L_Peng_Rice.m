@@ -9,6 +9,7 @@ mu = 3.20e10;  % Pa
 sigma = 40e6;  % Pa
 a = 0.015;
 a_b = 0.5:0.05:0.95;
+T = zeros(1,length(a_b));
 b = a./a_b;
 r = 1;   % the shear wave reduction=20%  1-0.2=0.8  r is the rigidity ratio
 % LL = linspace(log10(0.5),log10(125),25);  % m
@@ -22,6 +23,15 @@ NS = zeros(length(r),length(L),length(H));
 W = 10000;
 m = 0;
 for i = 1:length(b)
+    if (0.5<=a_b(i)) && (a_b(i)<=0.6)
+        T(i) = 900;
+    elseif (0.65<=a_b(i)) && (a_b(i)<=0.75)
+        T(i) = 600;
+    elseif (0.80<=a_b(i)) && (a_b(i)<=0.85)
+        T(i) = 300;
+    else
+        T(i) = 100;
+    end
     mu_D = mu;  % Pa
     for j = 1:length(L)   
         for k = 1:length(H)
@@ -34,9 +44,9 @@ for i = 1:length(b)
                        mu_D*L(j)/sigma/(a/a_b(i)-a)/W;    % without pi/4? 
             y = double(vpasolve(exp,[0,1000000000]));
 %             if ( 2<= y) && (y<= 3)
-            if ( 2 <= y) && (y <= 30)
+            if ( 3 <= y) && (y <= 18.35)
                 m = m+1;
-                P(m,:) = [log10(L(j)*1000), a_b(i), L(j),b(i)];
+                P(m,:) = [log10(L(j)*1000), a_b(i), L(j), b(i), T(i)];
             end
             Ru(i,j,k) = y;
             Cohesive(i,j,k) = (9*pi/32)*mu_D*r*L(j)/b(i)./sigma;
@@ -172,19 +182,12 @@ export_fig -dpng -r600 Nucleation_size_phase_diagram_b_L_Rice
 
 %% output the model parameter file
 
-fid  = fopen('../whole_space.txt','wt');
+fid  = fopen('../whole_space_1.txt','wt');
 [u, v] = size(P);
 for i =1:u
-    fprintf(fid, ['0.8,500,',num2str(P(i,3)),',4,0.00,',num2str(P(i,4)),'\n']);       %  alpha, halfwidth, Lc, multiple, cos_reduction, coseismic_b
+%     fprintf(fid, ['1,',num2str(P(i,5)),',',num2str(P(i,3)),',4,0.00,',num2str(P(i,2)),'\n']);       %  alpha, halfwidth, Lc, multiple, cos_reduction, coseismic_b
+    fprintf(fid, ['0.8,500,',num2str(P(i,3)),',4,0.00,',num2str(P(i,4)),'\n']); 
 end
 fclose(fid);
-
-
-
-
-
-
-
-
 
 % 0.8 500 0.012 4 0.00 0.03
