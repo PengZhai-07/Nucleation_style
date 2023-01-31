@@ -29,7 +29,7 @@ yr2sec = 365*24*60*60
 
 # Read data
 
-time_vel = readdlm(string(out_path, "time_velocity.out"), header=false)
+time_vel = readdlm(string(out_path, "time_velocity.out"), header=false, Float64)
 t = time_vel[:,1]         # all real timsteps
 Vfmax = time_vel[:,2]
 alphaa = time_vel[:,3]         # initial background rigidity ratio

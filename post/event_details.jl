@@ -67,7 +67,7 @@ function get_index(t, tStart, tEnd)     # get the index of time when earthquake 
 
     indx_start::Vector{Int64} = zeros(length(tStart[:,1]))
     indx_end::Vector{Int64} = zeros(length(tEnd[:,1]))
-    
+    println(typeof(t[1]))
     for i in eachindex(tStart[:,1])       # number of seismic events
         temp_start = findall(t[:] .<= tStart[i])[end]       # t[:] us recognized as float value but t is only a substring.
         temp_end = findall(t[:] .<= tEnd[i])[end]

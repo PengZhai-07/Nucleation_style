@@ -44,7 +44,7 @@ function moment_release_example(sliprate, FltX, tStart, t, N, criteria, measure_
     fig = PyPlot.figure(figsize=(10, 8))
     # for i = 1: n-1 
     
-    for i = n-3        # plot the i_th normal earthquake(third event): choose by yourself    if i=n-1, then plot the last one!!
+    for i = 3        # plot the i_th normal earthquake(third event): choose by yourself    if i=n-1, then plot the last one!!
         #println("Time of the last seismic event(s):",tStart[end])
         indx_last = findall(t[:] .<= tStart[i+1])[end]   
         indx_last_int::Int = floor(indx_last/10)
@@ -71,7 +71,7 @@ function moment_release_example(sliprate, FltX, tStart, t, N, criteria, measure_
 
         moment_before = 0
         # calculate the crack length
-        for k = 50:eachindex(t_coseismic)[end]
+        for k in eachindex(t_coseismic)
             # measure the width of nucleation zone for each timestep
             indx_nucleation = findall(value[:, k] .>= measure_threshold)       # using the second line(n_before+2) to define the width of nucleation size
             new_depth = FltX[indx:end][indx_nucleation]
@@ -234,9 +234,9 @@ function Nucleation_example(sliprate, FltX, tStart, t, N, criteria, measure_thre
     fig = PyPlot.figure(figsize=(10, 30))
     # for i = 1: n-1 
 
-    for i = n-2        # plot the i_th normal earthquake(third event): choose by yourself    if i=n-1, then plot the last one!!
+    for i = 3        # plot the i_th normal earthquake(third event): choose by yourself    if i=n-1, then plot the last one!!
         #println("Time of the last seismic event(s):",tStart[end])
-        indx_last = findall(t[:].<= - tStart[i+1])[end]   
+        indx_last = findall(t[:].<= tStart[i+1])[end]   
         indx_last_int::Int = floor(indx_last/10)
         #println("Index of timestep in sliprate(output every 10) at the beginning of last seismic event:", indx_last_int)
 

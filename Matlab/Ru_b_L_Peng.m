@@ -49,7 +49,7 @@ end
 % A = pcolor(X,Y,Ru');
 % v = [2,3,7.5,18.35,56.4,88];
 % v = [2,3,5,10,15,20,30,40,50,60,70,80,100,200,400];
-v = [0.01, 0.1, 1, 4,10, 100];
+v = [0.01, 0.1, 1, 4 ,10, 100];
 figure(1)
 set(0,'defaultfigurecolor','w')
 set(gcf,'Position',[20 20 800 400]);%左下角位置，宽高
@@ -57,7 +57,9 @@ pcolor(X,Y,Cohesive')
 shading interp
 min(min(Cohesive))
 clim([0 75])
-colorbar
+
+c = colorbar;
+ylabel(c, '3*Cohesive zone size')
 hold on
 [c,h] = contour(X,Y,Ru',v);
 xticks([log10(L*1000)])
@@ -121,7 +123,9 @@ scatter(P(:,1),P(:,2) ,'*','k' )
 % end
 
 % title([num2str(H)])
-%% 
+%%  m = m+1;
+%                 P(m,:) = [log10(L(j)*1000), a_b(i), L(j),b(i)];
+% %             en
 export_fig -dpng -r600 Nucleation_size_phase_diagram_b_L_Rubin_Ampuero
 
 %% output the bash script for sbatch in Great lakes

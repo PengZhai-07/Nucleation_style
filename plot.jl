@@ -7,14 +7,14 @@ using DelimitedFiles
 # Universal parameter
 res = 16    # resolution of mesh
 Domain = 0.75    # amplify factor of the domain size, the current domain size is 30km*24km for 0.75 domain size
-T = 500    # total simulation years 
+T = 300    # total simulation years 
 FZdepth = 0   # depth of lower boundary of damage zone  unit: m     20km is the maximum depth
 
 # other input parameter
 input_parameter = readdlm("$(@__DIR__)/whole_space_1.txt", ',',  header=false)
 a = size(input_parameter)[1]
 
-for index = 59:78
+for index = 55:58
     alpha = input_parameter[index,1]   # initial(background) rigidity ratio: fault zone/host rock
     halfwidth::Int =  input_parameter[index,2]   # half width of damage zone   unit:m
     Lc= input_parameter[index,3]  # characteristic slip distance      unit:m
@@ -30,22 +30,22 @@ for index = 59:78
     N = 300          
 
     # calculate the nucleation size and plot the nucleation process
-    N_timestep = 2000      # time steps to use in sliprate
+    N_timestep = 500      # time steps to use in sliprate
     criteria = 1e-1    # seismic threshold to measure the nucleation size
     measure_threshold = 1e-3    # where measure the width of nucleation zone: 1e-7m/s for 
                                 # constant weakening(expanding crack) and 1e-3m/s for fixed length patch
 
     # moment_release_example(sliprate', FltX, tStart, t, N_timestep, criteria, measure_threshold)       
                         
-    # Nucleation_example(sliprate', FltX, tStart, t, N_timestep, criteria, measure_threshold)    # only plot the last seismic event
+    Nucleation_example(sliprate', FltX, tStart, t, N_timestep, criteria, measure_threshold)    # only plot the last seismic event
 
-    # NS_width = Nucleation(sliprate', FltX, tStart, t, N_timestep, criteria, measure_threshold)
+    NS_width = Nucleation(sliprate', FltX, tStart, t, N_timestep, criteria, measure_threshold)
 
-    # open(string(path,"nucleation info.out"), "w") do io
-    #     for i = 1: size(NS_width)[1]
-    #         write(io, join(NS_width[i,:], " "), "\n") 
-    #     end
-    # end
+    open(string(path,"nucleation info.out"), "w") do io
+        for i = 1: size(NS_width)[1]
+            write(io, join(NS_width[i,:], " "), "\n") 
+        end
+    end
 
     # max slip rate versus timestep
     VfmaxPlot(Vfmax, N, t)
