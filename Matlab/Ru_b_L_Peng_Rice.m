@@ -182,11 +182,11 @@ export_fig -dpng -r600 Nucleation_size_phase_diagram_b_L_Rice
 
 %% output the model parameter file
 
-fid  = fopen('../whole_space_1.txt','wt');
+fid  = fopen('../whole_space_new.txt','wt');
 [u, v] = size(P);
 for i =1:u
-%     fprintf(fid, ['1,',num2str(P(i,5)),',',num2str(P(i,3)),',4,0.00,',num2str(P(i,2)),'\n']);       %  alpha, halfwidth, Lc, multiple, cos_reduction, coseismic_b
-    fprintf(fid, ['0.8,500,',num2str(P(i,3)),',4,0.00,',num2str(P(i,4)),'\n']); 
+    fprintf(fid, ['1,',num2str(H),',',num2str(P(i,5)),',',num2str(P(i,3)),',4,0.00,',num2str(P(i,2)),'\n']);       %  alpha, halfwidth, simulation_years, Lc, multiple, cos_reduction, coseismic_b
+%     fprintf(fid, ['0.8,500,',num2str(P(i,3)),',4,0.00,',num2str(P(i,4)),'\n']); 
 end
 fclose(fid);
 
