@@ -7,14 +7,14 @@ using DelimitedFiles
 # Universal parameter
 res = 16    # resolution of mesh
 Domain = 0.75    # amplify factor of the domain size, the current domain size is 30km*24km for 0.75 domain size
-T = 300    # total simulation years 
+T = 500    # total simulation years 
 FZdepth = 0   # depth of lower boundary of damage zone  unit: m     20km is the maximum depth
 
 # other input parameter
 input_parameter = readdlm("$(@__DIR__)/whole_space_1.txt", ',',  header=false)
 a = size(input_parameter)[1]
 
-for index = 55:58
+for index = 1:57
     alpha = input_parameter[index,1]   # initial(background) rigidity ratio: fault zone/host rock
     halfwidth::Int =  input_parameter[index,2]   # half width of damage zone   unit:m
     Lc= input_parameter[index,3]  # characteristic slip distance      unit:m
@@ -27,10 +27,12 @@ for index = 55:58
     include("analyze_results.jl")     
 
     # # total years to plotss
-    N = 300          
+    N = 500          
 
     # calculate the nucleation size and plot the nucleation process
-    N_timestep = 500      # time steps to use in sliprate
+    N_timestep = 2500      # time steps to use in sliprate
+    # for i=1:6    1000
+
     criteria = 1e-1    # seismic threshold to measure the nucleation size
     measure_threshold = 1e-3    # where measure the width of nucleation zone: 1e-7m/s for 
                                 # constant weakening(expanding crack) and 1e-3m/s for fixed length patch
@@ -51,8 +53,8 @@ for index = 55:58
     VfmaxPlot(Vfmax, N, t)
 
     # culmulative slip
-    #cumSlipPlot(delfsec[1:4:end,:], delfyr[1:end, :], FltX, hypo, d_hypo, N);
-    cumSlipPlot_no_hypocenter(delfsec[1:4:end,:], delfyr[1:end, :], FltX, N);
+    cumSlipPlot(delfsec[1:4:end,:], delfyr[1:end, :], FltX, hypo, d_hypo, N);
+    # cumSlipPlot_no_hypocenter(delfsec[1:4:end,:], delfyr[1:end, :], FltX, N);
 
     # healing analysis: Vfmax and regidity ratio vs. time
     healing_analysis(Vfmax, alphaa, t, yr2sec)
