@@ -44,7 +44,7 @@ function moment_release_example(sliprate, FltX, tStart, t, N, criteria, measure_
     fig = PyPlot.figure(figsize=(10, 8))
     # for i = 1: n-1 
     
-    for i = 3        # plot the i_th normal earthquake(third event): choose by yourself    if i=n-1, then plot the last one!!
+    for i = 3:3        # plot the i_th normal earthquake(third event): choose by yourself    if i=n-1, then plot the last one!!
         #println("Time of the last seismic event(s):",tStart[end])
         indx_last = findall(t[:] .<= tStart[i+1])[end]   
         indx_last_int::Int = floor(indx_last/10)
@@ -156,7 +156,7 @@ function moment_release_example(sliprate, FltX, tStart, t, N, criteria, measure_
 
     end
     # println("Location and Full length of all seismic events' nucleation zone(km):", NS_width)
-    show()
+    # show()
     figname = string(path, "moment_release_example.png")
     fig.savefig(figname, dpi = 300)
 end
@@ -170,7 +170,7 @@ function Nucleation(sliprate, FltX, tStart, t, N, criteria, measure_threshold)
     nn = 0
     plot_params()
     fig = PyPlot.figure(figsize=(10, 30))
-    for i = 1: n-1 
+    for i = 1: 4
         
         #println("Time of the last seismic event(s):",tStart[end])
         indx_last = findall(t[:] .<= tStart[i+1])[end]   
@@ -201,7 +201,7 @@ function Nucleation(sliprate, FltX, tStart, t, N, criteria, measure_threshold)
         NS_width[i, 4] = downdip_depth          # downdip
 
         # plot slip rate profile
-        ax = fig.add_subplot(n-1, 1, i)
+        ax = fig.add_subplot(4, 1, i)
         # println(size(t[indx_last_int:indx_last_int + N]))
         # println(size(value))
 
@@ -218,7 +218,7 @@ function Nucleation(sliprate, FltX, tStart, t, N, criteria, measure_threshold)
         ax.set_title(title)
     end
     # println("Location and Full length of all seismic events' nucleation zone(km):", NS_width)
-    show()
+    # show()
     figname = string(path, "sliprate_time_nucleation_alone.png")
     fig.savefig(figname, dpi = 300)
     return NS_width
@@ -269,7 +269,7 @@ function Nucleation_example(sliprate, FltX, tStart, t, N, criteria, measure_thre
         # println(size(t[indx_last_int:indx_last_int + N]))
         # println(size(value))
         
-        ax.plot(depth, value[:,1:5:300 + n_before],color="red", )        # plot every five steps
+        ax.plot(depth, value[:,1:5:nn + n_before+50],color="red", )        # plot every five steps
         ax.set_yscale("log")
         ax.set_xlim([10,20])    
         ax.set_xlabel("Depth(km)")
@@ -463,7 +463,7 @@ function VfmaxPlot(Vfmax, N, t)
     fig = PyPlot.figure(figsize=(7.2, 3.45))
     ax = fig.add_subplot(111)
 
-    t_seconds = N * 365 * 24 * 60 * 60 
+    t_seconds = (N+100) * 365 * 24 * 60 * 60 
     indx_last = findall(t .<= t_seconds)[end]   # last event!
 
     ax.plot(Vfmax[1:indx_last], lw = 2.0)
@@ -473,7 +473,7 @@ function VfmaxPlot(Vfmax, N, t)
     ax.set_ylabel("Max. Slip rate (m/s)")
     ax.set_yscale("log")
     ax.set_ylim([1e-10,1e2])
-    show()
+    # show()
     
     figname = string(path, "Vfmax.png")
     fig.savefig(figname, dpi = 300)
@@ -517,7 +517,7 @@ function eqCyclePlot(sliprate, FltX, N, t)
     cbar = fig.colorbar(c, label = "Slip rate(m/s)")
     #   cbar.set_ticks(cbar.get_ticks()[1:2:end])
     
-    show()
+    # show()
     figname = string(path, "sliprate_time.png")
     fig.savefig(figname, dpi = 600)
     
@@ -657,7 +657,7 @@ function cumSlipPlot(delfsec, delfyr, FltX, hypo, d_hypo, N)
     ax.set_ylabel("Depth (km)")
     ax.set_ylim([0,30])
 
-    L = N * 365 * 24 * 60 * 60 * 1e-9
+    L = (N+100) * 365 * 24 * 60 * 60 * 1e-9
     ax.set_xlim([0,L])
     #ax.set_xlim([0,9.0])
     ax.invert_yaxis()
@@ -687,12 +687,12 @@ function cumSlipPlot_no_hypocenter(delfsec, delfyr, FltX, N)
     plt.rc("font",size=12)
     ax.plot(delfyr2, FltX, color="royalblue", lw=1.0)
     ax.plot(delfsec2, FltX[indx_1:indx_2], color="chocolate", lw=1.0)
-    ax.plot(d_hypo, hypo./1000, "*", color="saddlebrown", markersize=25)
+    # ax.plot(d_hypo, hypo./1000, "*", color="saddlebrown", markersize=25)
     ax.set_xlabel("Cumulative Slip (m)")
     ax.set_ylabel("Depth (km)")
     ax.set_ylim([0,30])
 
-    L = N * 365 * 24 * 60 * 60 * 1e-9
+    L = (N+100) * 365 * 24 * 60 * 60 * 1e-9
     ax.set_xlim([0,L])
     #ax.set_xlim([0,9.0])
     ax.invert_yaxis()
