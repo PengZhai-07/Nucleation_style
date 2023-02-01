@@ -11,7 +11,7 @@ function event_indx(tStart, tEnd, time_)
     start_indx = zeros(size(tStart))
     end_indx = zeros(size(tEnd))
 
-    for i = 1:length(tStart)
+    for i in eachindex(tStart)
         
         start_indx[i] = findall(time_ .== tStart[i])[1]
         end_indx[i] = findall(time_ .== tEnd[i])[1]

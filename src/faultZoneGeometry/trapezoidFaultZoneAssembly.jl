@@ -23,7 +23,7 @@ function rigid(x,y)
     rhoglob::Array{Float64} = zeros(length(x))
     vsglob::Array{Float64} = zeros(length(x))
 
-    for i = 1:length(x)
+    for i in eachindex(x)
         if x[i] > -8e3
             if line(x[i],y[i]) < 0
                 rhoglob[i] = rho3

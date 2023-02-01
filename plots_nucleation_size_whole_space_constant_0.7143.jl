@@ -56,7 +56,7 @@ b = 0.021
 NS_RA = zeros(length(LL))
 
 
-for i = 1:length(LL)
+for i in eachindex(LL)
     L_1 = LL[i]
     # L_b[i] = 2*1.3774*mu*L/b_1/sigma
     f(h_lay) = h_lay*tanh(2*gamma*H/h_lay+ atanh(mu_D/mu)) - 2/pi*mu_D*L_1*b/sigma/(b-a)^2
@@ -75,7 +75,7 @@ color_nucleation = ["r","orangered","chocolate","darkorange","orange","gold","ye
 # color_nucleation = ["r","yellow","g","b"]
 
 
-for i = 1: length(L)
+for i in eachindex(L)
     N_shallow = 0
     N_deep = 0
     FILE = "0_500_8_0.8_0.0_4_0.75_0.021_$(L[i])"   # normal stress testing

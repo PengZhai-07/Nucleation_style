@@ -11,10 +11,10 @@ T = 500    # total simulation years
 FZdepth = 0   # depth of lower boundary of damage zone  unit: m     20km is the maximum depth
 
 # other input parameter
-input_parameter = readdlm("$(@__DIR__)/whole_space_1.txt", ',',  header=false)
+input_parameter = readdlm("$(@__DIR__)/whole_space_3.txt", ',',  header=false)
 a = size(input_parameter)[1]
 
-for index = 1:57
+for index = 2:14
     alpha = input_parameter[index,1]   # initial(background) rigidity ratio: fault zone/host rock
     halfwidth::Int =  input_parameter[index,2]   # half width of damage zone   unit:m
     Lc= input_parameter[index,3]  # characteristic slip distance      unit:m

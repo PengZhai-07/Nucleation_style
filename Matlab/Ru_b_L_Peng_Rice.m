@@ -23,6 +23,7 @@ NS = zeros(length(r),length(L),length(H));
 W = 10000;
 m = 0;
 for i = 1:length(b)
+    % define the simulation time for different a/b
     if (0.5<=a_b(i)) && (a_b(i)<=0.6)
         T(i) = 900;
     elseif (0.65<=a_b(i)) && (a_b(i)<=0.75)
@@ -133,59 +134,12 @@ save("Experiment_point.mat",'P')
 %% 
 export_fig -dpng -r600 Nucleation_size_phase_diagram_b_L_Rice
 
-%% output the bash script for sbatch in Great lakes
-
-%%
-% fid  = fopen('../whole_space.sh','wt');%
-% fprintf(fid,'#!/bin/bash\n\n');    
-% [u, v] = size(P);
-% N = 1;
-% nn = 4;  % number of processors for each node
-% 
-% fprintf(fid,['#SBATCH --array=',num2str(N),'-',num2str(N+u-1),'\n']);
-% fprintf(fid,'#SBATCH --nodes=1\n');   % only one node because current MPI doesn't work
-% fprintf(fid,'#SBATCH --mem=10000m\n'); 
-% fprintf(fid,'#SBATCH --time=14-00:00:00\n');
-% fprintf(fid,'#SBATCH --partition=standard\n');
-% fprintf(fid,'#SBATCH --account=yiheh1\n');   
-% fprintf(fid,['#SBATCH --ntasks-per-node=',num2str(nn),'\n']);    % multitask(openmp)   cpu for each job
-% fprintf(fid,['#SBATCH --job-name=case',num2str(N),'_',num2str(N+u-1),'\n']);
-% fprintf(fid,'#SBATCH --output=/home/%%u/log/%%x-%%j.log\n');
-% fprintf(fid,'#SBATCH --error=/home/%%u/log/error-%%x-%%j.log\n\n');
-% 
-% 
-% % information about output path
-% project = "wholespace/phase_diagram_L_b/";
-% FZdepth = "0_";
-% halfwidth = "500_";
-% res = "16_";
-% alpha = "0.8_";
-% cos_reduction = "0.0_";
-% multiple = "4_";
-% Domain = "0.75_";
-% coseismic_b = "0.03_";
-% Lc = "0.012";
-% current_Folder = pwd;
-% 
-% % for i = 1:u
-% %     fprintf(fid,['julia --threads ',num2str(nn),' run.jl 0.8 500 ',num2str(P(i,3)),' 4 0.00 ',num2str(P(i,4)),'\n']);
-% %     out_dir = strcat(current_Folder,"/../data/",project,FZdepth,halfwidth,res,alpha,cos_reduction,multiple,Domain,num2str(P(i,4)),'_',num2str(P(i,3)));
-% %     if  exist(out_dir)
-% %         rmdir(out_dir)
-% %     end
-% %     mkdir(out_dir)
-% % end
-% 
-% fprintf(fid,['julia --threads ',num2str(nn),' run.jl 0.8 500 ','$SLURM_ARRAY_TASK_ID',' 4 0.00 ','$SLURM_ARRAY_TASK_ID','\n']);
-% 
-% fclose(fid);
-
 %% output the model parameter file
 
-fid  = fopen('../whole_space_new.txt','wt');
+fid  = fopen('../whole_space_1.txt','wt');
 [u, v] = size(P);
 for i =1:u
-    fprintf(fid, ['1,',num2str(H),',',num2str(P(i,5)),',',num2str(P(i,3)),',4,0.00,',num2str(P(i,2)),'\n']);       %  alpha, halfwidth, simulation_years, Lc, multiple, cos_reduction, coseismic_b
+      fprintf(fid, ['0.75,16,',num2str(P(i,5)),',0,0,1.0,0.0,4,',num2str(P(i,2)),',',num2str(P(i,3)),'\n']);     
 %     fprintf(fid, ['0.8,500,',num2str(P(i,3)),',4,0.00,',num2str(P(i,4)),'\n']); 
 end
 fclose(fid);

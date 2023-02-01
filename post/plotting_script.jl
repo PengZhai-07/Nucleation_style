@@ -234,7 +234,7 @@ function Nucleation_example(sliprate, FltX, tStart, t, N, criteria, measure_thre
     fig = PyPlot.figure(figsize=(10, 30))
     # for i = 1: n-1 
 
-    for i = 3        # plot the i_th normal earthquake(third event): choose by yourself    if i=n-1, then plot the last one!!
+    for i = 3:3        # plot the i_th normal earthquake(third event): choose by yourself    if i=n-1, then plot the last one!!
         #println("Time of the last seismic event(s):",tStart[end])
         indx_last = findall(t[:].<= tStart[i+1])[end]   
         indx_last_int::Int = floor(indx_last/10)

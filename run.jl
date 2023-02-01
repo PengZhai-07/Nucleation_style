@@ -16,58 +16,57 @@ using Base.Threads
 
 include("$(@__DIR__)/par.jl")	    #	Set Parameters
 
-# Put the resolution for the simulation here: should be an integer
-res::Int = 16    # resolution of mesh
-Domain = 0.75    # amplify factor of the domain size, the current domain size is 30km*24km for 0.75 domain size
-
-# 4: 301 GLL nodes, average 100m on fault  
-# 8: 601 GLL nodes, average 50m on fault
-# 16: 1201 GLL nodes, average 25m on fault
-
-T::Int = 100    # total simulation years 
-FZdepth::Int = 0e3   # depth of lower boundary of damage zone  unit: m     20km is the maximum depth
-
-# read the model parameters from whole_space.csv
+# read the model parameters from whole_space.txt
 index::Int = parse(Float64,ARGS[1])   
+para_file = ARGS[2]
 println(index)
 # note the sequence of all imput parameters
-input_parameter = readdlm("$(@__DIR__)/whole_space_1.txt", ',',  header=false)
+input_parameter = readdlm("$(@__DIR__)/$(para_file)", ',',  header=false)
 
-alpha = input_parameter[index,1]   # initial(background) rigidity ratio: fault zone/host rock
-halfwidth::Int =  input_parameter[index,2]   # half width of damage zone   unit:m
-Lc= input_parameter[index,3]  # characteristic slip distance      unit:m
-multiple::Int = input_parameter[index,4]  # effective normal stress on fault: 10MPa*multiple
-cos_reduction = input_parameter[index,5]    # coseismic rigidity reduction 
-coseismic_b = input_parameter[index,6]   # coseismic b increase 
+# domain parameters
+Domain = input_parameter[index,1]   # amplify factor of the domain size, the current domain size is 30km*24km for 0.75 domain size
+res::Int =  input_parameter[index,2]   # resolution of mesh: should be an integer
+T::Int = input_parameter[index,3]   # total simulation time   unit:year
+println("Doamin size factor: ",Domain)   # default is 40km*32km
+println("Resolution: ",res)
+println("Total simulation time(year): ",T)
 
-println("doamin size: ",Domain)   # default is 40km*32km
-println("rigidity ratio of damage zone: ",alpha)
-println("halfwidth of fault zone(m): ",halfwidth)
+# fault zone parameter
+FZlength::Int = input_parameter[index,4]    # length of fault zone: m
+FZdepth::Int = (40*Domain+FZlength)/2   # depth of lower boundary of damage zone  unit: m    
+halfwidth::Int =  input_parameter[index,5]   # half width of damage zone   unit:m
+alpha = input_parameter[index,6]   # initial(background) rigidity ratio: fault zone/host rock
+cos_reduction = input_parameter[index,7]    # coseismic rigidity reduction 
+println("Fault zone length(m): ",FZlength)   # default is 40km*32km
+println("Fault zone halfwidth(m): ",halfwidth)
+println("Rigidity ratio of fault zone: ",alpha)
+println("Coseismic reduction of rigidity ratio: ", cos_reduction)
+
+# friction parameter on fault surface
+multiple::Int = input_parameter[index,8]  # effective normal stress on fault: 10MPa*multiple
+a_b = input_parameter[index,9] 
+a = 0.015
+coseismic_b =  a/a_b            # coseismic b increase 
+Lc= input_parameter[index,10]     # characteristic slip distance      unit:m
+println("Effective normal stress(10MPa*multiple): ", multiple)
+println("Coseismic b: ", coseismic_b)
 println("characteristic slip distance(m): ", Lc)
-println("effective normal stress(10MPa*multiple): ", multiple)
-println("cos_reduction: ", cos_reduction)
-println("cos_b: ", coseismic_b)
 
-# vs: 2%   3%       4%         
-# 0.9604   0.9409   0.9216
-# 0.0396   0.0591   0.0784
-
-turbo = "nfs/turbo/lsa-yiheh/yiheh-mistorage/pengz/data"
+# output path
+turbo = "/nfs/turbo/lsa-yiheh/yiheh-mistorage/pengz/data"
 project = "wholespace/phase_diagram_L_b"
-
 # Output directory to save data
-out_dir = "$(turbo)/$(project)/$(FZdepth)_$(halfwidth)_$(res)_$(alpha)_$(cos_reduction)_$(multiple)_$(Domain)_$(coseismic_b)_$(Lc)/"    
-
+out_dir = "$(turbo)/$(project)/$(Domain)_$(res)_$(T)_$(FZlength)_$(halfwidth)_$(alpha)_$(cos_reduction)_$(multiple)_$(a_b)_$(Lc)/"    
+print("Output directory: ", out_dir)
 # clean old files 
 if isdir(out_dir)
     rm(out_dir, recursive = true)
 end
-
 # To submit tens of jobs at a time(using jobarray of slurm), I need to generate the corresponding directories in advance
 # See those scripts under Matlab directory
 mkpath(out_dir)      
 
-P = setParameters(FZdepth, halfwidth, res, T, alpha, multiple, Lc, Domain)   
+P = setParameters(FZdepth, halfwidth, res, T, alpha, multiple, Lc, Domain)    # usually includes constant parameters for each simulation 
 # println(size(P[4].FltNI))   # total number of off-fault GLL nodes
 
 include("$(@__DIR__)/NucleationSize.jl") 
@@ -86,7 +85,7 @@ include("$(@__DIR__)/src/otherFunctions.jl")
 
 include("$(@__DIR__)/src/main.jl")
 
-simulation_time = @elapsed @time main(P, alpha, cos_reduction, coseismic_b)    # all parameters, rigidity ratio 
+simulation_time = @elapsed @time main(P, alpha, cos_reduction, coseismic_b)     # usually includes variable parameters for each simulation 
 
 println("\n")
 

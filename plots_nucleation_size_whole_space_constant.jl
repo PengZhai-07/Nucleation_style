@@ -71,7 +71,7 @@ color_nucleation = ["r","orangered","chocolate","darkorange","orange","gold","ye
 # color_nucleation = ["r","yellow","g","b"]
 
 
-for i = 1: length(b)
+for i in eachindex(b)
     N_shallow = 0
     N_deep = 0
     FILE = "0_500_8_0.8_0.0_4_0.75_$(b[i])"   # normal stress testing

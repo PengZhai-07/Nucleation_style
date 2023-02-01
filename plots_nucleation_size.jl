@@ -53,7 +53,7 @@ sigma = 40e6
 bb = range(0.017,0.030, step=0.0001)
 NS_RA = zeros(length(bb))
 
-for i = 1:length(bb)
+for i in eachindex(bb)
     b_1 = bb[i]
     f(h_lay) = h_lay*tanh(2*gamma*H/h_lay+ atanh(mu_D/mu)) - 2/pi*mu_D*L*b_1/sigma/(b_1-a)^2
     NS_RA[i] = Newton(f, 3000, 1e-6)
@@ -69,7 +69,7 @@ color_nucleation = ["r","orangered","chocolate","darkorange","orange","gold","ye
 
 # color_nucleation = ["r","yellow","g","b"]
 
-for i = 1: length(b)
+for i in eachindex(b)
     N_shallow = 0
     N_deep = 0
     FILE = "20000_500_8_0.8_0.0_4_1.0_$(b[i])"   # normal stress testing
