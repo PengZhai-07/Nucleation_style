@@ -24,11 +24,11 @@ W = 10000;
 m = 0;
 for i = 1:length(b)
     % define the simulation time for different a/b
-    if (0.5<=a_b(i)) && (a_b(i)<=0.6)
+    if (0.49<=a_b(i)) && (a_b(i)<=0.61)
         T(i) = 900;
-    elseif (0.65<=a_b(i)) && (a_b(i)<=0.75)
+    elseif (0.64<=a_b(i)) && (a_b(i)<=0.76)
         T(i) = 600;
-    elseif (0.80<=a_b(i)) && (a_b(i)<=0.85)
+    elseif (0.79<=a_b(i)) && (a_b(i)<=0.86)
         T(i) = 300;
     else
         T(i) = 100;
@@ -44,7 +44,7 @@ for i = 1:length(b)
                exp = 1/y*tanh(2*H(k)*gamma/W*y+atanh(mu_D/mu)) -...
                        mu_D*L(j)/sigma/(a/a_b(i)-a)/W;    % without pi/4? 
             y = double(vpasolve(exp,[0,1000000000]));
-%             if ( 2<= y) && (y<= 3)
+%             if (2<= y) && (y<= 3)
             if ( 3 <= y) && (y <= 18.35)
                 m = m+1;
                 P(m,:) = [log10(L(j)*1000), a_b(i), L(j), b(i), T(i)];
@@ -140,7 +140,7 @@ fid  = fopen('../whole_space_1.txt','wt');
 [u, v] = size(P);
 for i =1:u
       fprintf(fid, ['0.75,16,',num2str(P(i,5)),',0,0,1.0,0.0,4,',num2str(P(i,2)),',',num2str(P(i,3)),'\n']);     
-%     fprintf(fid, ['0.8,500,',num2str(P(i,3)),',4,0.00,',num2str(P(i,4)),'\n']); 
+%       fprintf(fid, ['0.8,500,',num2str(P(i,3)),',4,0.00,',num2str(P(i,4)),'\n']); 
 end
 fclose(fid);
 

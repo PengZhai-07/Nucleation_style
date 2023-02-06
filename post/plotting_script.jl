@@ -174,7 +174,7 @@ function Nucleation(sliprate, FltX, tStart, t, N, criteria, measure_threshold)
         
         #println("Time of the last seismic event(s):",tStart[end])
         indx_last = findall(t[:] .<= tStart[i+1])[end]   
-        indx_last_int::Int = floor(indx_last/10)
+        indx_last_int::Int = floor(indx_last)
         #println("Index of timestep in sliprate(output every 10) at the beginning of last seismic event:", indx_last_int)
 
         indx = findall(abs.(FltX) .<= 30)[1]
@@ -189,7 +189,7 @@ function Nucleation(sliprate, FltX, tStart, t, N, criteria, measure_threshold)
         end
 
         # measure the width of nucleation zone
-        indx_nucleation = findall(value[:,n_before+nn+20] .>= measure_threshold)       # using the second line to define the width of nucleation size
+        indx_nucleation = findall(value[:,n_before+nn] .>= measure_threshold)       # using the second line to define the width of nucleation size
         #println(indx_nucleation)
         new_depth = FltX[indx:end][indx_nucleation]
         downdip_depth = maximum(new_depth)
@@ -225,7 +225,7 @@ function Nucleation(sliprate, FltX, tStart, t, N, criteria, measure_threshold)
 end
 
 function Nucleation_example(sliprate, FltX, tStart, t, N, criteria, measure_threshold)
-    n_before = 150             # 200 time steps before seismic threshold 
+    n_before =1000             # 200 time steps before seismic threshold 
     n = length(tStart)         # how many seimsic events
     # n = 5
     NS_width = zeros(n-1,4)
@@ -234,10 +234,10 @@ function Nucleation_example(sliprate, FltX, tStart, t, N, criteria, measure_thre
     fig = PyPlot.figure(figsize=(10, 30))
     # for i = 1: n-1 
 
-    for i = 3:3        # plot the i_th normal earthquake(third event): choose by yourself    if i=n-1, then plot the last one!!
+    for i = 2:2        # plot the i_th normal earthquake(third event): choose by yourself    if i=n-1, then plot the last one!!
         #println("Time of the last seismic event(s):",tStart[end])
         indx_last = findall(t[:].<= tStart[i+1])[end]   
-        indx_last_int::Int = floor(indx_last/10)
+        indx_last_int::Int = floor(indx_last)
         #println("Index of timestep in sliprate(output every 10) at the beginning of last seismic event:", indx_last_int)
 
         indx = findall(abs.(FltX) .<= 30)[1]
@@ -245,7 +245,7 @@ function Nucleation_example(sliprate, FltX, tStart, t, N, criteria, measure_thre
         depth = FltX[indx:end]
         # find the timestep when sliprate first exceeds 1e-1 m/s
         for j = 2:N
-            if maximum(value[:,n_before+j]) >= criteria
+            if  maximum(value[:,n_before+j]) >= criteria
                 nn = j
                 break
             end
@@ -269,9 +269,9 @@ function Nucleation_example(sliprate, FltX, tStart, t, N, criteria, measure_thre
         # println(size(t[indx_last_int:indx_last_int + N]))
         # println(size(value))
         
-        ax.plot(depth, value[:,1:5:nn + n_before+50],color="red", )        # plot every five steps
+        ax.plot(depth, value[:,1:50:nn + n_before+2000],color="red", )        # plot every five steps
         ax.set_yscale("log")
-        ax.set_xlim([10,20])    
+        ax.set_xlim([8,22])    
         ax.set_xlabel("Depth(km)")
         ax.set_ylim([1e-15, 1e1])
         ax.set_ylabel("Slip Velocity(m/s)")
@@ -485,7 +485,7 @@ function eqCyclePlot(sliprate, FltX, N, t)
 
     t_seconds = N * 365 * 24 * 60 * 60 
     indx_last = findall(t .<= t_seconds)[end]   # last event!
-    indx_last_int::Int = floor(indx_last/10)
+    indx_last_int::Int = floor(indx_last)
 
     indx = findall(abs.(FltX) .<= 30)[1]
     value = sliprate[indx:end,1:indx_last_int]
@@ -510,7 +510,7 @@ function eqCyclePlot(sliprate, FltX, N, t)
                   #  interpolation="bicubic",
                   #  extent=[0,length(seismic_slipvel[1,:]), 0,16])
     
-    ax.set_xlabel("Variable Timesteps/10")
+    ax.set_xlabel("Variable Timesteps")
     ax.set_ylabel("Depth (km)")
 
     ax.invert_yaxis()

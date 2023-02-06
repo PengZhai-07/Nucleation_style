@@ -62,8 +62,7 @@ print("Output directory: ", out_dir)
 if isdir(out_dir)
     rm(out_dir, recursive = true)
 end
-# To submit tens of jobs at a time(using jobarray of slurm), I need to generate the corresponding directories in advance
-# See those scripts under Matlab directory
+
 mkpath(out_dir)      
 
 P = setParameters(FZdepth, halfwidth, res, T, alpha, multiple, Lc, Domain)    # usually includes constant parameters for each simulation 

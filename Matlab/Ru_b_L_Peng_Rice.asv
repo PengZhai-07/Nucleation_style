@@ -23,6 +23,7 @@ NS = zeros(length(r),length(L),length(H));
 W = 10000;
 m = 0;
 for i = 1:length(b)
+    % define the simulation time for different a/b
     if (0.5<=a_b(i)) && (a_b(i)<=0.6)
         T(i) = 900;
     elseif (0.65<=a_b(i)) && (a_b(i)<=0.75)
@@ -139,7 +140,7 @@ fid  = fopen('../whole_space_1.txt','wt');
 [u, v] = size(P);
 for i =1:u
       fprintf(fid, ['0.75,16,',num2str(P(i,5)),',0,0,1.0,0.0,4,',num2str(P(i,2)),',',num2str(P(i,3)),'\n']);     
-%     fprintf(fid, ['0.8,500,',num2str(P(i,3)),',4,0.00,',num2str(P(i,4)),'\n']); 
+%       fprintf(fid, ['0.8,500,',num2str(P(i,3)),',4,0.00,',num2str(P(i,4)),'\n']); 
 end
 fclose(fid);
 

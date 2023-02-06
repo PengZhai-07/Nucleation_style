@@ -18,7 +18,7 @@ mkpath(path)
 
 # data storage path
 
-turbo = "nfs/turbo/lsa-yiheh/yiheh-mistorage/pengz/data"
+turbo = "/nfs/turbo/lsa-yiheh/yiheh-mistorage/pengz/data"
 project = "wholespace/phase_diagram_L_b"
 global out_path = "$(turbo)/$(project)/$(FILE)/"
 # global out_path = "$(@__DIR__)/data/$(project)/$(FILE)/"

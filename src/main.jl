@@ -554,7 +554,7 @@ function main(P, alphaa, cos_reduction, coseismic_b)
                 idd += 1
                 idelevne = 1
                 tevneb = t
-                tevne = tevneinc      # 0.1s
+                tevne = tevneinc      # every 0.1sls
 
                 write(dfsec, join(2*d[P[4].iFlt] .+ P[2].Vpl*t, " "), "\n")
             
@@ -581,7 +581,7 @@ function main(P, alphaa, cos_reduction, coseismic_b)
         end
 
         # Write stress, sliprate, slip to file every 10 timesteps
-        if mod(it,1) == 0
+        if mod(it,10) == 0
             write(sliprate, join(2*v[P[4].iFlt] .+ P[2].Vpl, " "), "\n")
             write(weakeningrate, join(psi, " "), "\n")
             write(stress, join((tau + P[3].tauo)./1e6, " "), "\n")
