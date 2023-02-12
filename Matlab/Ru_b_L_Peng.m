@@ -185,11 +185,4 @@ export_fig -dpng -r600 Nucleation_size_phase_diagram_b_L_Rubin_Ampuero
 % fclose(fid);
 % 
 
-
-
-
-
-
-
-
 % 0.8 500 0.012 4 0.00 0.03

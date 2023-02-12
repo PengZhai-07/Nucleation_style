@@ -206,7 +206,7 @@ function main(P, alphaa, cos_reduction, coseismic_b)
     # Open files to begin writing
     open(string(out_dir,"stress.out"), "w") do stress    # shear stress 
     open(string(out_dir,"sliprate.out"), "w") do sliprate   # fault sliprate (Vpl+sliprate controlled by RSF)
-    open(string(out_dir,"weakeningrate.out"), "w") do weakeningrate   # fault sliprate (Vpl+sliprate controlled by RSF)
+    open(string(out_dir,"weakeningrate.out"), "w") do weakeningrate   
     #open(string(out_dir,"slip.out"), "w") do slip   
     open(string(out_dir,"delfsec.out"), "w") do dfsec   # cultivate displacement(coseismic)
     open(string(out_dir,"delfsec_each_timestep.out"), "w") do dfsec_et   # cultivate displacement(coseismic)
@@ -581,7 +581,7 @@ function main(P, alphaa, cos_reduction, coseismic_b)
         end
 
         # Write stress, sliprate, slip to file every 10 timesteps
-        if mod(it,10) == 0
+        if mod(it,output_freq) == 0
             write(sliprate, join(2*v[P[4].iFlt] .+ P[2].Vpl, " "), "\n")
             write(weakeningrate, join(psi, " "), "\n")
             write(stress, join((tau + P[3].tauo)./1e6, " "), "\n")

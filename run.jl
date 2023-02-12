@@ -43,18 +43,20 @@ println("Rigidity ratio of fault zone: ",alpha)
 println("Coseismic reduction of rigidity ratio: ", cos_reduction)
 
 # friction parameter on fault surface
-multiple::Int = input_parameter[index,8]  # effective normal stress on fault: 10MPa*multiple
+multiple_asp::Int = input_parameter[index,8]  # effective normal stress on fault: 10MPa*multiple
+multiple_matrix = 0.1
 a_b = input_parameter[index,9] 
-a = 0.015
-coseismic_b =  a/a_b            # coseismic b increase 
-Lc= input_parameter[index,10]     # characteristic slip distance      unit:m
-println("Effective normal stress(10MPa*multiple): ", multiple)
+asp_a = 0.009
+matrix_a = 0.012
+asp_b =  asp_a/a_b            # coseismic b increase 
+Lc = input_parameter[index,10]     # characteristic slip distance      unit:m
+println("Effective normal stress(10MPa*multiple) in asperity: ", multiple)
 println("Coseismic b: ", coseismic_b)
 println("characteristic slip distance(m): ", Lc)
 
 # output path
 turbo = "/nfs/turbo/lsa-yiheh/yiheh-mistorage/pengz/data"
-project = "wholespace/phase_diagram_L_b"
+project = "wholespace/tremor"
 # Output directory to save data
 out_dir = "$(turbo)/$(project)/$(Domain)_$(res)_$(T)_$(FZlength)_$(halfwidth)_$(alpha)_$(cos_reduction)_$(multiple)_$(a_b)_$(Lc)/"    
 print("Output directory: ", out_dir)
@@ -62,10 +64,9 @@ print("Output directory: ", out_dir)
 if isdir(out_dir)
     rm(out_dir, recursive = true)
 end
+mkpath(out_dir)
 
-mkpath(out_dir)      
-
-P = setParameters(FZdepth, halfwidth, res, T, alpha, multiple, Lc, Domain)    # usually includes constant parameters for each simulation 
+P = setParameters(FZdepth, halfwidth, res, T, alpha, multiple_matrix, multiple_asp, Lc, Domain, asp_a, asp_b, matrix_a)    # usually includes constant parameters for each simulation 
 # println(size(P[4].FltNI))   # total number of off-fault GLL nodes
 
 include("$(@__DIR__)/NucleationSize.jl") 
@@ -84,6 +85,9 @@ include("$(@__DIR__)/src/otherFunctions.jl")
 
 include("$(@__DIR__)/src/main.jl")
 
+
+# output_frequency for sliprate, stress and weakening rate
+global output_freq::Int = 10   
 simulation_time = @elapsed @time main(P, alpha, cos_reduction, coseismic_b)     # usually includes variable parameters for each simulation 
 
 println("\n")

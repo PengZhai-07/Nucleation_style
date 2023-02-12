@@ -6,22 +6,24 @@ end
 
 # define the rate and state friction parameter in all 48km long fault 
 # Compute rate-state friciton with depth
-function fricDepth(FltX)
+function fricDepth(FltX, asp_a, asp_b, matrix_a, Domain, multiple_matrix, multiple_asp)
     
     FltNglob = length(FltX)    # number of GLL nodes on fault
     
-    # Friction with depth
-    cca::Array{Float64} = repeat([0.015], FltNglob)
-    ccb::Array{Float64} = repeat([0.019], FltNglob)    # b is always a constant
+    asp_ab = asp_a-asp_b      # a-b value in asperity
+    matrix_ab = matrix_a - asp_b      # a-b value in background matrix
 
-    a_b = cca - ccb     # -0.004 is the initial value of a-B
+    ccb::Array{Float64} = repeat(asp_b, FltNglob)    # b is always a constant
+    a_b::Array{Float64} = repeat(matrix_ab, FltNglob)     # tempory a_b equals matrix_ab
+
+    # setup the transiton for kinematic fault and RSF fault
     # [a-b, depth]   key points of friction coefficient change
-    fP1 = [0.024, 0e3]   # fP1 = [-0.003, 0e3]
-    fP2 = [0.024, -8e3]
-    fP3 = [-0.004, -10e3]
-    fP4 = [-0.004, -20e3]
-    fP5 = [0.024, -22e3]
-    fP6 = [0.024, -30e3]
+    fP1 = [0.024, 0e3]  
+    fP2 = [0.024, -40e3*Domain/12]
+    fP3 = [matrix_ab, -40e3*Domain/6]
+    fP4 = [matrix_ab, -40e3*Domain*5/6]
+    fP5 = [0.024, -40e3*Domain*11/12]
+    fP6 = [0.024, -40e3*Domain]
 
     # Return a vector I of the indices or keys of A
     fric_depth1 = findall(abs.(FltX) .<= abs(fP2[2]))
@@ -36,69 +38,28 @@ function fricDepth(FltX)
     a_b[fric_depth4] .= Int1D(fP4, fP5, FltX[fric_depth4])
     a_b[fric_depth5] .= Int1D(fP5, fP6, FltX[fric_depth5])
 
-    #  cca[fric_depth4] .= Int1D(fP4, fP5, FltX[fric_depth4]) .+ 0.0001
-    cca .= ccb .+ a_b      # so a is variable and b is a constant in all depth
-    #  ccb .= cca .- a_b
+    # setup the distribution of asperities and background matrix 
+    L_fault = fP3[2]-fP4[2]      # length of fault(asperity + background matrix)
+    N::Int = 2e6
+    n::Int = 4     # 1 asperity every n matrix
+    cell_size = L_fault/N     # cell size is about 62.5m
+    N_group::Int = floor(N/(n+1))
+    N_remain = N - N_group*(n+1)    # put it at the beginning of the group
 
-    return cca, ccb, a_b
+    cca .= a_b .+ asp_b      # so a is variable and b is a constant in all depth
 
-end
-
-# Effective normal stress
-function SeffDepth(FltX, multiple)
-
-    FltNglob = length(FltX)
-    NS = multiple*10e6
+    NS = multiple_matrix*10e6    #  tempory Seff equals matrix
     Seff::Array{Float64} = repeat([NS], FltNglob)
-    # sP1 = [0.2*NS 0]
-    # sP2 = [NS -2e3]         # constant normal stress below 2 km
-    # Seff_depth = findall(abs.(FltX) .<= abs(sP2[2]))
-    # Seff[Seff_depth] = Int1D(sP1, sP2, FltX[Seff_depth])
 
-    return Seff
+    for i = 1:N_group
+        index_depth = findall(abs(fP3[2])+ N_remain*cell_size+(i-1)*(n+1)*cell_size .<= abs.(FltX) .<= abs(fP3[2])+ N_remain*cell_size+(i-1)*(n+1)*cell_size+ cell_size)
+        a_b[index_depth] .= asp_ab
+        Seff[index_depth] .= multiple_asp*10e6
+    end
+    tauo::Array{Float64} = Seff.*0.6
 
+    return cca, ccb, a_b, Seff, tauo
 end
-
-# Shear stress
-function tauDepth(FltX, multiple)
-
-    FltNglob = length(FltX)
-    NS = multiple*10e6
-    tauo::Array{Float64} = repeat([0.6*NS], FltNglob)
-    tP1 = [0.45*NS 0]      
-    #tP1 = [0.01e6 0]    
-    tP2 = [0.45*NS -8e3]
-    #  tP2 = [30e6 -0.5e3]
-    tP3 = [0.6*NS -10e3]
-    tP4 = [0.6*NS -20e3]
-    tP5 = [0.45*NS -22e3]
-    tP6 = [0.45*NS -30e3]
-
-    tau_depth1 = findall(abs.(FltX).<=  abs(tP2[2]))
-    tau_depth2 = findall(abs(tP2[2]) .< abs.(FltX) .<= abs(tP3[2]))
-    tau_depth3 = findall(abs(tP3[2]) .< abs.(FltX) .<= abs(tP4[2]))
-    tau_depth4 = findall(abs(tP4[2]) .< abs.(FltX) .<= abs(tP5[2]))
-    tau_depth5 = findall(abs(tP5[2]) .< abs.(FltX) .<= abs(tP6[2]))
-
-    tauo[tau_depth1] .= 0.45*NS
-    tauo[tau_depth2] = Int1D(tP2, tP3, FltX[tau_depth2])
-    tauo[tau_depth4] = Int1D(tP4, tP5, FltX[tau_depth4])
-    tauo[tau_depth5] .= 0.45*NS
-
-    return tauo
-end
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 # test functions

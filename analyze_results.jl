@@ -3,26 +3,6 @@ using DelimitedFiles
 include("$(@__DIR__)/post/event_details.jl")
 include("$(@__DIR__)/post/plotting_script.jl")
 
-# project = "wholespace/variant"
-project = "wholespace/phase_diagram_L_b"
-
-# path to save files
-global path = "$(@__DIR__)/plots/$(project)/$(FILE)/"
-
-# # clean old files 
-# if isdir(path)
-#     rm(path, recursive = true)
-# end
-
-mkpath(path)
-
-# data storage path
-
-turbo = "/nfs/turbo/lsa-yiheh/yiheh-mistorage/pengz/data"
-project = "wholespace/phase_diagram_L_b"
-global out_path = "$(turbo)/$(project)/$(FILE)/"
-# global out_path = "$(@__DIR__)/data/$(project)/$(FILE)/"
-
 # Global variables
 yr2sec = 365*24*60*60
 # comment this part if there is nothing in event_time temporarily
@@ -58,8 +38,12 @@ d_hypo = event_time[:,4]    # unit: m
 println("Cumulative slips when earthquakes happen:",d_hypo) 
 println("Depth of all seismic events:",hypo)
 
-sliprate = readdlm(string(out_path, "sliprate.out"), header=false)   # every 10 timesteps
+sliprate = readdlm(string(out_path, "sliprate.out"), header=false)  
 println("Dimension of sliprate:",size(sliprate))
+
+
+weakeningrate = exp.(readdlm(string(out_path, "weakeningrate.out"), header=false))
+println("Dimension of weakeningrate:",size(weakeningrate))
 
 # coseismic slip on fault for all different events(row)
 delfafter = readdlm(string(out_path, "coseismic_slip.out"), header=false)
@@ -74,7 +58,9 @@ delfyr = readdlm(string(out_path, "delfyr.out"))
 # print(size(delfyr))
 
 delfsec_et = readdlm(string(out_path, "delfsec_each_timestep.out"), header=false)    # every 10 timesteps in coseismic phase
-index_ds_start, index_ds_end = get_index_delfsec(N_events, delfsec_et)        # here the number of event should depend on the event_time.out file, ignore some small events
+index_ds_start, index_ds_end = get_index_delfsec(N_events, delfsec_et)        
+# here the number of effective events should depend on the event_time.out file 
+# and we ignore some small events
  
 println(size(delfsec_et))
 println(index_ds_start)

@@ -4,17 +4,23 @@
 
 using DelimitedFiles
 
-# Universal parameters
-res = 16    # resolution of mesh
-Domain = 0.75    # amplify factor of the domain size, the current domain size is 30km*24km for 0.75 domain size
-T = 500    # total simulation years 
-FZdepth = 0   # depth of lower boundary of damage zone  unit: m     20km is the maximum depth
+# data storage path
+turbo = "/nfs/turbo/lsa-yiheh/yiheh-mistorage/pengz/data"
+project = "wholespace/tremor"
 
-# other input parameter
+# the dimension of input parameters
 input_parameter = readdlm("$(@__DIR__)/whole_space_1.txt", ',',  header=false)
 a = size(input_parameter)[1]
+# output_frequency for sliprate, stress and weakening rate
+global output_freq::Int = 10   
 
-for index = 63:67
+# calculate the nucleation size and plot the nucleation process
+N_timestep = 600      # maximum time steps to use in sliprate to calculate nucleation size
+criteria = 1e-1    # seismic threshold to measure the nucleation size
+measure_threshold = 1e-3    # where measure the width of nucleation zone: 1e-7m/s for 
+                            # constant weakening(expanding crack) and 1e-3m/s for fixed length patch
+
+for index = 69:70
     
     # domain parameters
     Domain = input_parameter[index,1]   # amplify factor of the domain size, the current domain size is 30km*24km for 0.75 domain size
@@ -33,51 +39,43 @@ for index = 63:67
     coseismic_b =  a/a_b            # coseismic b increase 
     Lc= input_parameter[index,10]     # characteristic slip distance      unit:m
 
+    FILE = "$(Domain)_$(res)_$(T)_$(FZlength)_$(halfwidth)_$(alpha)_$(cos_reduction)_$(multiple)_$(a_b)_$(Lc)"
     # global FILE = "$(FZdepth)_$(halfwidth)_$(res)_$(alpha)_$(cos_reduction)_$(multiple)_$(Domain)_$(coseismic_b)_$(Lc)"
-    global FILE = "$(Domain)_$(res)_$(T)_$(FZlength)_$(halfwidth)_$(alpha)_$(cos_reduction)_$(multiple)_$(a_b)_$(Lc)"
+    println(FILE)                                                                                                                                                                                                                                                                                                                             
+    # path to save files
+    global path = "$(@__DIR__)/plots/$(project)/$(FILE)/"
+    mkpath(path)
+    # path to data files
+    global out_path = "$(turbo)/$(project)/$(FILE)/"
+    # global out_path = "$(@__DIR__)/data/$(project)/$(FILE)/"
 
-    println(FILE)
     include("analyze_results.jl")     
-
-    # # total years to plotss
-    N = 150          
-
-    # calculate the nucleation size and plot the nucleation process
-    N_timestep = 2000      # time steps to use in sliprate
-    # for i=1:6    1000
-
-    criteria = 1e-1    # seismic threshold to measure the nucleation size
-    measure_threshold = 1e-3    # where measure the width of nucleation zone: 1e-7m/s for 
-                                # constant weakening(expanding crack) and 1e-3m/s for fixed length patch
 
     # moment_release_example(sliprate', FltX, tStart, t, N_timestep, criteria, measure_threshold)       
 
     # max slip rate versus timestep
-    VfmaxPlot(Vfmax, N, t)
+    VfmaxPlot(Vfmax, T, t)
 
     # culmulative slip
-    cumSlipPlot(delfsec[1:4:end,:], delfyr[1:end, :], FltX, hypo, d_hypo, N);
+    cumSlipPlot(delfsec[1:4:end,:], delfyr[1:end, :], FltX, hypo, d_hypo, 1.2*T);
     # cumSlipPlot_no_hypocenter(delfsec[1:4:end,:], delfyr[1:end, :], FltX, N);
     
     # healing analysis: Vfmax and regidity ratio vs. time
-    healing_analysis(Vfmax, alphaa, t, yr2sec)
+    # healing_analysis(Vfmax, alphaa, t, yr2sec)
     
     # slip rate vs timesteps
     # how many years to plot
-    eqCyclePlot(sliprate', FltX, N, t)
+    eqCyclePlot(sliprate', FltX, T, t)
                         
-    Nucleation_example(sliprate', FltX, tStart, t, N_timestep, criteria, measure_threshold)    # only plot the last seismic event
+    Nucleation_example(sliprate', weakeningrate', FltX, tStart, t, N_timestep, criteria, measure_threshold)    # only plot the last seismic event
 
-    # NS_width = Nucleation(sliprate', FltX, tStart, t, N_timestep, criteria, measure_threshold)
+    NS_width = Nucleation(sliprate', FltX, tStart, t, N_timestep, criteria, measure_threshold)
 
-    # open(string(path,"nucleation info.out"), "w") do io
-    #     for i = 1: size(NS_width)[1]
-    #         write(io, join(NS_width[i,:], " "), "\n") 
-    #     end
-    # end
-
-
-
+    open(string(path,"nucleation info.out"), "w") do io
+        for i = 1: size(NS_width)[1]
+            write(io, join(NS_width[i,:], " "), "\n") 
+        end
+    end
 
     # # # plot the variation of apparent stress
     # # # apparent_friction(stress, index_start, index_end, delfsec, index_ds_start, index_ds_end, depth, t, 2, 50)
@@ -97,7 +95,7 @@ for index = 63:67
 
     # # # sliprate versus time for the last event
     # # n = 2        # how many seismic events to plot
-    # # eqCyclePlot_last_1(sliprate', FltX, tStart, t, N_timestep, n)
+    # # eqCyclePlot_last_1(slipraste', FltX, tStart, t, N_timestep, n)
     # # eqCyclePlot_last_2(sliprate', FltX, tStart, t, N_timestep, n)
 
 

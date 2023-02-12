@@ -71,8 +71,8 @@ function get_index(t, tStart, tEnd)     # get the index of time when earthquake 
     for i in eachindex(tStart[:,1])       # number of seismic events
         temp_start = findall(t[:] .<= tStart[i])[end]       # t[:] us recognized as float value but t is only a substring.
         temp_end = findall(t[:] .<= tEnd[i])[end]
-        indx_start[i]= floor(temp_start/10)          # output every 10 timesteps
-        indx_end[i] = floor(temp_end/10)
+        indx_start[i]= floor(temp_start/output_freq)          # output every 10 timesteps
+        indx_end[i] = floor(temp_end/output_freq)
     end
     return indx_start, indx_end
 
@@ -89,7 +89,7 @@ function get_index_delfsec(N_events, delfsec)    # get the index of all coseismi
     j = 1
     for i = 1:length(delfsec[:,1]) - 1
             if delfsec[i+1,1] - delfsec[i,1] >= 0.5    # the differnce of two group of 
-                # coseismic slip is at least 1 m, so as to get the index of start and end of cosesimic slip
+                # coseismic slip is at least 0.5 m, so as to get the index of start and end of cosesimic slip
                 index_ds_end[j] = i    
                 index_ds_start[j+1] = i+1    
                 j = j+1

@@ -12,7 +12,7 @@ include("$(@__DIR__)/src/damageEvol.jl")   #    Stiffness index of damaged mediu
 include("$(@__DIR__)/src/BoundaryMatrix.jl")    #	Boundary matrices
 include("$(@__DIR__)/src/initialConditions/defaultInitialConditions.jl")
 
-function setParameters(FZdepth::Int, halfwidth::Int, res::Int, T::Int, alpha::Float64, multiple::Int, Lc::Float64, Domain)
+function setParameters(FZdepth::Int, halfwidth::Int, res::Int, T::Int, alpha::Float64, multiple_matrix::Int,multiple_asp::Int, Lc::Float64, Domain, asp_a::Float64, asp_b::Float64, matrix_a::Float64)
 
     LX::Int = Domain*40e3  # depth dimension of rectangular domain
     LY::Int = Domain*32e3 # off fault dimenstion of rectangular domain
@@ -236,23 +236,17 @@ function setParameters(FZdepth::Int, halfwidth::Int, res::Int, T::Int, alpha::Fl
     #......................
     # Initial Conditions
     #......................
-    cca::Vector{Float64}, ccb::Vector{Float64}, a_b = fricDepth(FltX)   # rate-state friction parameters
+    cca::Vector{Float64}, ccb::Vector{Float64}, a_b, Seff::Vector{Float64}, tauo::Vector{Float64}  = fricDepth(FltX, asp_a, asp_b, matrix_a, Domain, multiple_matrix, multiple_asp)   # rate-state friction parameters
     # fric_depth = findall(abs(2e3) .< abs.(FltX) .<= abs(12e3))
     # # println(fric_depth)
     # ccb[fric_depth] .= 0.025
     # println(ccb)
-
-    Seff::Vector{Float64} = SeffDepth(FltX, multiple)       # default effective normal stress: 10MPa
-    #println(Seff)
 
     Snormal::Vector{Float64} = SnormalDepth(FltX)       # effective normal stress
     # println(Snormal)
 
     SSpp::Vector{Float64} = SSppDepth(FltX)       # effective normal stress
     # println(SSpp)
-
-    tauo::Vector{Float64} = tauDepth(FltX, multiple)        # initial shear stress
-    #println(tauo)
 
     # Compute XiLF(largest slip in one timestep!!) used in timestep calculation: constrained by friction law!
     # quasi-static scheme

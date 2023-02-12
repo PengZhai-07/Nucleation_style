@@ -66,17 +66,18 @@ set(0,'defaultfigurecolor','w')
 set(gcf,'Position',[20 20 800 400]);%左下角位置，宽高
 pcolor(X,Y,Cohesive')
 shading interp
+colormap(jet)
 min(min(Cohesive))
 clim([0 75])
-colorbar
+colorbar;
 hold on
 [c,h] = contour(X,Y,Ru',v);
 xticks([log10(L*1000)])
 xticklabels([0.5,0.6,0.8,1,1.3,1.5,2,2.5,3,4,5,6,8,10,12,16,20,25,30,40,50,63,80,100,125])
 set(gca,'XDir','reverse');        %将x轴方向设置为反向(从右到左递增)。
 % set(gca,'YDir','reverse');        %将x轴方向设置为反向(从右到左递增)。
-colormap(jet)
-clabel(c,h,v)
+
+
 xlabel('Characteristic weakening distance(mm)')
 ylabel('a/b')
 box on
@@ -132,11 +133,11 @@ save("Experiment_point.mat",'P')
 
 % title([num2str(H)])
 %% 
-export_fig -dpng -r600 Nucleation_size_phase_diagram_b_L_Rice
+% export_fig -dpng -r600 Nucleation_size_phase_diagram_b_L_Rice
 
 %% output the model parameter file
 
-fid  = fopen('../whole_space_1.txt','wt');
+fid  = fopen('../tremor.txt','wt');
 [u, v] = size(P);
 for i =1:u
       fprintf(fid, ['0.75,16,',num2str(P(i,5)),',0,0,1.0,0.0,4,',num2str(P(i,2)),',',num2str(P(i,3)),'\n']);     
