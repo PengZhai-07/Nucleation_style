@@ -124,7 +124,7 @@ function main(P, alphaa, cos_reduction, coseismic_b)
     dnew::Vector{Float64} = zeros(length(P[4].FltNI))  # save displacements for off-fault GLL nodes
 
     # Save output variables at certain timesteps: define output frequency
-    tvsx::Float64 = 2e-0*P[1].yr2sec  # 2 years for interseismic period
+    tvsx::Float64 = 0.1*P[1].yr2sec  # 0.1 years for interseismic period
     tvsxinc::Float64 = tvsx
 
     tevneinc::Float64 = 0.1    # 0.1 second for coseismic phase
@@ -533,9 +533,9 @@ function main(P, alphaa, cos_reduction, coseismic_b)
         end
         
         #-----
-        # Output the variables certain timesteps: 2yr interseismic, 1 sec coseismic
+        # Output the variables certain timesteps: 0.1 yr interseismic, 1 sec coseismic
         #-----
-        if t > tvsx                  # 2years
+        if t > tvsx                 
             ntvsx = ntvsx + 1
             idd += 1
             #  write(stress, join((tau + P[3].tauo)./1e6, " "), "\n")

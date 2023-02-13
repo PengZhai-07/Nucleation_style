@@ -63,7 +63,7 @@ for index = 1
     VfmaxPlot(Vfmax, T, t)
 
     # culmulative slip
-    cumSlipPlot(delfsec[1:4:end,:], delfyr[1:end, :], FltX, hypo, d_hypo, 1.2*T);
+    # cumSlipPlot(delfsec[1:4:end,:], delfyr[1:end, :], FltX, hypo, d_hypo, 1.2*T);
     # cumSlipPlot_no_hypocenter(delfsec[1:4:end,:], delfyr[1:end, :], FltX, 1.2*T);
 
     
@@ -83,7 +83,7 @@ for index = 1
 
     
     # healing analysis: Vfmax and regidity ratio vs. time
-    # healing_analysis(Vfmax, alphaa, t, yr2sec)
+    healing_analysis(Vfmax, alphaa, t, yr2sec)
 
     # # # plot the variation of apparent stress
     # # # apparent_friction(stress, index_start, index_end, delfsec, index_ds_start, index_ds_end, depth, t, 2, 50)

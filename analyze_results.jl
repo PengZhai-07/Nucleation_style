@@ -54,7 +54,7 @@ println("Total number of all on-fault GLL nodes:",size(delfafter,2))
 
 # displacement on fault line for different time 
 delfsec = readdlm(string(out_path, "delfsec.out"))   # every 0.1 second
-delfyr = readdlm(string(out_path, "delfyr.out"))
+# delfyr = readdlm(string(out_path, "delfyr.out"))
 # print(size(delfyr))
 
 delfsec_et = readdlm(string(out_path, "delfsec_each_timestep.out"), header=false)    # every 10 timesteps in coseismic phase

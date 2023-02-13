@@ -38,11 +38,11 @@ end
 # Plot friction parameters
 function icsPlot(a_b, Seff, tauo, FltX)
     plot_params()
-    fig = PyPlot.figure(figsize=(7.2, 4.45))
+    fig = PyPlot.figure(figsize=(8, 6))
     ax = fig.add_subplot(111)            
     
     ax.plot(Seff, FltX, "b", label="Normal Stress")
-    ax.plot(tauo, FltX, "orange", label="Shear Stress")
+    ax.plot(tauo, FltX, "orange",linestyle="-", label="Shear Stress")
     ax.set_xlabel("Stresses (MPa)")
     ax.set_ylabel("Depth (km)")
     ax.legend(loc="lower right") 
@@ -149,7 +149,7 @@ function eqCyclePlot(sliprate, FltX, N, t)
     ax = fig.add_subplot(111)
 
     c = ax.imshow(value, cmap="viridis", aspect="auto",
-                  norm=matplotlib.colors.LogNorm(vmin=1e-15, vmax=1e-3),
+                  norm=matplotlib.colors.LogNorm(vmin=1e-9, vmax=1e-3),
                   interpolation="none",    # the interpolation method decide the final slip rate distrbution!!
                   extent=[0,length(value[1,:]), 0,6])
 
