@@ -44,9 +44,9 @@ println("Coseismic reduction of rigidity ratio: ", cos_reduction)
 
 # friction parameter on fault surface
 multiple::Int = input_parameter[index,8]  # effective normal stress on fault: 10MPa*multiple
-a_b = input_parameter[index,9] 
+a_over_b = input_parameter[index,9] 
 a = 0.015
-coseismic_b =  a/a_b            # coseismic b increase 
+coseismic_b =  a/a_over_b            # coseismic b increase 
 Lc= input_parameter[index,10]     # characteristic slip distance      unit:m
 println("Effective normal stress(10MPa*multiple): ", multiple)
 println("Coseismic b: ", coseismic_b)
@@ -56,7 +56,7 @@ println("characteristic slip distance(m): ", Lc)
 turbo = "/nfs/turbo/lsa-yiheh/yiheh-mistorage/pengz/data"
 project = "wholespace/phase_diagram_L_b"
 # Output directory to save data
-out_dir = "$(turbo)/$(project)/$(Domain)_$(res)_$(T)_$(FZlength)_$(halfwidth)_$(alpha)_$(cos_reduction)_$(multiple)_$(a_b)_$(Lc)/"    
+out_dir = "$(turbo)/$(project)/$(Domain)_$(res)_$(T)_$(FZlength)_$(halfwidth)_$(alpha)_$(cos_reduction)_$(multiple)_$(a_over_b)_$(Lc)/"    
 print("Output directory: ", out_dir)
 # clean old files 
 if isdir(out_dir)
@@ -84,6 +84,7 @@ include("$(@__DIR__)/src/otherFunctions.jl")
 
 include("$(@__DIR__)/src/main.jl")
 
+global output_freq::Int = 10
 simulation_time = @elapsed @time main(P, alpha, cos_reduction, coseismic_b)     # usually includes variable parameters for each simulation 
 
 println("\n")
