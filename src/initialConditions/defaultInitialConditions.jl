@@ -6,15 +6,16 @@ end
 
 # define the rate and state friction parameter in all 48km long fault 
 # Compute rate-state friciton with depth
-function fricDepth(FltX, asp_a, asp_b, matrix_a, Domain, multiple_matrix, multiple_asp)
+function fricDepth(FltX, asp_a, asp_b, matrix_a, Domain, multiple_matrix, multiple_asp, matrix_asp_ratio)
     
     FltNglob = length(FltX)    # number of GLL nodes on fault
     
     asp_ab = asp_a-asp_b      # a-b value in asperity
     matrix_ab = matrix_a - asp_b      # a-b value in background matrix
 
-    ccb::Array{Float64} = repeat(asp_b, FltNglob)    # b is always a constant
-    a_b::Array{Float64} = repeat(matrix_ab, FltNglob)     # tempory a_b equals matrix_ab
+    cca::Array{Float64} = repeat([asp_a], FltNglob)    # tempory a equals matrix_ab
+    ccb::Array{Float64} = repeat([asp_b], FltNglob)    # b is always a constant
+    a_b::Array{Float64} = repeat([matrix_ab], FltNglob)     # tempory a_b equals matrix_ab
 
     # setup the transiton for kinematic fault and RSF fault
     # [a-b, depth]   key points of friction coefficient change
@@ -40,23 +41,29 @@ function fricDepth(FltX, asp_a, asp_b, matrix_a, Domain, multiple_matrix, multip
 
     # setup the distribution of asperities and background matrix 
     L_fault = fP3[2]-fP4[2]      # length of fault(asperity + background matrix)
-    N::Int = 2e6
-    n::Int = 4     # 1 asperity every n matrix
+    N::Int = 2^6
     cell_size = L_fault/N     # cell size is about 62.5m
-    N_group::Int = floor(N/(n+1))
-    N_remain = N - N_group*(n+1)    # put it at the beginning of the group
-
-    cca .= a_b .+ asp_b      # so a is variable and b is a constant in all depth
+    N_group::Int = floor(N/(matrix_asp_ratio+1))
+    N_remain::Int = floor(N - N_group*(matrix_asp_ratio+1))/2    # put it at the beginning of the group
+    
+    println("Cell size: ", cell_size)
+    println("Total number of groups: ", N_group)
+    println("Remain cells/2: ", N_remain)
 
     NS = multiple_matrix*10e6    #  tempory Seff equals matrix
     Seff::Array{Float64} = repeat([NS], FltNglob)
 
     for i = 1:N_group
-        index_depth = findall(abs(fP3[2])+ N_remain*cell_size+(i-1)*(n+1)*cell_size .<= abs.(FltX) .<= abs(fP3[2])+ N_remain*cell_size+(i-1)*(n+1)*cell_size+ cell_size)
+
+        index_depth = findall(abs(fP3[2])+ N_remain*cell_size+(i-1)*(matrix_asp_ratio+1)*cell_size .<= abs.(FltX) .<= abs(fP3[2])+ N_remain*cell_size+(i-1)*(matrix_asp_ratio+1)*cell_size+cell_size)
+        println("asperity GLL node index:", index_depth)
         a_b[index_depth] .= asp_ab
         Seff[index_depth] .= multiple_asp*10e6
+        
     end
     tauo::Array{Float64} = Seff.*0.6
+
+    cca .= a_b .+ asp_b      # so a is variable and b is a constant in all depth
 
     return cca, ccb, a_b, Seff, tauo
 end

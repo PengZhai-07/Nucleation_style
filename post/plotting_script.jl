@@ -35,17 +35,52 @@ function plot_params()
 
 end
 
+# Plot friction parameters
+function icsPlot(a_b, Seff, tauo, FltX)
+    plot_params()
+    fig = PyPlot.figure(figsize=(7.2, 4.45))
+    ax = fig.add_subplot(111)            
+    
+    ax.plot(Seff, FltX, "b", label="Normal Stress")
+    ax.plot(tauo, FltX, "orange", label="Shear Stress")
+    ax.set_xlabel("Stresses (MPa)")
+    ax.set_ylabel("Depth (km)")
+    ax.legend(loc="lower right") 
+    
+    col="tab:green"
+    ax2 = ax.twiny()
+    ax2.plot(a_b, FltX, "g",label="(a-b)")
+    #println(FltX)
+    # seismogenic_depth = findall(abs(10) .< abs.(FltX) .<= abs(20))   # note: unit of FltX here is km
+    # a_b[seismogenic_depth] .= a_b[seismogenic_depth] .- 0.006
+    # #println(a_b)
+    # ax2.plot(a_b, FltX, "r",label="coseismic (a-b)", linestyle=":")
+    ax2.set_xlabel("Rate-state friction value (a-b)", color=col)
+    ax2.get_xaxis().set_tick_params(color=col)
+    ax2.tick_params(axis="x", labelcolor=col)  
+    ax2.set_xlim([-0.005,0.040])
+    ax2.legend(loc="lower left") 
+
+    ax.set_ylim([0,6])
+    ax.invert_yaxis()
+    show()
+    
+    figname = string(path, "initial_condition.png")
+    fig.savefig(figname, dpi = 300)
+end
+
 # Plot Vfmax
 function VfmaxPlot(Vfmax, N, t)
     plot_params()
     fig = PyPlot.figure(figsize=(7.2, 3.45))
     ax = fig.add_subplot(111)
 
-    t_seconds = (N+100) * 365 * 24 * 60 * 60 
+    t_seconds = (N) * 365 * 24 * 60 * 60 
     indx_last = findall(t .<= t_seconds)[end]   # last event!
 
     ax.plot(Vfmax[1:indx_last], lw = 2.0)
-    ax.plot([0, indx_last],[1e-3, 1e-3] , "k", linestyle=":", label="Seismic threshold")
+    ax.plot([0, indx_last],[1e-3, 1e-3] , "k", linestyle="-", label="Seismic threshold")
+    ax.plot([0, indx_last],[1e-5, 1e-5] , "k", linestyle=":", label="tremor threshold")
     ax.legend(loc="upper right") 
     ax.set_xlabel("Time steps")
     ax.set_ylabel("Max. Slip rate (m/s)")
@@ -60,8 +95,8 @@ end
 # Plot cumulative slip
 function cumSlipPlot(delfsec, delfyr, FltX, hypo, d_hypo, N)
     
-    indx_1 = findall(abs.(FltX) .<= 25)[1]
-    indx_2 = findall(abs.(FltX) .>= 5)[end]
+    indx_1 = findall(abs.(FltX) .<= 5)[1]
+    indx_2 = findall(abs.(FltX) .>= 1)[end]
 
     print(indx_1)
     print(indx_2)
@@ -79,9 +114,9 @@ function cumSlipPlot(delfsec, delfyr, FltX, hypo, d_hypo, N)
     ax.plot(d_hypo, hypo./1000, "*", color="saddlebrown", markersize=25)
     ax.set_xlabel("Cumulative Slip (m)")
     ax.set_ylabel("Depth (km)")
-    ax.set_ylim([0,30])
+    ax.set_ylim([0,6])
 
-    L = (N+100) * 365 * 24 * 60 * 60 * 1e-9
+    L = (N) * 365 * 24 * 60 * 60 * 1e-9
     ax.set_xlim([0,L])
     #ax.set_xlim([0,9.0])
     ax.invert_yaxis()
@@ -116,7 +151,7 @@ function eqCyclePlot(sliprate, FltX, N, t)
     c = ax.imshow(value, cmap="viridis", aspect="auto",
                   norm=matplotlib.colors.LogNorm(vmin=1e-15, vmax=1e-3),
                   interpolation="none",    # the interpolation method decide the final slip rate distrbution!!
-                  extent=[0,length(value[1,:]), 0,30])
+                  extent=[0,length(value[1,:]), 0,6])
 
     # for stress
     #  c = ax.imshow(value, cmap="inferno", aspect="auto",
@@ -882,39 +917,7 @@ fig.savefig(figname, dpi = 300)
 end
 
 
-# Plot friction parameters
-function icsPlot(a_b, Seff, tauo, FltX )
-    plot_params()
-    fig = PyPlot.figure(figsize=(7.2, 4.45))
-    ax = fig.add_subplot(111)            
-    
-    ax.plot(Seff, FltX, "b", label="Normal Stress")
-    ax.plot(tauo, FltX, "orange", label="Shear Stress")
-    ax.set_xlabel("Stresses (MPa)")
-    ax.set_ylabel("Depth (km)")
-    ax.legend(loc="lower right") 
-    
-    col="tab:green"
-    ax2 = ax.twiny()
-    ax2.plot(a_b, FltX, "g",label="(a-b)")
-    #println(FltX)
-    seismogenic_depth = findall(abs(10) .< abs.(FltX) .<= abs(20))   # note: unit of FltX here is km
-    a_b[seismogenic_depth] .= a_b[seismogenic_depth] .- 0.006
-    #println(a_b)
-    ax2.plot(a_b, FltX, "r",label="coseismic (a-b)", linestyle=":")
-    ax2.set_xlabel("Rate-state friction value (a-b)", color=col)
-    ax2.get_xaxis().set_tick_params(color=col)
-    ax2.tick_params(axis="x", labelcolor=col)  
-    ax2.set_xlim([-0.015,0.040])
-    ax2.legend(loc="lower left") 
 
-    ax.set_ylim([0,30])
-    ax.invert_yaxis()
-    show()
-    
-    figname = string(path, "initial_condition.png")
-    fig.savefig(figname, dpi = 300)
-end
 
 function velocity_dependence_b(x1 ,x2, y1, y2)
     plot_params()

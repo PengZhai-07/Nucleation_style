@@ -145,8 +145,8 @@ function main(P, alphaa, cos_reduction, coseismic_b)
     Vf = 2*v[P[4].iFlt]      # about 1e-3
     
     # Creeping fault
-    iFBC_a::Vector{Int64} = findall(abs.(P[3].FltX) .> 25e3)
-    iFBC_b::Vector{Int64} = findall(abs.(P[3].FltX) .< 5e3)
+    iFBC_a::Vector{Int64} = findall(abs.(P[3].FltX) .> 40e3*Domain*11/12)
+    iFBC_b::Vector{Int64} = findall(abs.(P[3].FltX) .< 40e3*Domain/12)
     iFBC = vcat(iFBC_a, iFBC_b)
     println(iFBC)
 
@@ -198,6 +198,7 @@ function main(P, alphaa, cos_reduction, coseismic_b)
         write(io, join(-P[3].FltX/1e3, " "), "\n")  # depth  unit: km   
         write(io, join(P[3].cca, " "), "\n")
         write(io, join(P[3].ccb, " "), "\n")
+        write(io, join(P[3].a_b, " "), "\n")
         write(io, join(P[3].xLf, " "), "\n")
     end
     open(string(out_dir,"mass_matrix.out"), "w") do io

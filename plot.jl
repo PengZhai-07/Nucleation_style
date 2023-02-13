@@ -9,7 +9,7 @@ turbo = "/nfs/turbo/lsa-yiheh/yiheh-mistorage/pengz/data"
 project = "wholespace/tremor"
 
 # the dimension of input parameters
-input_parameter = readdlm("$(@__DIR__)/whole_space_1.txt", ',',  header=false)
+input_parameter = readdlm("$(@__DIR__)/tremor_end_number.txt", ',', header=false)
 a = size(input_parameter)[1]
 # output_frequency for sliprate, stress and weakening rate
 global output_freq::Int = 10   
@@ -20,7 +20,7 @@ criteria = 1e-1    # seismic threshold to measure the nucleation size
 measure_threshold = 1e-3    # where measure the width of nucleation zone: 1e-7m/s for 
                             # constant weakening(expanding crack) and 1e-3m/s for fixed length patch
 
-for index = 69:70
+for index = 1
     
     # domain parameters
     Domain = input_parameter[index,1]   # amplify factor of the domain size, the current domain size is 30km*24km for 0.75 domain size
@@ -33,13 +33,16 @@ for index = 69:70
     alpha = input_parameter[index,6]   # initial(background) rigidity ratio: fault zone/host rock
     cos_reduction = input_parameter[index,7]    # coseismic rigidity reduction 
     # friction parameter on fault surface
-    multiple::Int = input_parameter[index,8]  # effective normal stress on fault: 10MPa*multiple
-    a_b = input_parameter[index,9] 
-    local a = 0.015
-    coseismic_b =  a/a_b            # coseismic b increase 
+    multiple_asp::Int = input_parameter[index,8]  # effective normal stress on fault: 10MPa*multiple
+    multiple_matrix = 0.1
+    a_over_b = input_parameter[index,9] 
+    asp_a = 0.009
+    matrix_a = 0.012
+    asp_b =  asp_a/a_over_b            # coseismic b increase 
     Lc= input_parameter[index,10]     # characteristic slip distance      unit:m
+    matrix_asp_ratio::Int= input_parameter[index,11]     # characteristic slip distance      unit:m
 
-    FILE = "$(Domain)_$(res)_$(T)_$(FZlength)_$(halfwidth)_$(alpha)_$(cos_reduction)_$(multiple)_$(a_b)_$(Lc)"
+    FILE = "$(Domain)_$(res)_$(T)_$(FZlength)_$(halfwidth)_$(alpha)_$(cos_reduction)_$(multiple_asp)_$(a_over_b)_$(Lc)_$(matrix_asp_ratio)"
     # global FILE = "$(FZdepth)_$(halfwidth)_$(res)_$(alpha)_$(cos_reduction)_$(multiple)_$(Domain)_$(coseismic_b)_$(Lc)"
     println(FILE)                                                                                                                                                                                                                                                                                                                             
     # path to save files
@@ -53,29 +56,34 @@ for index = 69:70
 
     # moment_release_example(sliprate', FltX, tStart, t, N_timestep, criteria, measure_threshold)       
 
+    # Plot friction parameters
+    icsPlot(a_b, Seff, tauo, FltX)
+
     # max slip rate versus timestep
     VfmaxPlot(Vfmax, T, t)
 
     # culmulative slip
     cumSlipPlot(delfsec[1:4:end,:], delfyr[1:end, :], FltX, hypo, d_hypo, 1.2*T);
-    # cumSlipPlot_no_hypocenter(delfsec[1:4:end,:], delfyr[1:end, :], FltX, N);
-    
-    # healing analysis: Vfmax and regidity ratio vs. time
-    # healing_analysis(Vfmax, alphaa, t, yr2sec)
+    # cumSlipPlot_no_hypocenter(delfsec[1:4:end,:], delfyr[1:end, :], FltX, 1.2*T);
+
     
     # slip rate vs timesteps
     # how many years to plot
     eqCyclePlot(sliprate', FltX, T, t)
                         
-    Nucleation_example(sliprate', weakeningrate', FltX, tStart, t, N_timestep, criteria, measure_threshold)    # only plot the last seismic event
+    # Nucleation_example(sliprate', weakeningrate', FltX, tStart, t, N_timestep, criteria, measure_threshold)    # only plot the last seismic event
 
-    NS_width = Nucleation(sliprate', FltX, tStart, t, N_timestep, criteria, measure_threshold)
+    # NS_width = Nucleation(sliprate', FltX, tStart, t, N_timestep, criteria, measure_threshold)
 
-    open(string(path,"nucleation info.out"), "w") do io
-        for i = 1: size(NS_width)[1]
-            write(io, join(NS_width[i,:], " "), "\n") 
-        end
-    end
+    # open(string(path,"nucleation info.out"), "w") do io
+    #     for i = 1: size(NS_width)[1]
+    #         write(io, join(NS_width[i,:], " "), "\n") 
+    #     end
+    # end
+
+    
+    # healing analysis: Vfmax and regidity ratio vs. time
+    # healing_analysis(Vfmax, alphaa, t, yr2sec)
 
     # # # plot the variation of apparent stress
     # # # apparent_friction(stress, index_start, index_end, delfsec, index_ds_start, index_ds_end, depth, t, 2, 50)
@@ -99,12 +107,11 @@ for index = 69:70
     # # eqCyclePlot_last_2(sliprate', FltX, tStart, t, N_timestep, n)
 
 
-    # # Plot friction parameters
-    # icsPlot(a_b, Seff, tauo, FltX)
+
 
     # # Plot velocity dependence of b
     # velocity_dependence_b(1e-5, 1e-3, 0.019, 0.025)
 
-    # # plot the b value in rate and state friction law
+    # plot the b value in rate and state friction law
     # velocity_dependence(b_value, Vfmax, t, yr2sec)
 end

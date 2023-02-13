@@ -12,7 +12,7 @@ include("$(@__DIR__)/src/damageEvol.jl")   #    Stiffness index of damaged mediu
 include("$(@__DIR__)/src/BoundaryMatrix.jl")    #	Boundary matrices
 include("$(@__DIR__)/src/initialConditions/defaultInitialConditions.jl")
 
-function setParameters(FZdepth::Int, halfwidth::Int, res::Int, T::Int, alpha::Float64, multiple_matrix::Int,multiple_asp::Int, Lc::Float64, Domain, asp_a::Float64, asp_b::Float64, matrix_a::Float64)
+function setParameters(FZdepth::Int, halfwidth::Int, res::Int, T::Int, alpha::Float64, multiple_matrix::Float64,multiple_asp::Int, Lc::Float64, Domain, asp_a::Float64, asp_b::Float64, matrix_a::Float64,matrix_asp_ratio::Int)
 
     LX::Int = Domain*40e3  # depth dimension of rectangular domain
     LY::Int = Domain*32e3 # off fault dimenstion of rectangular domain
@@ -64,7 +64,8 @@ function setParameters(FZdepth::Int, halfwidth::Int, res::Int, T::Int, alpha::Fl
 
     # default: host rock!!
     rho1::Float64 = 2670
-    vs1::Float64 = 3462
+    # vs1::Float64 = 3462
+    vs1::Float64 = 3352
     
     # # The entire medium has low rigidity
     # rho1::Float64 = 2500
@@ -236,7 +237,7 @@ function setParameters(FZdepth::Int, halfwidth::Int, res::Int, T::Int, alpha::Fl
     #......................
     # Initial Conditions
     #......................
-    cca::Vector{Float64}, ccb::Vector{Float64}, a_b, Seff::Vector{Float64}, tauo::Vector{Float64}  = fricDepth(FltX, asp_a, asp_b, matrix_a, Domain, multiple_matrix, multiple_asp)   # rate-state friction parameters
+    cca::Vector{Float64}, ccb::Vector{Float64}, a_b, Seff::Vector{Float64}, tauo::Vector{Float64}  = fricDepth(FltX, asp_a, asp_b, matrix_a, Domain, multiple_matrix, multiple_asp,matrix_asp_ratio)   # rate-state friction parameters
     # fric_depth = findall(abs(2e3) .< abs.(FltX) .<= abs(12e3))
     # # println(fric_depth)
     # ccb[fric_depth] .= 0.025
@@ -265,18 +266,18 @@ function setParameters(FZdepth::Int, halfwidth::Int, res::Int, T::Int, alpha::Fl
     # println("fbc=", fbc)
     # println(findall(x .== -24e3)[1])    # the point on the fault at the depth of 24km
 
-    idx_1 = findall(fbc .== findall(x .>= -25e3)[1]-1)[1]     # lower boundary of frictional parameters: over 20km are all creeping fault
-    idx_2 = findall(fbc .== findall(x .>= -5e3)[1])[1] 
+    idx_1 = findall(fbc .== findall(x .>= -40e3*Domain*11/12)[1]-1)[1]     # lower boundary of frictional parameters: over 20km are all creeping fault
+    idx_2 = findall(fbc .== findall(x .>= -40e3*Domain/12)[1])[1] 
 
     println("idx_1=", idx_1)
     println("idx_2=", idx_2)
     #println("idx=", idx)
     #println(fbc[idx_2:end])
 
-    FltIglobBC::Vector{Int} = vcat(fbc[1:idx_1], fbc[idx_2+2:idx_2+idx_1+1])  # GLL nodes within creeping fault (>20 km)  with repeated nodes
+    FltIglobBC::Vector{Int} = vcat(fbc[1:idx_1], fbc[idx_2+2:idx_2+idx_1])  # GLL nodes within creeping fault (>20 km)  with repeated nodes
     # keep the number of GLL nodes in the two creeping zone the same
     println(fbc[1:idx_1])
-    println(fbc[idx_2+2:idx_2+idx_1+1])
+    println(fbc[idx_2+2:idx_2+idx_1])
 
     # # Kelvin-Voigt Viscosity : one technical method to increase the convergence rate
     # Nel_ETA::Int = 0   # not used! 
@@ -303,7 +304,7 @@ function setParameters(FZdepth::Int, halfwidth::Int, res::Int, T::Int, alpha::Fl
     return params_int(Nel, FltNglob, yr2sec, Total_time, IDstate, nglob),
             params_float(ETA, Vpl, Vthres, Vevne, dt, mu, ThickY),
             # arrary = vector
-            params_farray(fo, Vo, xLf, M, BcBC, BcRC, BcTC, FltL, FltZ, FltX, cca, ccb, Seff, Snormal, SSpp, 
+            params_farray(fo, Vo, xLf, M, BcBC, BcRC, BcTC, FltL, FltZ, FltX, cca, ccb, a_b, Seff, Snormal, SSpp, 
             tauo, XiLf, x_out, y_out),
             params_iarray(iFlt, iBcB, iBcR, iBcT, FltIglobBC, FltNI, out_seis), 
             Ksparse, iglob, NGLL, wgll2, nglob, did
@@ -365,6 +366,7 @@ struct params_farray{T<:Vector{Float64}}
 
     cca::T    # a of RSF 
     ccb::T    # b of RSF 
+    a_b::T    # a-b of all nodes on the fault
     Seff::T   # effective normal stress
     Snormal::T   # initial normal stress
     SSpp::T   # initial steady state pore pressure

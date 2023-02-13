@@ -24,8 +24,8 @@ FltX = params[3,:]
 #println("Dimension of FltX:",size(FltX))
 cca = params[4,:]
 ccb = params[5,:]
-a_b = cca .- ccb
-Lc = params[6,:]
+a_b = params[6,:]
+Lc = params[7,:]
 
 event_time = readdlm(string(out_path, "event_time.out"), header=false)
 tStart = event_time[:,1]
@@ -76,14 +76,14 @@ stressdrops = taubefore .- tauafter
 stress = readdlm(string(out_path, "stress.out"), header=false)   # timesteps/10, shear stress on fault line points
 # get the start and end time of every seismic event
 index_start, index_end = get_index(t, tStart, tEnd)         # 
-# println(index_start)
-# println(index_end)
+println(index_start)
+println(index_end)
 
 
 #Event_details
 
 rho1 = 2670
-vs1 = 3462
+vs1 = 3352
 rho2 = 2670
 vs2 = sqrt(alphaa[1])*vs1
 mu = rho2*vs2^2    # to calculate seismic moment
