@@ -154,7 +154,7 @@ function main(P, alphaa, cos_reduction, coseismic_b)
     NFBC_a::Int64 = iFBC_a[end] + 1
     NFBC_b::Int64 = iFBC_b[1] - 1
     NFBC = [NFBC_a, NFBC_b]
-    println("Index of nodes in weakening zone:", NFBC)
+    println("Index of nodes in RSF zone:", NFBC)
 
     Vf[iFBC] .= 0.             # set the initial fault slip rate (within creeping fault) to be zero
     v[P[4].FltIglobBC] .= 0.   # set the initial fault slip rate (within creeping fault) to be zero
