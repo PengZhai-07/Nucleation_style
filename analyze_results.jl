@@ -3,25 +3,7 @@ using DelimitedFiles
 include("$(@__DIR__)/post/event_details.jl")
 include("$(@__DIR__)/post/plotting_script.jl")
 
-# project = "wholespace/variant"
-project = "wholespace/phase_diagram_L_b"
 
-# path to save files
-global path = "$(@__DIR__)/plots/$(project)/$(FILE)/"
-
-# # clean old files 
-# if isdir(path)
-#     rm(path, recursive = true)
-# end
-
-mkpath(path)
-
-# data storage path
-
-turbo = "/nfs/turbo/lsa-yiheh/yiheh-mistorage/pengz/data"
-project = "wholespace/phase_diagram_L_b"
-global out_path = "$(turbo)/$(project)/$(FILE)/"
-# global out_path = "$(@__DIR__)/data/$(project)/$(FILE)/"
 
 # Global variables
 yr2sec = 365*24*60*60
@@ -60,6 +42,9 @@ println("Depth of all seismic events:",hypo)
 
 sliprate = readdlm(string(out_path, "sliprate.out"), header=false)   # every 10 timesteps
 println("Dimension of sliprate:",size(sliprate))
+
+# weakeningrate = exp.(readdlm(string(out_path, "weakeningrate.out"), header=false))
+# println("Dimension of weakeningrate:",size(weakeningrate))
 
 # coseismic slip on fault for all different events(row)
 delfafter = readdlm(string(out_path, "coseismic_slip.out"), header=false)

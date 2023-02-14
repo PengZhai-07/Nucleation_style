@@ -4,17 +4,17 @@
 
 using DelimitedFiles
 
-# Universal parameters
-res = 16    # resolution of mesh
-Domain = 0.75    # amplify factor of the domain size, the current domain size is 30km*24km for 0.75 domain size
-T = 500    # total simulation years 
-FZdepth = 0   # depth of lower boundary of damage zone  unit: m     20km is the maximum depth
+# data storage path
+global output_freq = 10
+
+turbo = "/nfs/turbo/lsa-yiheh/yiheh-mistorage/pengz/data"
+project = "wholespace/phase_diagram_L_b"
 
 # other input parameter
 input_parameter = readdlm("$(@__DIR__)/whole_space_1.txt", ',',  header=false)
 a = size(input_parameter)[1]
 
-for index = 63:67
+for index = 1:57
     
     # domain parameters
     Domain = input_parameter[index,1]   # amplify factor of the domain size, the current domain size is 30km*24km for 0.75 domain size
@@ -28,19 +28,31 @@ for index = 63:67
     cos_reduction = input_parameter[index,7]    # coseismic rigidity reduction 
     # friction parameter on fault surface
     multiple::Int = input_parameter[index,8]  # effective normal stress on fault: 10MPa*multiple
-    a_b = input_parameter[index,9] 
+    a_over_b = input_parameter[index,9] 
     local a = 0.015
-    coseismic_b =  a/a_b            # coseismic b increase 
+    coseismic_b::Float64 =  a/a_over_b            # coseismic b increase 
     Lc= input_parameter[index,10]     # characteristic slip distance      unit:m
 
-    # global FILE = "$(FZdepth)_$(halfwidth)_$(res)_$(alpha)_$(cos_reduction)_$(multiple)_$(Domain)_$(coseismic_b)_$(Lc)"
-    global FILE = "$(Domain)_$(res)_$(T)_$(FZlength)_$(halfwidth)_$(alpha)_$(cos_reduction)_$(multiple)_$(a_b)_$(Lc)"
-
+    global FILE = "0_500_$(res)_0.8_$(cos_reduction)_$(multiple)_$(Domain)_$(coseismic_b)_$(Lc)"
+    # global FILE = "$(Domain)_$(res)_$(T)_$(FZlength)_$(halfwidth)_$(alpha)_$(cos_reduction)_$(multiple)_$(a_over_b)_$(Lc)"
     println(FILE)
+
+    # global out_path = "$(turbo)/$(project)/$(FILE)/"
+    global out_path = "$(@__DIR__)/data/$(project)/$(FILE)/"
+
+    # path to save files
+    global path = "$(@__DIR__)/plots/$(project)/$(FILE)/"
+        # # clean old files 
+    # if isdir(path)
+    #     rm(path, recursive = true)
+    # end
+
+    mkpath(path)
+
     include("analyze_results.jl")     
 
-    # # total years to plotss
-    N = 150          
+    # # total years to plots
+    N = 500          
 
     # calculate the nucleation size and plot the nucleation process
     N_timestep = 2000      # time steps to use in sliprate
@@ -66,6 +78,7 @@ for index = 63:67
     # how many years to plot
     eqCyclePlot(sliprate', FltX, N, t)
                         
+    # Nucleation_example(sliprate',weakeningrate', FltX, tStart, t, N_timestep, criteria, measure_threshold)    # only plot the last seismic event
     Nucleation_example(sliprate', FltX, tStart, t, N_timestep, criteria, measure_threshold)    # only plot the last seismic event
 
     # NS_width = Nucleation(sliprate', FltX, tStart, t, N_timestep, criteria, measure_threshold)
