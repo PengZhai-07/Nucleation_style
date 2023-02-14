@@ -84,8 +84,8 @@ include("$(@__DIR__)/src/otherFunctions.jl")
 
 include("$(@__DIR__)/src/main.jl")
 
-simulation_time = @elapsed @time main(P, alpha, cos_reduction, coseismic_b)     # usually includes variable parameters for each simulation 
+# simulation_time = @elapsed @time main(P, alpha, cos_reduction, coseismic_b, Domain)     # usually includes variable parameters for each simulation 
 
-println("\n")
+# println("\n")
 
-@info("Simulation Complete!");
+# @info("Simulation Complete!");

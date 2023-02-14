@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #SBATCH --job-name=case190-210
-#SBATCH --array=58-78
+#SBATCH --array=58
 
 ##SBATCH --mail-user=pengzhai@umich.edu
 ##SBATCH --mail-type=FAIL,ARRAY_TASKS

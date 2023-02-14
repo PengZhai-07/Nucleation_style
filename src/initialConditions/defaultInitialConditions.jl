@@ -6,7 +6,7 @@ end
 
 # define the rate and state friction parameter in all 48km long fault 
 # Compute rate-state friciton with depth
-function fricDepth(FltX)
+function fricDepth(FltX, Domain)
     
     FltNglob = length(FltX)    # number of GLL nodes on fault
     
@@ -17,11 +17,11 @@ function fricDepth(FltX)
     a_b = cca - ccb     # -0.004 is the initial value of a-B
     # [a-b, depth]   key points of friction coefficient change
     fP1 = [0.024, 0e3]   # fP1 = [-0.003, 0e3]
-    fP2 = [0.024, -8e3]
-    fP3 = [-0.004, -10e3]
-    fP4 = [-0.004, -20e3]
-    fP5 = [0.024, -22e3]
-    fP6 = [0.024, -30e3]
+    fP2 = [0.024, -40e3*Domain/3+2e3]
+    fP3 = [-0.004, -40e3*Domain/3]
+    fP4 = [-0.004, -40e3*Domain*2/3]
+    fP5 = [0.024, -40e3*Domain*2/3-2e3]
+    fP6 = [0.024, -40e3*Domain]
 
     # Return a vector I of the indices or keys of A
     fric_depth1 = findall(abs.(FltX) .<= abs(fP2[2]))
@@ -67,12 +67,12 @@ function tauDepth(FltX, multiple)
     tauo::Array{Float64} = repeat([0.6*NS], FltNglob)
     tP1 = [0.45*NS 0]      
     #tP1 = [0.01e6 0]    
-    tP2 = [0.45*NS -8e3]
+    tP2 = [0.45*NS -40e3*Domain/3+2e3]
     #  tP2 = [30e6 -0.5e3]
-    tP3 = [0.6*NS -10e3]
-    tP4 = [0.6*NS -20e3]
-    tP5 = [0.45*NS -22e3]
-    tP6 = [0.45*NS -30e3]
+    tP3 = [0.6*NS -40e3*Domain/3]
+    tP4 = [0.6*NS -40e3*Domain*2/3]
+    tP5 = [0.45*NS -40e3*Domain*2/3-2e3]
+    tP6 = [0.45*NS -40e3*Domain]
 
     tau_depth1 = findall(abs.(FltX).<=  abs(tP2[2]))
     tau_depth2 = findall(abs(tP2[2]) .< abs.(FltX) .<= abs(tP3[2]))

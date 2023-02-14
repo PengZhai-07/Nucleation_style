@@ -37,7 +37,7 @@ function healing2(t,tStart,dam, cos_reduction)
     hmax*(1 .- exp.(-r*(t .- tStart)/P[1].yr2sec)) .+ dam     # hmax*(1 .- exp.(-r*(t .- tStart)/P[1].yr2sec)) > 0, when time is about 10 years, alphaa = dam + 0.05, healing completely!
 end
 
-function main(P, alphaa, cos_reduction, coseismic_b)
+function main(P, alphaa, cos_reduction, coseismic_b,Domain)
 
     # please refer to par.jl to see the specific meaning of P
     # P[1] = integer  Nel, FltNglob, yr2sec, Total_time, IDstate, nglob
@@ -145,8 +145,8 @@ function main(P, alphaa, cos_reduction, coseismic_b)
     Vf = 2*v[P[4].iFlt]      # about 1e-3
     
     # Creeping fault
-    iFBC_a::Vector{Int64} = findall(abs.(P[3].FltX) .> 25e3)
-    iFBC_b::Vector{Int64} = findall(abs.(P[3].FltX) .< 5e3)
+    iFBC_a::Vector{Int64} = findall(abs.(P[3].FltX) .> Domain*40e3*5/6)
+    iFBC_b::Vector{Int64} = findall(abs.(P[3].FltX) .< Domain*40e3/6)
     iFBC = vcat(iFBC_a, iFBC_b)
     println(iFBC)
 
