@@ -1,13 +1,13 @@
 #!/bin/bash
 
 #SBATCH --job-name=tremor_test
-#SBATCH --array=1
+#SBATCH --array=3-4
 
 ##SBATCH --mail-user=pengzhai@umich.edu
 ##SBATCH --mail-type=FAIL,ARRAY_TASKS
 #SBATCH --nodes=1
 ##SBATCH --ntasks-per-node=1
-#SBATCH --cpus-per-task=16
+#SBATCH --cpus-per-task=32
 
 #SBATCH --mem=30000m
 #SBATCH --time=14-00:00:00
@@ -17,4 +17,4 @@
 #SBATCH --output=/home/%u/log/%x-%j.log
 #SBATCH --error=/home/%u/log/error-%x-%j.log
 
-julia --threads 16 run.jl $SLURM_ARRAY_TASK_ID tremor_end_number.txt
+julia --threads 32 run.jl $SLURM_ARRAY_TASK_ID tremor_end_number.txt

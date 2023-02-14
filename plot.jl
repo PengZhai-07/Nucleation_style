@@ -19,7 +19,6 @@ N_timestep = 600      # maximum time steps to use in sliprate to calculate nucle
 criteria = 1e-1    # seismic threshold to measure the nucleation size
 measure_threshold = 1e-3    # where measure the width of nucleation zone: 1e-7m/s for 
                             # constant weakening(expanding crack) and 1e-3m/s for fixed length patch
-
 for index = 1
     
     # domain parameters

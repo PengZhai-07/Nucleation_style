@@ -6,7 +6,7 @@ end
 
 # define the rate and state friction parameter in all 48km long fault 
 # Compute rate-state friciton with depth
-function fricDepth(FltX, asp_a, asp_b, matrix_a, Domain, multiple_matrix, multiple_asp, matrix_asp_ratio)
+function fricDepth(FltX, asp_a, asp_b, matrix_a, Domain, multiple_matrix, multiple_asp, matrix_asp_ratio,N)
     
     FltNglob = length(FltX)    # number of GLL nodes on fault
     
@@ -41,14 +41,13 @@ function fricDepth(FltX, asp_a, asp_b, matrix_a, Domain, multiple_matrix, multip
 
     # setup the distribution of asperities and background matrix 
     L_fault = fP3[2]-fP4[2]      # length of fault(asperity + background matrix)
-    N::Int = 2^6
     cell_size = L_fault/N     # cell size is about 62.5m
-    N_group::Int = floor(N/(matrix_asp_ratio+1))
-    N_remain::Int = floor(N - N_group*(matrix_asp_ratio+1))/2    # put it at the beginning of the group
+    N_group = floor(N/(matrix_asp_ratio+1))
+    N_remain = N - N_group*(matrix_asp_ratio+1)   # put it at the beginning of the group
     
     println("Cell size: ", cell_size)
     println("Total number of groups: ", N_group)
-    println("Remain cells/2: ", N_remain)
+    println("Remain cells: ", N_remain)
 
     NS = multiple_matrix*10e6    #  tempory Seff equals matrix
     Seff::Array{Float64} = repeat([NS], FltNglob)

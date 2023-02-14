@@ -12,7 +12,7 @@ include("$(@__DIR__)/src/damageEvol.jl")   #    Stiffness index of damaged mediu
 include("$(@__DIR__)/src/BoundaryMatrix.jl")    #	Boundary matrices
 include("$(@__DIR__)/src/initialConditions/defaultInitialConditions.jl")
 
-function setParameters(FZdepth::Int, halfwidth::Int, res::Int, T::Int, alpha::Float64, multiple_matrix::Float64,multiple_asp::Int, Lc::Float64, Domain, asp_a::Float64, asp_b::Float64, matrix_a::Float64,matrix_asp_ratio::Int)
+function setParameters(FZdepth::Int, halfwidth::Int, res::Int, T::Int, alpha::Float64, multiple_matrix::Float64,multiple_asp::Int, Dc::Float64, Domain, asp_a::Float64, asp_b::Float64, matrix_a::Float64,matrix_asp_ratio::Int, G::Float64,N::Int)
 
     LX::Int = Domain*40e3  # depth dimension of rectangular domain
     LY::Int = Domain*32e3 # off fault dimenstion of rectangular domain
@@ -65,7 +65,7 @@ function setParameters(FZdepth::Int, halfwidth::Int, res::Int, T::Int, alpha::Fl
     # default: host rock!!
     rho1::Float64 = 2670
     # vs1::Float64 = 3462
-    vs1::Float64 = 3352
+    vs1::Float64 = sqrt(G/rho1)
     
     # # The entire medium has low rigidity
     # rho1::Float64 = 2500
@@ -79,8 +79,7 @@ function setParameters(FZdepth::Int, halfwidth::Int, res::Int, T::Int, alpha::Fl
     # note: it is not necessary to define the damage zone here with healing
     # But if with healing, we need to define the rigidity ratio here!!
 
-    mu = rho1*vs1^2
-    println("The shear modulus of hostrock is: ",mu)     # the default value is about 32GPa(3.2038e10)
+    println("The shear modulus of hostrock is: ",G)     # the default value is about 32GPa(3.2038e10)
 
     # without viscosity damping
     ETA = 0.
@@ -98,7 +97,7 @@ function setParameters(FZdepth::Int, halfwidth::Int, res::Int, T::Int, alpha::Fl
     # frictional parameters along the fault line (X direction)
     fo::Vector{Float64} = repeat([0.6], FltNglob)       #	Reference friction coefficient
     Vo::Vector{Float64} = repeat([1e-6], FltNglob)		#	Reference velocity 'Vo'  unit: m/s
-    xLf::Vector{Float64} = repeat([Lc], FltNglob)    #	Dc (Lc)
+    xLf::Vector{Float64} = repeat([Dc], FltNglob)    #	Dc (Lc)
 
     Vthres::Float64 = 0.001     # unit: m/s  if max slip rate is higher than this value, earthquake happens
     Vevne::Float64 = Vthres    # redefine the velocity threshold!!
@@ -237,7 +236,7 @@ function setParameters(FZdepth::Int, halfwidth::Int, res::Int, T::Int, alpha::Fl
     #......................
     # Initial Conditions
     #......................
-    cca::Vector{Float64}, ccb::Vector{Float64}, a_b, Seff::Vector{Float64}, tauo::Vector{Float64}  = fricDepth(FltX, asp_a, asp_b, matrix_a, Domain, multiple_matrix, multiple_asp,matrix_asp_ratio)   # rate-state friction parameters
+    cca::Vector{Float64}, ccb::Vector{Float64}, a_b, Seff::Vector{Float64}, tauo::Vector{Float64}  = fricDepth(FltX, asp_a, asp_b, matrix_a, Domain, multiple_matrix, multiple_asp,matrix_asp_ratio,N)   # rate-state friction parameters
     # fric_depth = findall(abs(2e3) .< abs.(FltX) .<= abs(12e3))
     # # println(fric_depth)
     # ccb[fric_depth] .= 0.025
@@ -302,7 +301,7 @@ function setParameters(FZdepth::Int, halfwidth::Int, res::Int, T::Int, alpha::Fl
     @printf("dt: %1.09f s\n", dt)   # minimal timestep during coseismic stage
 
     return params_int(Nel, FltNglob, yr2sec, Total_time, IDstate, nglob),
-            params_float(ETA, Vpl, Vthres, Vevne, dt, mu, ThickY),
+            params_float(ETA, Vpl, Vthres, Vevne, dt, G, ThickY),
             # arrary = vector
             params_farray(fo, Vo, xLf, M, BcBC, BcRC, BcTC, FltL, FltZ, FltX, cca, ccb, a_b, Seff, Snormal, SSpp, 
             tauo, XiLf, x_out, y_out),
@@ -345,7 +344,7 @@ struct params_float{T<:AbstractFloat}
 
     # Setup parameters
     dt::T        # timestep based on CFL creterion   
-    mu::T        # shear modulus of host rock
+    G::T        # shear modulus of host rock
     ThickY::T     # real halfwidth of damage zone
 end
 

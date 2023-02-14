@@ -49,17 +49,29 @@ a_over_b = input_parameter[index,9]
 asp_a = 0.009
 matrix_a = 0.012
 asp_b::Float64 =  asp_a/a_over_b            # coseismic b increase 
-Lc = input_parameter[index,10]     # characteristic slip distance      unit:m
+asp_criticalness = input_parameter[index,10]
+
+N::Int = 2^4       # number of cells in RSF fault
+G::Float64 = 3e10   # shear modulus of model material   unit: Pa
+cell_size = (40e3*Domain*2/3)/N
+Lc::Float64 = cell_size/asp_criticalness      # nucleation size using Rice and Ruina's equation     unit:m
+Dc = 4/pi*Lc/G*(asp_b-asp_a)*multiple_asp*10e6   # inferred Dc value
+
 matrix_asp_ratio::Int = input_parameter[index,11]
+
+println("Total number of cells: ", N)
+println("Cell size(m): ", cell_size)
 println("Effective normal stress(10MPa*multiple) in asperity: ", multiple_asp)
 println("b in asperity: ", asp_b)
-println("characteristic slip distance(m): ", Lc)
+println("The nucleation size of homogeneous host medium(m):", Lc)
+println("characteristic slip distance(m): ", Dc)
+println("Cohesive zone size(m): ", 9*pi/32*G*Dc/asp_b/(multiple_asp*10e6))
 
 # output path
 turbo = "/nfs/turbo/lsa-yiheh/yiheh-mistorage/pengz/data"
 project = "wholespace/tremor"
 # Output directory to save data
-out_dir = "$(turbo)/$(project)/$(Domain)_$(res)_$(T)_$(FZlength)_$(halfwidth)_$(alpha)_$(cos_reduction)_$(multiple_asp)_$(a_over_b)_$(Lc)_$(matrix_asp_ratio)/"    
+out_dir = "$(turbo)/$(project)/$(Domain)_$(res)_$(T)_$(FZlength)_$(halfwidth)_$(alpha)_$(cos_reduction)_$(multiple_asp)_$(a_over_b)_$(asp_criticalness)_$(matrix_asp_ratio)/"    
 print("Output directory: ", out_dir)
 # clean old files 
 if isdir(out_dir)
@@ -67,18 +79,18 @@ if isdir(out_dir)
 end
 mkpath(out_dir)
 
-P = setParameters(FZdepth, halfwidth, res, T, alpha, multiple_matrix, multiple_asp, Lc, Domain, asp_a, asp_b, matrix_a,matrix_asp_ratio)    # usually includes constant parameters for each simulation 
+P = setParameters(FZdepth, halfwidth, res, T, alpha, multiple_matrix, multiple_asp, Dc, Domain, asp_a, asp_b, matrix_a,matrix_asp_ratio,G,N)    # usually includes constant parameters for each simulation 
 # println(size(P[4].FltNI))   # total number of off-fault GLL nodes
 
-include("$(@__DIR__)/NucleationSize.jl") 
-# calculate the nucleation size of initial rigidity ratio!!
-h_hom_host, h_hom_dam = NucleationSize(P, alpha)
-println("The nucleation size of homogeneous host medium:", h_hom_host, " m")
-println("The nucleation size of homogeneous damage medium:", h_hom_dam, " m")
-# # h_dam = h_hom/3           # with alphaa = 0.60
-# # println("The approximate nucleation size of damage zone medium:", h_dam, " m")
-CZone = CohesiveZoneSize(P, alpha)
-println("The downlimit (damage) Cohesive zone size:", CZone, " m")
+# include("$(@__DIR__)/NucleationSize.jl") 
+# # calculate the nucleation size of initial rigidity ratio!!
+# h_hom_host, h_hom_dam = NucleationSize(P, alpha)
+# println("The nucleation size of homogeneous host medium:", h_hom_host, " m")
+# println("The nucleation size of homogeneous damage medium:", h_hom_dam, " m")
+# # # h_dam = h_hom/3           # with alphaa = 0.60
+# # # println("The approximate nucleation size of damage zone medium:", h_dam, " m")
+# CZone = CohesiveZoneSize(P, alpha)
+# println("The downlimit (damage) Cohesive zone size:", CZone, " m")
 
 include("$(@__DIR__)/src/dtevol.jl")
 include("$(@__DIR__)/src/NRsearch.jl")
@@ -86,11 +98,10 @@ include("$(@__DIR__)/src/otherFunctions.jl")
 
 include("$(@__DIR__)/src/main.jl")
 
+# output_frequency for sliprate, stress and weakening rate
+global output_freq::Int = 10   
+simulation_time = @elapsed @time main(P, alpha, cos_reduction, asp_b)     # usually includes variable parameters for each simulation 
 
-# # output_frequency for sliprate, stress and weakening rate
-# global output_freq::Int = 10   
-# simulation_time = @elapsed @time main(P, alpha, cos_reduction, asp_b)     # usually includes variable parameters for each simulation 
+println("\n")
 
-# println("\n")
-
-# @info("Simulation Complete!");
+@info("Simulation Complete!");
