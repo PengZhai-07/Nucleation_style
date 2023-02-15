@@ -236,7 +236,7 @@ function setParameters(FZdepth::Int, halfwidth::Int, res::Int, T::Int, alpha::Fl
     #......................
     # Initial Conditions
     #......................
-    cca::Vector{Float64}, ccb::Vector{Float64}, a_b = fricDepth(FltX)   # rate-state friction parameters
+    cca::Vector{Float64}, ccb::Vector{Float64}, a_b = fricDepth(FltX,Domain)   # rate-state friction parameters
     # fric_depth = findall(abs(2e3) .< abs.(FltX) .<= abs(12e3))
     # # println(fric_depth)
     # ccb[fric_depth] .= 0.025
@@ -271,8 +271,8 @@ function setParameters(FZdepth::Int, halfwidth::Int, res::Int, T::Int, alpha::Fl
     # println("fbc=", fbc)
     # println(findall(x .== -24e3)[1])    # the point on the fault at the depth of 24km
 
-    idx_1 = findall(fbc .== findall(x .>= -25e3)[1]-1)[1]     # lower boundary of frictional parameters: over 20km are all creeping fault
-    idx_2 = findall(fbc .== findall(x .>= -5e3)[1])[1] 
+    idx_1 = findall(fbc .== findall(x .>= -Domain*40e3*5/6)[1]-1)[1]     # lower boundary of frictional parameters: over 20km are all creeping fault
+    idx_2 = findall(fbc .== findall(x .>= -Domain*40e3/6)[1])[1] 
 
     println("idx_1=", idx_1)
     println("idx_2=", idx_2)
