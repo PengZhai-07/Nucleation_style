@@ -33,7 +33,7 @@ println("Total simulation time(year): ",T)
 
 # fault zone parameter
 FZlength::Int = input_parameter[index,4]    # length of fault zone: m
-FZdepth::Int = (40*Domain+FZlength)/2   # depth of lower boundary of damage zone  unit: m    
+FZdepth::Int = (40e3*Domain+FZlength)/2   # depth of lower boundary of damage zone  unit: m    
 halfwidth::Int =  input_parameter[index,5]   # half width of damage zone   unit:m
 alpha = input_parameter[index,6]   # initial(background) rigidity ratio: fault zone/host rock
 cos_reduction = input_parameter[index,7]    # coseismic rigidity reduction 
@@ -55,7 +55,7 @@ N::Int = 2^4       # number of cells in RSF fault
 G::Float64 = 3e10   # shear modulus of model material   unit: Pa
 cell_size = (40e3*Domain*2/3)/N
 Lc::Float64 = cell_size/asp_criticalness      # nucleation size using Rice and Ruina's equation     unit:m
-Dc = 4/pi*Lc/G*(asp_b-asp_a)*multiple_asp*10e6   # inferred Dc value
+Dc = pi/2*Lc/G/asp_b*(asp_b-asp_a)^2*multiple_asp*10e6     # inferred Dc value
 
 matrix_asp_ratio::Int = input_parameter[index,11]
 

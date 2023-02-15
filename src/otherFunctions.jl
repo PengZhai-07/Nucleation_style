@@ -17,11 +17,11 @@ function IDS!(xLf, Vo, psi, dt, Vf, cnd, IDstate = 2)   # default value is 2, ag
     elseif IDstate == 2                 # aging law
         VdtL = abs(Vf)*dt/xLf               # 
         if VdtL < cnd
-            # psi1 = log1( exp1(psi-VdtL) + Vo*dt/xLf -
+            # psi1 = log1(exp1(psi-VdtL) + Vo*dt/xLf -
                         # 0.5*Vo*abs(Vf)*(dt)^2/(xLf^2))
-            psi1 = log1((exp1(psi-VdtL) + abs(Vf)*dt/xLf - 0.5*abs(Vf)^2*(dt)^2/(xLf^2))*Vo/Vf)
+            psi1 = log1((exp1(psi)/Vo*abs(Vf)*exp1(-VdtL) + abs(Vf)*dt/xLf - 0.5*abs(Vf)^2*(dt)^2/(xLf^2))*Vo/abs(Vf))
         else
-            psi1 = log1((exp1(psi-VdtL) + 1 - exp1(-VdtL))*Vo/Vf)
+            psi1 = log1((exp1(psi)/Vo*abs(Vf)*exp1(-VdtL) + 1 - exp1(-VdtL))*Vo/abs(Vf))
         end
 
     elseif IDstate == 3
