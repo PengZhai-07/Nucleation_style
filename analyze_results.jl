@@ -43,8 +43,8 @@ println("Depth of all seismic events:",hypo)
 sliprate = readdlm(string(out_path, "sliprate.out"), header=false)   # every 10 timesteps
 println("Dimension of sliprate:",size(sliprate))
 
-# weakeningrate = exp.(readdlm(string(out_path, "weakeningrate.out"), header=false))
-# println("Dimension of weakeningrate:",size(weakeningrate))
+weakeningrate = readdlm(string(out_path, "weakeningrate.out"), header=false)
+println("Dimension of weakeningrate:",size(weakeningrate))
 
 # coseismic slip on fault for all different events(row)
 delfafter = readdlm(string(out_path, "coseismic_slip.out"), header=false)
