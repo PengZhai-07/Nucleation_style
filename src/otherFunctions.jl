@@ -19,9 +19,9 @@ elseif IDstate == 2                 # aging law
     if VdtL < cnd
         # psi1 = log1( exp1(psi-VdtL) + Vo*dt/xLf -
                     # 0.5*Vo*abs(Vf)*(dt)^2/(xLf^2))
-        psi1 = log1((exp1(psi-VdtL) + abs(Vf)*dt/xLf - 0.5*abs(Vf)^2*(dt)^2/(xLf^2))*Vo/Vf)
+        psi1 = log1((exp1(psi/Vo*Vf-VdtL) + abs(Vf)*dt/xLf - 0.5*abs(Vf)^2*(dt)^2/(xLf^2))*Vo/Vf)
     else
-        psi1 = log1((exp1(psi-VdtL) + 1 - exp1(-VdtL))*Vo/Vf)
+        psi1 = log1((exp1(psi/Vo*Vf-VdtL) + 1 - exp1(-VdtL))*Vo/Vf)
     end
 
     elseif IDstate == 3
@@ -33,7 +33,7 @@ elseif IDstate == 2                 # aging law
         end
     end
 
-    return psi1
+    return psi1     # the meaning of psi is determined by ln(V0*θ/Dc)
 
 end
 

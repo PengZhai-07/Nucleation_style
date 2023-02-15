@@ -33,12 +33,12 @@ for index = 23
     coseismic_b::Float64 =  a/a_over_b            # coseismic b increase 
     Lc= input_parameter[index,10]     # characteristic slip distance      unit:m
 
-    global FILE = "0_500_$(res)_0.8_$(cos_reduction)_$(multiple)_$(Domain)_$(coseismic_b)_$(Lc)"
-    # global FILE = "$(Domain)_$(res)_$(T)_$(FZlength)_$(halfwidth)_$(alpha)_$(cos_reduction)_$(multiple)_$(a_over_b)_$(Lc)"
+    # global FILE = "0_500_$(res)_0.8_$(cos_reduction)_$(multiple)_$(Domain)_$(coseismic_b)_$(Lc)"
+    global FILE = "$(Domain)_$(res)_$(T)_$(FZlength)_$(halfwidth)_$(alpha)_$(cos_reduction)_$(multiple)_$(a_over_b)_$(Lc)"
     println(FILE)
 
-    global out_path = "$(turbo)/$(project)/$(FILE)/"
-    # global out_path = "$(@__DIR__)/data/$(project)/$(FILE)/"
+    # global out_path = "$(turbo)/$(project)/$(FILE)/"
+    global out_path = "$(@__DIR__)/data/$(project)/$(FILE)/"
 
     # path to save files
     global path = "$(@__DIR__)/plots/$(project)/$(FILE)/"
@@ -51,8 +51,6 @@ for index = 23
 
     include("analyze_results.jl")     
 
-    # # total years to plots
-    # N = 100          
     N = T
 
     # calculate the nucleation size and plot the nucleation process
