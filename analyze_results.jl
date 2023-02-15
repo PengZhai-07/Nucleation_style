@@ -8,7 +8,6 @@ yr2sec = 365*24*60*60
 # comment this part if there is nothing in event_time temporarily
 
 # Read data
-
 time_vel = readdlm(string(out_path, "time_velocity.out"), header=false, Float64)
 t = time_vel[:,1]         # all real timsteps
 Vfmax = time_vel[:,2]
@@ -40,7 +39,6 @@ println("Depth of all seismic events:",hypo)
 
 sliprate = readdlm(string(out_path, "sliprate.out"), header=false)  
 println("Dimension of sliprate:",size(sliprate))
-
 
 weakeningrate = exp.(readdlm(string(out_path, "weakeningrate.out"), header=false))
 println("Dimension of weakeningrate:",size(weakeningrate))

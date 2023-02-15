@@ -44,11 +44,11 @@ println("Coseismic reduction of rigidity ratio: ", cos_reduction)
 
 # friction parameter on fault surface
 multiple_asp::Int = input_parameter[index,8]  # effective normal stress on fault: 10MPa*multiple
-multiple_matrix = 0.1
+multiple_matrix = 0.1              # 0.1*10MPa
 a_over_b = input_parameter[index,9] 
-asp_a = 0.009
-matrix_a = 0.012
-asp_b::Float64 =  asp_a/a_over_b            # coseismic b increase 
+asp_a = 0.005
+matrix_a = 0.015
+asp_b::Float64 =  asp_a/a_over_b      # coseismic b increase 
 asp_criticalness = input_parameter[index,10]
 
 N::Int = 2^4       # number of cells in RSF fault

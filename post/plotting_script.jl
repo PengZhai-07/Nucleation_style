@@ -171,6 +171,45 @@ function eqCyclePlot(sliprate, FltX, N, t)
     fig.savefig(figname, dpi = 600)
     
 end
+
+function eqCyclePlot_stress(stress, FltX, N, t)
+
+    t_seconds = N * 365 * 24 * 60 * 60 
+    indx_last = findall(t .<= t_seconds)[end]   # last event!
+    indx_last_int::Int = floor(indx_last/output_freq)
+
+    indx = findall(abs.(FltX) .<= 30)[1]
+    value = stress[indx:end,1:indx_last_int]    
+
+    # depth = FltX[indx:end]
+
+    plot_params()
+    fig = PyPlot.figure(figsize=(7.2, 4.45))
+    ax = fig.add_subplot(111)
+
+    c = ax.imshow(value, cmap="viridis", aspect="auto",
+                norm=matplotlib.colors.Normalize(11.5,12.5),
+                interpolation="none",    # the interpolation method decide the final slip rate distrbution!!
+                extent=[0,length(value[1,:]), 0,6])
+
+    # for stress
+    #  c = ax.imshow(value, cmap="inferno", aspect="auto",
+                  #  vmin=22.5, vmax=40,
+                  #  interpolation="bicubic",
+                  #  extent=[0,length(seismic_slipvel[1,:]), 0,16])
+    
+    ax.set_xlabel("Variable Timesteps")
+    ax.set_ylabel("Depth (km)")
+
+    ax.invert_yaxis()
+    cbar = fig.colorbar(c, label = "Shear stress(MPa)")
+    #   cbar.set_ticks(cbar.get_ticks()[1:2:end])
+    
+    # show()
+    figname = string(path, "stress_time.png")
+    fig.savefig(figname, dpi = 600)
+    
+end
  
 function moment_release_example(sliprate, FltX, tStart, t, N, criteria, measure_threshold)
     n_before = 150             # 200 time steps before seismic threshold 
