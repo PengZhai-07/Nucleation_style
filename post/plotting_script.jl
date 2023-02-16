@@ -235,7 +235,7 @@ function Nucleation(sliprate, FltX, tStart, t, N, criteria, measure_threshold)
 end
 
 function Nucleation_example(sliprate, weakeningrate, FltX, tStart, t, N, criteria, measure_threshold)
-    n_before =300             # 200 time steps before seismic threshold 
+    n_before = 100             # 200 time steps before seismic threshold 
     n = length(tStart)         # how many seimsic events
     # n = 5
     NS_width = zeros(n-1,4)
@@ -244,7 +244,7 @@ function Nucleation_example(sliprate, weakeningrate, FltX, tStart, t, N, criteri
     fig = PyPlot.figure(figsize=(20, 10))
     # for i = 1: n-1 
 
-    for i = 1     # plot the i_th normal earthquake: choose by yourself    if i=n-1, then plot the last one!!
+    for i = n-3     # plot the i_th normal earthquake: choose by yourself    if i=n-1, then plot the last one!!
         #println("Time of the last seismic event(s):",tStart[end])
         indx_last = findall(t[:].<= tStart[i+1])[end]   
         indx_last_int::Int = floor(indx_last/output_freq)
@@ -291,6 +291,7 @@ function Nucleation_example(sliprate, weakeningrate, FltX, tStart, t, N, criteri
 
         ax2 = fig.add_subplot(1, 2, 2)
         ax2.plot(depth, value_1[:,1:20:n_before+nn],color="blue", )        # plot every five steps
+        ax2.plot([depth[1],depth[end]],[1, 1] , "k", linestyle=":", label="Ω=1")
         ax2.set_yscale("log")
         ax2.set_xlim([8,22])    
         ax2.set_xlabel("Depth(km)")
