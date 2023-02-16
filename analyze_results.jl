@@ -5,7 +5,6 @@ include("$(@__DIR__)/post/plotting_script.jl")
 
 # Global variables
 yr2sec = 365*24*60*60
-# comment this part if there is nothing in event_time temporarily
 
 # Read data
 time_vel = readdlm(string(out_path, "time_velocity.out"), header=false, Float64)
@@ -16,7 +15,6 @@ alphaa = time_vel[:,3]         # initial background rigidity ratio
 
 # Order of storage: Seff, tauo, FltX, cca, ccb, xLf
 params = readdlm(string(out_path, "params.out"), header=false)
-
 Seff = params[1,:]
 tauo = params[2,:]
 FltX = params[3,:]
@@ -77,12 +75,12 @@ index_start, index_end = get_index(t, tStart, tEnd)         #
 println(index_start)
 println(index_end)
 
-
 #Event_details
-
-rho1 = 2670
-vs1 = 3352
-rho2 = 2670
+G = 3e10
+# comment this part if there is nothing in event_time temporarily
+rho1::Float64 = 2670
+vs1::Float64 = sqrt(G/rho1)
+rho2 = rho1
 vs2 = sqrt(alphaa[1])*vs1
 mu = rho2*vs2^2    # to calculate seismic moment
 println("Shear modulus of damage zone:",mu)

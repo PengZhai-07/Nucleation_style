@@ -20,11 +20,11 @@ function fricDepth(FltX, asp_a, asp_b, matrix_a, Domain, multiple_matrix, multip
     # setup the transiton for kinematic fault and RSF fault
     # [a-b, depth]   key points of friction coefficient change
     fP1 = [0.024, 0e3]  
-    fP2 = [0.024, -40e3*Domain/12]
-    fP3 = [matrix_ab, -40e3*Domain/6]
-    fP4 = [matrix_ab, -40e3*Domain*5/6]
-    fP5 = [0.024, -40e3*Domain*11/12]
-    fP6 = [0.024, -40e3*Domain]
+    fP2 = [0.024, -Domain_X*Domain/6]
+    fP3 = [matrix_ab, -Domain_X*Domain/3]
+    fP4 = [matrix_ab, -Domain_X*Domain*2/3]
+    fP5 = [0.024, -Domain_X*Domain*5/6]
+    fP6 = [0.024, -Domain_X*Domain]
 
     # Return a vector I of the indices or keys of A
     fric_depth1 = findall(abs.(FltX) .<= abs(fP2[2]))
@@ -42,8 +42,8 @@ function fricDepth(FltX, asp_a, asp_b, matrix_a, Domain, multiple_matrix, multip
     # setup the distribution of asperities and background matrix 
     L_fault = fP3[2]-fP4[2]      # length of fault(asperity + background matrix)
     cell_size = L_fault/N     # cell size is about 62.5m
-    N_group = floor(N/(matrix_asp_ratio+1))
-    N_remain = N - N_group*(matrix_asp_ratio+1)   # put it at the beginning of the group
+    N_group::Int = floor(N/(matrix_asp_ratio+1))
+    N_remain::Int = N - N_group*(matrix_asp_ratio+1)   # put it at the beginning of the group
     
     println("Cell size: ", cell_size)
     println("Total number of groups: ", N_group)
@@ -56,7 +56,21 @@ function fricDepth(FltX, asp_a, asp_b, matrix_a, Domain, multiple_matrix, multip
 
         index_depth = findall(abs(fP3[2])+ N_remain*cell_size+(i-1)*(matrix_asp_ratio+1)*cell_size .<= abs.(FltX) .<= abs(fP3[2])+ N_remain*cell_size+(i-1)*(matrix_asp_ratio+1)*cell_size+cell_size)
         println("asperity GLL node index:", index_depth)
+        # set the transiton
         a_b[index_depth] .= asp_ab
+
+        index_transition_left = collect((index_depth[1] - floor(Int, length(index_depth)/2)):index_depth[1])
+        println("The transition points: ",index_transition_left)
+        fP_a = [matrix_ab, FltX[index_transition_left[1]]]
+        fP_b = [asp_ab, FltX[index_transition_left[end]]]
+        a_b[index_transition_left] .= Int1D(fP_a, fP_b, FltX[index_transition_left])
+
+        index_transition_right = collect(index_depth[end]:(index_depth[end] + floor(Int, length(index_depth)/2)))
+        println("The transition points: ",index_transition_right)
+        fP_a = [asp_ab, FltX[index_transition_right[1]]]
+        fP_b = [matrix_ab, FltX[index_transition_right[end]]]
+        a_b[index_transition_right] .= Int1D(fP_a, fP_b, FltX[index_transition_right])
+       
         Seff[index_depth] .= multiple_asp*10e6
         
     end

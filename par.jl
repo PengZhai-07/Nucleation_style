@@ -12,10 +12,10 @@ include("$(@__DIR__)/src/damageEvol.jl")   #    Stiffness index of damaged mediu
 include("$(@__DIR__)/src/BoundaryMatrix.jl")    #	Boundary matrices
 include("$(@__DIR__)/src/initialConditions/defaultInitialConditions.jl")
 
-function setParameters(FZdepth::Int, halfwidth::Int, res::Int, T::Int, alpha::Float64, multiple_matrix::Float64,multiple_asp::Int, Dc::Float64, Domain, asp_a::Float64, asp_b::Float64, matrix_a::Float64,matrix_asp_ratio::Int, G::Float64,N::Int)
+function setParameters(FZdepth::Float64, halfwidth::Float64, res::Int, T::Int, alpha::Float64, multiple_matrix::Float64,multiple_asp::Int, Dc::Float64, Domain::Float64, asp_a::Float64, asp_b::Float64, matrix_a::Float64,matrix_asp_ratio::Int, G::Float64,N::Int)
 
-    LX::Int = Domain*40e3  # depth dimension of rectangular domain
-    LY::Int = Domain*32e3 # off fault dimenstion of rectangular domain
+    LX::Int = Domain*Domain_X  # depth dimension of rectangular domain
+    LY::Int = Domain*Domain_Y # off fault dimenstion of rectangular domain
 
     NelX::Int = 25*res*Domain # no. of elements in x
     NelY::Int = 20*res*Domain # no. of elements in y
@@ -85,8 +85,10 @@ function setParameters(FZdepth::Int, halfwidth::Int, res::Int, T::Int, alpha::Fl
     ETA = 0.
 
     # Low velocity layer dimensions
-    ThickX::Float64 = LX - ceil(FZdepth/dxe)*dxe   # ~distance from low boundary to fault zone low boundary
-    ThickY::Float64 = ceil(halfwidth/dye)*dye     # ~ default halfwidth value: 0.25 km wide
+    # ThickX::Float64 = LX - ceil(FZdepth/dxe)*dxe   # ~distance from low boundary to fault zone low boundary
+    # ThickY::Float64 = ceil(halfwidth/dye)*dye     # ~ default halfwidth value: 0.25 km wide
+    ThickX::Float64 = LX - FZdepth   # ~distance from low boundary to fault zone low boundary
+    ThickY::Float64 = halfwidth    # ~ default halfwidth value: 0.25 km wide
     # when the resolution is low, the halfwidth of fault damage zone can not be two small 
 
     #.......................
@@ -240,7 +242,7 @@ function setParameters(FZdepth::Int, halfwidth::Int, res::Int, T::Int, alpha::Fl
     # fric_depth = findall(abs(2e3) .< abs.(FltX) .<= abs(12e3))
     # # println(fric_depth)
     # ccb[fric_depth] .= 0.025
-    # println(ccb)
+    println(a_b)
 
     Snormal::Vector{Float64} = SnormalDepth(FltX)       # effective normal stress
     # println(Snormal)
@@ -265,18 +267,18 @@ function setParameters(FZdepth::Int, halfwidth::Int, res::Int, T::Int, alpha::Fl
     # println("fbc=", fbc)
     # println(findall(x .== -24e3)[1])    # the point on the fault at the depth of 24km
 
-    idx_1 = findall(fbc .== findall(x .>= -40e3*Domain*11/12)[1]-1)[1]     # lower boundary of frictional parameters: over 20km are all creeping fault
-    idx_2 = findall(fbc .== findall(x .>= -40e3*Domain/12)[1])[1] 
+    idx_1 = findall(fbc .== findall(x .>= -Domain_X*Domain*5/6)[1])[1]     # lower boundary of frictional parameters: over 20km are all creeping fault
+    idx_2 = findall(fbc .== findall(x .>= -Domain_X*Domain/6)[1])[1] 
 
     println("idx_1=", idx_1)
     println("idx_2=", idx_2)
     #println("idx=", idx)
     #println(fbc[idx_2:end])
 
-    FltIglobBC::Vector{Int} = vcat(fbc[1:idx_1], fbc[idx_2+1:idx_2+idx_1])  # GLL nodes within creeping fault (>20 km)  with repeated nodes
+    FltIglobBC::Vector{Int} = vcat(fbc[1:idx_1-1], fbc[idx_2+1:idx_2+idx_1-1])  # GLL nodes within creeping fault (>20 km)  with repeated nodes
     # keep the number of GLL nodes in the two creeping zone the same
-    println(fbc[1:idx_1])
-    println(fbc[idx_2+1:idx_2+idx_1])
+    println("GLL nodes in creeping zone: ",fbc[1:idx_1-1])
+    println("GLL nodes in creeping zone: ",fbc[idx_2+1:idx_2+idx_1-1])
 
     # # Kelvin-Voigt Viscosity : one technical method to increase the convergence rate
     # Nel_ETA::Int = 0   # not used! 
@@ -296,7 +298,7 @@ function setParameters(FZdepth::Int, halfwidth::Int, res::Int, T::Int, alpha::Fl
     #println("Effective normal stress distribution on fault: \n ", Seff, " MPa")
     #println("Initial shear stress distribution on fault: \n ", tauo, " MPa")
     #println("friction parameter a-b on fault:\n", a_b)
-    println("ThickX: ", ThickX, " m")
+    println("ThickX(If this value equals the half of the length of model, no fault zone): ", ThickX, " m")
     println("ThickY: ", ThickY, " m")
     @printf("dt: %1.09f s\n", dt)   # minimal timestep during coseismic stage
 

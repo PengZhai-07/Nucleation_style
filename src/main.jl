@@ -145,8 +145,8 @@ function main(P, alphaa, cos_reduction, coseismic_b)
     Vf = 2*v[P[4].iFlt]      # about 1e-3
     
     # Creeping fault
-    iFBC_a::Vector{Int64} = findall(abs.(P[3].FltX) .> 40e3*Domain*11/12)
-    iFBC_b::Vector{Int64} = findall(abs.(P[3].FltX) .< 40e3*Domain/12)
+    iFBC_a::Vector{Int64} = findall(abs.(P[3].FltX) .> Domain_X*Domain*5/6)
+    iFBC_b::Vector{Int64} = findall(abs.(P[3].FltX) .< Domain_X*Domain/6)
     iFBC = vcat(iFBC_a, iFBC_b)
     println(iFBC)
 
@@ -576,7 +576,7 @@ function main(P, alphaa, cos_reduction, coseismic_b)
         current_sliprate = 2*v[P[4].iFlt] .+ P[2].Vpl
 
         # Output timestep info on screen: every 50 timesteps
-        if mod(it,500) == 0
+        if mod(it,50) == 0
             @printf("Time (yr) = %1.5g\n", t/P[1].yr2sec) 
             #  println("Vfmax = ", maximum(current_sliprate))
         end

@@ -12,7 +12,7 @@ function MaterialProperties(NelX, NelY,NGLL, dxe, dye, ThickX, ThickY, wgll2, rh
             eo = (ey-1)*NelX + ex
 
             # Properties of damage zone
-            if (40e3*Domain-ThickX) >= ex*dxe >= ThickX && (dye <= ey*dye <= ThickY)   # ThickX: # ~distance from low boundary to fault zone low boundary
+            if (Domain_X*Domain-ThickX) >= ex*dxe >= ThickX && (dye <= ey*dye <= ThickY)   # ThickX: # ~distance from low boundary to fault zone low boundary
                 mu .= rho2*vs2^2
                 #  damage_idx[eo] = eo
             # Properties of host rock    

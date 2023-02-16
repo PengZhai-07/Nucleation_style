@@ -13,13 +13,14 @@ input_parameter = readdlm("$(@__DIR__)/tremor_end_number.txt", ',', header=false
 a = size(input_parameter)[1]
 # output_frequency for sliprate, stress and weakening rate
 global output_freq::Int = 10   
+global Domain_X::Int = 40e3
 
 # calculate the nucleation size and plot the nucleation process
 N_timestep = 600      # maximum time steps to use in sliprate to calculate nucleation size
 criteria = 1e-1    # seismic threshold to measure the nucleation size
 measure_threshold = 1e-3    # where measure the width of nucleation zone: 1e-7m/s for 
                             # constant weakening(expanding crack) and 1e-3m/s for fixed length patch
-for index = 6:7
+for index = 5
     
     # domain parameters
     Domain = input_parameter[index,1]   # amplify factor of the domain size, the current domain size is 30km*24km for 0.75 domain size
@@ -27,7 +28,7 @@ for index = 6:7
     T::Int = input_parameter[index,3]   # total simulation time   unit:year
     # fault zone parameter
     FZlength::Int = input_parameter[index,4]    # length of fault zone: m
-    FZdepth::Int = (40*Domain+FZlength)/2   # depth of lower boundary of damage zone  unit: m    
+    FZdepth::Int = (Domain_X*Domain+FZlength)/2   # depth of lower boundary of damage zone  unit: m    
     halfwidth::Int =  input_parameter[index,5]   # half width of damage zone   unit:m
     alpha = input_parameter[index,6]   # initial(background) rigidity ratio: fault zone/host rock
     cos_reduction = input_parameter[index,7]    # coseismic rigidity reduction 

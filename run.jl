@@ -14,6 +14,9 @@ using Base.Threads
 # using PyPlot    # no matplotlib in wozhi
 # BLAS.set_num_threads(2)  # If the underlying BLAS is using multiple threads, higher flop rates are realized
 
+global Domain_X = 40e3
+global Domain_Y = 32e3
+
 include("$(@__DIR__)/par.jl")	    #	Set Parameters
 
 # read the model parameters from whole_space.txt
@@ -32,9 +35,9 @@ println("Resolution: ",res)
 println("Total simulation time(year): ",T)
 
 # fault zone parameter
-FZlength::Int = input_parameter[index,4]    # length of fault zone: m
-FZdepth::Int = (40e3*Domain+FZlength)/2   # depth of lower boundary of damage zone  unit: m    
-halfwidth::Int =  input_parameter[index,5]   # half width of damage zone   unit:m
+FZlength = input_parameter[index,4]    # length of fault zone: m
+FZdepth = (Domain_X*Domain+FZlength)/2   # depth of lower boundary of damage zone  unit: m    
+halfwidth =  input_parameter[index,5]   # half width of damage zone   unit:m
 alpha = input_parameter[index,6]   # initial(background) rigidity ratio: fault zone/host rock
 cos_reduction = input_parameter[index,7]    # coseismic rigidity reduction 
 println("Fault zone length(m): ",FZlength)   # default is 40km*32km
@@ -51,9 +54,9 @@ matrix_a = 0.015
 asp_b::Float64 =  asp_a/a_over_b      # coseismic b increase 
 asp_criticalness = input_parameter[index,10]
 
-N::Int = 2^4       # number of cells in RSF fault
+N::Int = 10+4       # number of cells in RSF fault
 G::Float64 = 3e10   # shear modulus of model material   unit: Pa
-cell_size = (40e3*Domain*2/3)/N
+cell_size = (Domain_X*Domain*1/3)/N
 Lc::Float64 = cell_size/asp_criticalness      # nucleation size using Rice and Ruina's equation     unit:m
 Dc = pi/2*Lc/G/asp_b*(asp_b-asp_a)^2*multiple_asp*10e6     # inferred Dc value
 

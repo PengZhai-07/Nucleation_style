@@ -20,7 +20,7 @@ function damage_indx!(ThickX, ThickY, dxe, dye, NGLL, NelX, NelY, iglob)
             for i in 1:NGLL, j in 1:NGLL
                 for k in 1:NGLL, l in 1:NGLL
                     # damage zone
-                    if (40e3*Domain-ThickX) >= ex*dxe >= ThickX && (dye <= ey*dye <= ThickY) 
+                    if (Domain_X*Domain-ThickX) >= ex*dxe >= ThickX && (dye <= ey*dye <= ThickY) 
                         Ke2[i,j,k,l] = 1000.0   # with no specific meanings, only to find id of GLL nodes in fault damage zone!!
                     else     # host rock
                         Ke2[i,j,k,l] = -1000
