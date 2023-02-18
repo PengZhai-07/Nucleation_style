@@ -6,6 +6,7 @@ using DelimitedFiles
 
 # data storage path
 global output_freq = 10
+global Domain_X = 40e3
 
 turbo = "/nfs/turbo/lsa-yiheh/yiheh-mistorage/pengz/data"
 project = "wholespace/phase_diagram_L_b"
@@ -14,7 +15,7 @@ project = "wholespace/phase_diagram_L_b"
 input_parameter = readdlm("$(@__DIR__)/whole_space_1.txt", ',',  header=false)
 a = size(input_parameter)[1]
 
-for index = 59
+for index = 23
     
     # domain parameters
     Domain = input_parameter[index,1]   # amplify factor of the domain size, the current domain size is 30km*24km for 0.75 domain size
@@ -22,7 +23,7 @@ for index = 59
     T::Int = input_parameter[index,3]   # total simulation time   unit:year
     # fault zone parameter
     FZlength::Int = input_parameter[index,4]    # length of fault zone: m
-    FZdepth::Int = (40*Domain+FZlength)/2   # depth of lower boundary of damage zone  unit: m    
+    FZdepth::Int = (40e3*Domain+FZlength)/2   # depth of lower boundary of damage zone  unit: m    
     halfwidth::Int =  input_parameter[index,5]   # half width of damage zone   unit:m
     alpha = input_parameter[index,6]   # initial(background) rigidity ratio: fault zone/host rock
     cos_reduction = input_parameter[index,7]    # coseismic rigidity reduction 
@@ -51,6 +52,7 @@ for index = 59
 
     include("analyze_results.jl")     
 
+    # N = 500
     N = T
 
     # calculate the nucleation size and plot the nucleation process
@@ -78,18 +80,38 @@ for index = 59
     eqCyclePlot(sliprate', FltX, N, t)
                         
     Nucleation_example(sliprate',weakeningrate', FltX, tStart, t, N_timestep, criteria, measure_threshold)    # only plot the last seismic event
-    # Nucleation_example(sliprate', FltX, tStart, t, N_timestep, criteria, measure_threshold)    # only plot the last seismic event
+    # Nucleation_example_no_weakening_rate(sliprate', FltX, tStart, t, N_timestep, criteria, measure_threshold)    # only plot the last seismic event
 
-    # NS_width = Nucleation(sliprate', FltX, tStart, t, N_timestep, criteria, measure_threshold)
+    NS_width, min_Ω = Nucleation(sliprate', weakeningrate', FltX, tStart, t, N_timestep, criteria, measure_threshold)
+    println(NS_width)
+    println(min_Ω)
 
-    # open(string(path,"nucleation info.out"), "w") do io
-    #     for i = 1: size(NS_width)[1]
-    #         write(io, join(NS_width[i,:], " "), "\n") 
-    #     end
-    # end
+    df = mean(abs.(NS_width[:,1].-(Domain_X/1e3*Domain/2)))/(Domain_X/1e3*Domain/6)     # deviation factor of hypocenter
+    println(df)
+    if  0 <= df < 0.2
+        rupture_style = "Symmetric-bilateral rupture"
+    elseif 0.2 <= df <= 0.6
+        rupture_style = "Asymmetric-bilateral rupture"
+    elseif 0.6 < df <= 1.0
+        rupture_style = "Unilateral rupture"
+    end
+    println(rupture_style)
 
+    if mean(min_Ω) > 1.01
+        nucleation_style = "fixed length nucleation"
+    else
+        nucleation_style = "constant weakening nucleation"
+    end
+    println(nucleation_style)
 
-
+    open(string(path,"nucleation info.out"), "w") do io
+        for i = 1: size(NS_width)[1]
+            write(io, join(vcat(NS_width[i,:],min_Ω[i])," "), "\n") 
+        end
+        write(io, join(rupture_style), "\n") 
+        write(io, join(nucleation_style), "\n") 
+    end
+    
 
     # # # plot the variation of apparent stress
     # # # apparent_friction(stress, index_start, index_end, delfsec, index_ds_start, index_ds_end, depth, t, 2, 50)
@@ -98,6 +120,7 @@ for index = 59
     #     index_ds_end, NS_width, 40, N_events)
 
     # stress drop of the first artificial event 
+
     # # stressdrop_1(taubefore[1,:], tauafter[1,:], FltX)    # the row is the number of event
 
     # # coseismic stress drop
