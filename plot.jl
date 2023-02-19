@@ -20,16 +20,16 @@ N_timestep = 600      # maximum time steps to use in sliprate to calculate nucle
 criteria = 1e-1    # seismic threshold to measure the nucleation size
 measure_threshold = 1e-3    # where measure the width of nucleation zone: 1e-7m/s for 
                             # constant weakening(expanding crack) and 1e-3m/s for fixed length patch
-for index = 5
+for index = 6:7
     
     # domain parameters
     Domain = input_parameter[index,1]   # amplify factor of the domain size, the current domain size is 30km*24km for 0.75 domain size
     res::Int =  input_parameter[index,2]   # resolution of mesh: should be an integer
     T::Int = input_parameter[index,3]   # total simulation time   unit:year
     # fault zone parameter
-    FZlength::Int = input_parameter[index,4]    # length of fault zone: m
-    FZdepth::Int = (Domain_X*Domain+FZlength)/2   # depth of lower boundary of damage zone  unit: m    
-    halfwidth::Int =  input_parameter[index,5]   # half width of damage zone   unit:m
+    FZlength = input_parameter[index,4]    # length of fault zone: m
+    FZdepth = (Domain_X*Domain+FZlength)/2   # depth of lower boundary of damage zone  unit: m    
+    halfwidth =  input_parameter[index,5]   # half width of damage zone   unit:m
     alpha = input_parameter[index,6]   # initial(background) rigidity ratio: fault zone/host rock
     cos_reduction = input_parameter[index,7]    # coseismic rigidity reduction 
     # friction parameter on fault surface
@@ -63,7 +63,7 @@ for index = 5
     VfmaxPlot(Vfmax, T, t)
 
     # culmulative slip
-    # cumSlipPlot(delfsec[1:4:end,:], delfyr[1:end, :], FltX, hypo, d_hypo, 1.2*T);
+    cumSlipPlot(delfsec[1:5:end,:], delfyr[1:5:end, :], FltX, hypo, d_hypo, 1.2*T);
     # cumSlipPlot_no_hypocenter(delfsec[1:4:end,:], delfyr[1:end, :], FltX, 1.2*T);
 
     # slip rate vs timesteps

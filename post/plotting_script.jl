@@ -58,10 +58,10 @@ function icsPlot(a_b, Seff, tauo, FltX)
     ax2.set_xlabel("Rate-state friction value (a-b)", color=col)
     ax2.get_xaxis().set_tick_params(color=col)
     ax2.tick_params(axis="x", labelcolor=col)  
-    ax2.set_xlim([-0.005,0.040])
+    ax2.set_xlim([-0.01,0.030])
     ax2.legend(loc="lower left") 
 
-    ax.set_ylim([0,6])
+    ax.set_ylim([0,3])
     ax.invert_yaxis()
     show()
     
@@ -76,11 +76,11 @@ function VfmaxPlot(Vfmax, N, t)
     ax = fig.add_subplot(111)
 
     t_seconds = (N) * 365 * 24 * 60 * 60 
-    indx_last = findall(t .<= t_seconds)[end]   # last event!
+    indx_last = floor(Int, findall(t .<= t_seconds)[end])   # last event!
 
-    ax.plot(Vfmax[1:indx_last], lw = 2.0)
+    ax.plot(Vfmax, lw = 2.0)
     ax.plot([0, indx_last],[1e-3, 1e-3] , "k", linestyle="-", label="Seismic threshold")
-    ax.plot([0, indx_last],[1e-5, 1e-5] , "k", linestyle=":", label="tremor threshold")
+    ax.plot([0, indx_last],[1e-5, 1e-5] , "k", linestyle=":", label="Tremor threshold")
     ax.legend(loc="upper right") 
     ax.set_xlabel("Time steps")
     ax.set_ylabel("Max. Slip rate (m/s)")
@@ -95,8 +95,8 @@ end
 # Plot cumulative slip
 function cumSlipPlot(delfsec, delfyr, FltX, hypo, d_hypo, N)
     
-    indx_1 = findall(abs.(FltX) .<= 5)[1]
-    indx_2 = findall(abs.(FltX) .>= 1)[end]
+    indx_1 = findall(abs.(FltX) .<= 2.5)[1]
+    indx_2 = findall(abs.(FltX) .>= 0.5)[end]
 
     print(indx_1)
     print(indx_2)
@@ -114,7 +114,7 @@ function cumSlipPlot(delfsec, delfyr, FltX, hypo, d_hypo, N)
     ax.plot(d_hypo, hypo./1000, "*", color="saddlebrown", markersize=25)
     ax.set_xlabel("Cumulative Slip (m)")
     ax.set_ylabel("Depth (km)")
-    ax.set_ylim([0,6])
+    ax.set_ylim([0,3])
 
     L = (N) * 365 * 24 * 60 * 60 * 1e-9
     ax.set_xlim([0,L])
