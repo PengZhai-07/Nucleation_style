@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #SBATCH --job-name=tremor_test
-#SBATCH --array=7-8
+#SBATCH --array=9
 
 ##SBATCH --mail-user=pengzhai@umich.edu
 ##SBATCH --mail-type=FAIL,ARRAY_TASKS
@@ -9,7 +9,7 @@
 ##SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=16
 
-#SBATCH --mem=20000m
+#SBATCH --mem=10000m
 #SBATCH --time=14-00:00:00
 #SBATCH --partition=standard
 #SBATCH --account=yiheh1

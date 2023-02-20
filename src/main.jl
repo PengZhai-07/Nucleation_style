@@ -145,8 +145,8 @@ function main(P, alphaa, cos_reduction, coseismic_b)
     Vf = 2*v[P[4].iFlt]      # about 1e-3
     
     # Creeping fault
-    iFBC_a::Vector{Int64} = findall(abs.(P[3].FltX) .> Domain_X*Domain*5/6)
-    iFBC_b::Vector{Int64} = findall(abs.(P[3].FltX) .< Domain_X*Domain/6)
+    iFBC_a::Vector{Int64} = findall(abs.(P[3].FltX) .> Domain_X*Domain*7/8)
+    iFBC_b::Vector{Int64} = findall(abs.(P[3].FltX) .< Domain_X*Domain/8)
     iFBC = vcat(iFBC_a, iFBC_b)
     println(iFBC)
 

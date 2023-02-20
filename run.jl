@@ -53,14 +53,15 @@ asp_a = 0.005
 matrix_a = 0.015
 asp_b::Float64 =  asp_a/a_over_b      # coseismic b increase 
 asp_criticalness = input_parameter[index,10]
+matrix_asp_ratio::Int = input_parameter[index,11]
+asperity_number::Int = input_parameter[index,12]
 
-N::Int = 10+4       # number of cells in RSF fault
+N::Int = asperity_number*(matrix_asp_ratio+1) + matrix_asp_ratio       # number of cells in RSF fault
 G::Float64 = 3e10   # shear modulus of model material   unit: Pa
-cell_size = (Domain_X*Domain*1/3)/N
+cell_size = (Domain_X*Domain/2)/N
 Lc::Float64 = cell_size/asp_criticalness      # nucleation size using Rice and Ruina's equation     unit:m
 Dc = pi/2*Lc/G/asp_b*(asp_b-asp_a)^2*multiple_asp*10e6     # inferred Dc value
 
-matrix_asp_ratio::Int = input_parameter[index,11]
 
 println("Total number of cells: ", N)
 println("Cell size(m): ", cell_size)
@@ -82,7 +83,7 @@ if isdir(out_dir)
 end
 mkpath(out_dir)
 
-P = setParameters(FZdepth, halfwidth, res, T, alpha, multiple_matrix, multiple_asp, Dc, Domain, asp_a, asp_b, matrix_a,matrix_asp_ratio,G,N)    # usually includes constant parameters for each simulation 
+P = setParameters(FZdepth, halfwidth, res, T, alpha, multiple_matrix, multiple_asp, Dc, Domain, asp_a, asp_b, matrix_a,matrix_asp_ratio,G,N,asperity_number)    # usually includes constant parameters for each simulation 
 # println(size(P[4].FltNI))   # total number of off-fault GLL nodes
 
 # include("$(@__DIR__)/NucleationSize.jl") 

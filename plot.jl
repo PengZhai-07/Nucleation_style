@@ -20,7 +20,7 @@ N_timestep = 600      # maximum time steps to use in sliprate to calculate nucle
 criteria = 1e-1    # seismic threshold to measure the nucleation size
 measure_threshold = 1e-3    # where measure the width of nucleation zone: 1e-7m/s for 
                             # constant weakening(expanding crack) and 1e-3m/s for fixed length patch
-for index = 6:7
+for index = 6
     
     # domain parameters
     Domain = input_parameter[index,1]   # amplify factor of the domain size, the current domain size is 30km*24km for 0.75 domain size
@@ -62,6 +62,9 @@ for index = 6:7
     # max slip rate versus timestep
     VfmaxPlot(Vfmax, T, t)
 
+    # healing analysis: Vfmax and regidity ratio vs. time
+    healing_analysis(Vfmax, alphaa, t, yr2sec)
+
     # culmulative slip
     cumSlipPlot(delfsec[1:5:end,:], delfyr[1:5:end, :], FltX, hypo, d_hypo, 1.2*T);
     # cumSlipPlot_no_hypocenter(delfsec[1:4:end,:], delfyr[1:end, :], FltX, 1.2*T);
@@ -84,8 +87,7 @@ for index = 6:7
     # end
 
     
-    # healing analysis: Vfmax and regidity ratio vs. time
-    healing_analysis(Vfmax, alphaa, t, yr2sec)
+
 
     # # # plot the variation of apparent stress
     # # # apparent_friction(stress, index_start, index_end, delfsec, index_ds_start, index_ds_end, depth, t, 2, 50)
@@ -96,10 +98,9 @@ for index = 6:7
     # stress drop of the first artificial event 
     # # stressdrop_1(taubefore[1,:], tauafter[1,:], FltX)    # the row is the number of event
 
-    # # coseismic stress drop
+    # # coseismic stress drop for each event
     # stressdrop_2(taubefore, tauafter, FltX, tStart)    # the row is the number of event
-    # # default is the first event, so taubefore is the initial shear stress: 0.6*normal stress
-
+    
     # #Plot hypo(km) vs event number, average stress drop(MPa), duration(s), moment magnitude.
     # hypo_Mw_stressdrop(hypo, Mw, del_sigma, delfafter,FltX)
 

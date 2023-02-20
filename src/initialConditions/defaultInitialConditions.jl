@@ -6,7 +6,7 @@ end
 
 # define the rate and state friction parameter in all 48km long fault 
 # Compute rate-state friciton with depth
-function fricDepth(FltX, asp_a, asp_b, matrix_a, Domain, multiple_matrix, multiple_asp, matrix_asp_ratio,N)
+function fricDepth(FltX, asp_a, asp_b, matrix_a, Domain, multiple_matrix, multiple_asp, matrix_asp_ratio,N,asperity_number)
     
     FltNglob = length(FltX)    # number of GLL nodes on fault
     
@@ -19,12 +19,12 @@ function fricDepth(FltX, asp_a, asp_b, matrix_a, Domain, multiple_matrix, multip
 
     # setup the transiton for kinematic fault and RSF fault
     # [a-b, depth]   key points of friction coefficient change
-    fP1 = [0.024, 0e3]  
-    fP2 = [0.024, -Domain_X*Domain/6]
-    fP3 = [matrix_ab, -Domain_X*Domain/3]
-    fP4 = [matrix_ab, -Domain_X*Domain*2/3]
-    fP5 = [0.024, -Domain_X*Domain*5/6]
-    fP6 = [0.024, -Domain_X*Domain]
+    fP1 = [0.047, 0e3]  
+    fP2 = [0.047, -Domain_X*Domain/8]
+    fP3 = [matrix_ab, -Domain_X*Domain/4]
+    fP4 = [matrix_ab, -Domain_X*Domain*3/4]
+    fP5 = [0.047, -Domain_X*Domain*7/8]
+    fP6 = [0.047, -Domain_X*Domain]
 
     # Return a vector I of the indices or keys of A
     fric_depth1 = findall(abs.(FltX) .<= abs(fP2[2]))
@@ -41,9 +41,8 @@ function fricDepth(FltX, asp_a, asp_b, matrix_a, Domain, multiple_matrix, multip
 
     # setup the distribution of asperities and background matrix 
     L_fault = fP3[2]-fP4[2]      # length of fault(asperity + background matrix)
-    cell_size = L_fault/N     # cell size is about 62.5m
-    N_group::Int = floor(N/(matrix_asp_ratio+1))
-    N_remain::Int = N - N_group*(matrix_asp_ratio+1)   # put it at the beginning of the group
+    cell_size = L_fault/N     # cell size should be about 100 m
+    N_remain::Int = N - asperity_number*(matrix_asp_ratio+1)   # put it at the beginning of the group
     
     println("Cell size: ", cell_size)
     println("Total number of groups: ", N_group)
