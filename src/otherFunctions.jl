@@ -13,15 +13,14 @@ function IDS!(xLf, Vo, psi, dt, Vf, cnd, IDstate = 2)   # default value is 2, ag
     # cnd = 1e-6
     # for V(t)dt/L < 1e-6 (low velocity), use the first three Taylor expansion of the second exponential 
     # for V(t)dt/L > 1e-6, use the full equation of theta(t+dt)
-    
-    elseif IDstate == 2                 # aging law
-        VdtL = abs(Vf)*dt/xLf               # 
+
+    elseif IDstate == 2
+        VdtL = abs(Vf)*dt/xLf
         if VdtL < cnd
-            # psi1 = log1(exp1(psi-VdtL) + Vo*dt/xLf -
-                        # 0.5*Vo*abs(Vf)*(dt)^2/(xLf^2))
-            psi1 = log1((exp1(psi)/Vo*abs(Vf)*exp1(-VdtL) + abs(Vf)*dt/xLf - 0.5*abs(Vf)^2*(dt)^2/(xLf^2))*Vo/abs(Vf))
+            psi1 = log1( exp1(psi-VdtL) + Vo*dt/xLf -
+                        0.5*Vo*abs(Vf)*(dt^2)/(xLf^2))
         else
-            psi1 = log1((exp1(psi)/Vo*abs(Vf)*exp1(-VdtL) + 1 - exp1(-VdtL))*Vo/abs(Vf))
+            psi1 = log1(exp1(psi-VdtL) + (Vo/abs(Vf))*(1-exp1(-VdtL)))
         end
 
     elseif IDstate == 3
