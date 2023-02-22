@@ -36,7 +36,7 @@ function plot_params()
 end
 
 # Plot friction parameters
-function icsPlot(a_b, Seff, tauo, FltX)
+function icsPlot(a_b, Seff, tauo, FltX,Fault_length)
     plot_params()
     fig = PyPlot.figure(figsize=(8, 6))
     ax = fig.add_subplot(111)            
@@ -61,7 +61,7 @@ function icsPlot(a_b, Seff, tauo, FltX)
     ax2.set_xlim([-0.01,0.030])
     ax2.legend(loc="lower left") 
 
-    ax.set_ylim([0,3])
+    ax.set_ylim([0,Fault_length])
     ax.invert_yaxis()
     show()
     
@@ -93,10 +93,10 @@ function VfmaxPlot(Vfmax, N, t)
 end
 
 # Plot cumulative slip
-function cumSlipPlot(delfsec, delfyr, FltX, hypo, d_hypo, N)
+function cumSlipPlot(delfsec, delfyr, FltX, hypo, d_hypo, N,Fault_length)
     
-    indx_1 = findall(abs.(FltX) .<= 2.5)[1]
-    indx_2 = findall(abs.(FltX) .>= 0.5)[end]
+    indx_1 = findall(abs.(FltX) .<= Fault_length*7/8)[1]
+    indx_2 = findall(abs.(FltX) .>= Fault_length/8)[end]
 
     print(indx_1)
     print(indx_2)
@@ -114,7 +114,7 @@ function cumSlipPlot(delfsec, delfyr, FltX, hypo, d_hypo, N)
     ax.plot(d_hypo, hypo./1000, "*", color="saddlebrown", markersize=25)
     ax.set_xlabel("Cumulative Slip (m)")
     ax.set_ylabel("Depth (km)")
-    ax.set_ylim([0,3])
+    ax.set_ylim([0,Fault_length])
 
     L = (N) * 365 * 24 * 60 * 60 * 1e-9
     ax.set_xlim([0,L])
@@ -130,7 +130,7 @@ end
 
 # sliprate versus time plot
 # N is the number of years to plot
-function eqCyclePlot(sliprate, FltX, N, t)
+function eqCyclePlot(sliprate, FltX, N, t,Fault_length)
 
     t_seconds = N * 365 * 24 * 60 * 60 
     indx_last = findall(t .<= t_seconds)[end]   # last event!
@@ -151,7 +151,7 @@ function eqCyclePlot(sliprate, FltX, N, t)
     c = ax.imshow(value, cmap="viridis", aspect="auto",
                   norm=matplotlib.colors.LogNorm(vmin=1e-9, vmax=1e-3),
                   interpolation="none",    # the interpolation method decide the final slip rate distrbution!!
-                  extent=[0,length(value[1,:]), 0,3])
+                  extent=[0,length(value[1,:]), 0,Fault_length])
 
     # for stress
     #  c = ax.imshow(value, cmap="inferno", aspect="auto",
@@ -172,7 +172,7 @@ function eqCyclePlot(sliprate, FltX, N, t)
     
 end
 
-function eqCyclePlot_stress(stress, FltX, N, t)
+function eqCyclePlot_stress(stress, FltX, N, t,Fault_length)
 
     t_seconds = N * 365 * 24 * 60 * 60 
     indx_last = findall(t .<= t_seconds)[end]   # last event!
@@ -190,7 +190,7 @@ function eqCyclePlot_stress(stress, FltX, N, t)
     c = ax.imshow(value, cmap="viridis", aspect="auto",
                 norm=matplotlib.colors.Normalize(11,13),
                 interpolation="none",    # the interpolation method decide the final slip rate distrbution!!
-                extent=[0,length(value[1,:]), 0,3])
+                extent=[0,length(value[1,:]), 0,Fault_length])
 
     # for stress
     #  c = ax.imshow(value, cmap="inferno", aspect="auto",
@@ -689,9 +689,14 @@ function healing_analysis(Vf, alphaa, t, yr2sec)
     plot_params()
     fig = PyPlot.figure(figsize=(7.2, 4.45))
     ax = fig.add_subplot(111)
-    
-    ax.plot(t./yr2sec, Vf, lw = 2.0, label="Max. Slip rate")
-    lab1 = "Max. slip rate"
+    x = t./yr2sec
+    indx_last = x[end]
+
+    ax.plot(x, Vf, lw = 2.0)
+    ax.plot([x[1], x[end]],[1e-3, 1e-3] , "k", linestyle="-", label="Seismic threshold")
+    ax.plot([x[1], x[end]],[1e-5, 1e-5] , "k", linestyle=":", label="Tremor threshold")
+    ax.legend(loc="upper right") 
+    ax.set_xlabel("Time (years)")
     ax.set_ylabel("Max. Slip rate (m/s)")
     ax.set_yscale("log")
     #ax.set_xlim([0, 600])
@@ -700,9 +705,7 @@ function healing_analysis(Vf, alphaa, t, yr2sec)
     col="tab:red"
     ax2 = ax.twinx()
     
-    ax2.plot(t./yr2sec, alphaa.*100, c=col, lw=2.0, label="Shear modulus ratio")
-    # lab2 = "Shear modulus ratio"
-    ax.set_xlabel("Time (years)")
+    ax2.plot(t./yr2sec, alphaa.*100, c=col, lw=2.0, label="Shear modulus ratio")   
     ax2.set_ylabel("Shear Modulus (% of host rock)")
     ax2.set_ylim([20, 110])
     ax2.get_xaxis().set_tick_params(color=col)

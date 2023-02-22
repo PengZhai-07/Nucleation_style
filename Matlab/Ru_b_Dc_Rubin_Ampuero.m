@@ -49,7 +49,7 @@ end
 % A = pcolor(X,Y,Ru');
 % v = [2,3,7.5,18.35,56.4,88];
 % v = [2,3,5,10,15,20,30,40,50,60,70,80,100,200,400];
-v = [0.01, 0.1, 1,3.8, 10, 100];
+v = [0.01, 0.1, 1,3.8, 11.5, 100];
 figure(1)
 set(0,'defaultfigurecolor','w')
 set(gcf,'Position',[20 20 800 400]);%左下角位置，宽高
@@ -66,7 +66,7 @@ xticks([log10(L*1000)])
 xticklabels([0.5,0.6,0.8,1,1.3,1.5,2,2.5,3,4,5,6,8,10,12,16,20,25,30,40,50,63,80,100,125])
 set(gca,'XDir','reverse');        %将x轴方向设置为反向(从右到左递增)。
 % set(gca,'YDir','reverse');        %将x轴方向设置为反向(从右到左递增)。
-colormap(jet)
+colormap("gray")
 clabel(c,h,v)
 xlabel('Characteristic weakening distance(mm)')
 ylabel('a/b')
@@ -126,7 +126,7 @@ scatter(P(:,1),P(:,2) ,'*','k' )
 %%  m = m+1;
 %                 P(m,:) = [log10(L(j)*1000), a_b(i), L(j),b(i)];
 % %             en
-export_fig -dpng -r600 Nucleation_size_phase_diagram_b_L_Rubin_Ampuero
+export_fig -dpng -r600 Ru_b_Dc_Rubin_Ampuero
 
 %% output the bash script for sbatch in Great lakes
 

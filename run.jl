@@ -27,7 +27,7 @@ println(index)
 input_parameter = readdlm("$(@__DIR__)/$(para_file)", ',',  header=false)
 
 # domain parameters
-Domain = input_parameter[index,1]   # amplify factor of the domain size, the current domain size is 30km*24km for 0.75 domain size
+Domain::Float64 = input_parameter[index,1]   # amplify factor of the domain size, the current domain size is 30km*24km for 0.75 domain size
 res::Int =  input_parameter[index,2]   # resolution of mesh: should be an integer
 T::Int = input_parameter[index,3]   # total simulation time   unit:year
 println("Doamin size factor: ",Domain)   # default is 40km*32km
@@ -35,11 +35,11 @@ println("Resolution: ",res)
 println("Total simulation time(year): ",T)
 
 # fault zone parameter
-FZlength = input_parameter[index,4]    # length of fault zone: m
-FZdepth = (Domain_X*Domain+FZlength)/2   # depth of lower boundary of damage zone  unit: m    
-halfwidth =  input_parameter[index,5]   # half width of damage zone   unit:m
-alpha = input_parameter[index,6]   # initial(background) rigidity ratio: fault zone/host rock
-cos_reduction = input_parameter[index,7]    # coseismic rigidity reduction 
+FZlength::Float64 = input_parameter[index,4]    # length of fault zone: m
+FZdepth::Float64 = (Domain_X*Domain+FZlength)/2   # depth of lower boundary of damage zone  unit: m    
+halfwidth::Float64 =  input_parameter[index,5]   # half width of damage zone   unit:m
+alpha::Float64 = input_parameter[index,6]   # initial(background) rigidity ratio: fault zone/host rock
+cos_reduction::Float64 = input_parameter[index,7]    # coseismic rigidity reduction 
 println("Fault zone length(m): ",FZlength)   # default is 40km*32km
 println("Fault zone halfwidth(m): ",halfwidth)
 println("Rigidity ratio of fault zone: ",alpha)
@@ -47,20 +47,20 @@ println("Coseismic reduction of rigidity ratio: ", cos_reduction)
 
 # friction parameter on fault surface
 multiple_asp::Int = input_parameter[index,8]  # effective normal stress on fault: 10MPa*multiple
-multiple_matrix = 0.1              # 0.1*10MPa
-a_over_b = input_parameter[index,9] 
-asp_a = 0.005
-matrix_a = 0.015
+multiple_matrix::Float64 = 0.1              # 0.1*10MPa
+a_over_b::Float64 = input_parameter[index,9] 
+asp_a::Float64 = 0.005
+matrix_a::Float64 = 0.015
 asp_b::Float64 =  asp_a/a_over_b      # coseismic b increase 
-asp_criticalness = input_parameter[index,10]
+asp_criticalness::Float64 = input_parameter[index,10]
 matrix_asp_ratio::Int = input_parameter[index,11]
 asperity_number::Int = input_parameter[index,12]
 
 N::Int = asperity_number*(matrix_asp_ratio+1) + matrix_asp_ratio       # number of cells in RSF fault
 G::Float64 = 3e10   # shear modulus of model material   unit: Pa
-cell_size = (Domain_X*Domain/2)/N
+cell_size::Float64 = (Domain_X*Domain/2)/N
 Lc::Float64 = cell_size/asp_criticalness      # nucleation size using Rice and Ruina's equation     unit:m
-Dc = pi/2*Lc/G/asp_b*(asp_b-asp_a)^2*multiple_asp*10e6     # inferred Dc value
+Dc::Float64 = pi/2*Lc/G/asp_b*(asp_b-asp_a)^2*multiple_asp*10e6     # inferred Dc value
 
 
 println("Total number of cells: ", N)
@@ -75,7 +75,7 @@ println("Cohesive zone size(m): ", 9*pi/32*G*Dc/asp_b/(multiple_asp*10e6))
 turbo = "/nfs/turbo/lsa-yiheh/yiheh-mistorage/pengz/data"
 project = "wholespace/tremor"
 # Output directory to save data
-out_dir = "$(turbo)/$(project)/$(Domain)_$(res)_$(T)_$(FZlength)_$(halfwidth)_$(alpha)_$(cos_reduction)_$(multiple_asp)_$(a_over_b)_$(asp_criticalness)_$(matrix_asp_ratio)/"    
+out_dir = "$(turbo)/$(project)/$(Domain)_$(res)_$(T)_$(FZlength)_$(halfwidth)_$(alpha)_$(cos_reduction)_$(multiple_asp)_$(a_over_b)_$(asp_criticalness)_$(matrix_asp_ratio)_$(asperity_number)/"    
 print("Output directory: ", out_dir)
 # clean old files 
 if isdir(out_dir)
@@ -83,7 +83,7 @@ if isdir(out_dir)
 end
 mkpath(out_dir)
 
-P = setParameters(FZdepth, halfwidth, res, T, alpha, multiple_matrix, multiple_asp, Dc, Domain, asp_a, asp_b, matrix_a,matrix_asp_ratio,G,N,asperity_number)    # usually includes constant parameters for each simulation 
+P = setParameters(FZdepth::Float64, halfwidth::Float64, res::Int, T::Int, alpha::Float64, multiple_matrix::Float64,multiple_asp::Int, Dc::Float64, Domain::Float64, asp_a::Float64, asp_b::Float64, matrix_a::Float64,matrix_asp_ratio::Int, G::Float64,N::Int,asperity_number::Int)    # usually includes constant parameters for each simulation 
 # println(size(P[4].FltNI))   # total number of off-fault GLL nodes
 
 # include("$(@__DIR__)/NucleationSize.jl") 

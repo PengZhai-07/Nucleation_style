@@ -20,7 +20,7 @@ N_timestep = 600      # maximum time steps to use in sliprate to calculate nucle
 criteria = 1e-1    # seismic threshold to measure the nucleation size
 measure_threshold = 1e-3    # where measure the width of nucleation zone: 1e-7m/s for 
                             # constant weakening(expanding crack) and 1e-3m/s for fixed length patch
-for index = 6
+for index = 12
     
     # domain parameters
     Domain = input_parameter[index,1]   # amplify factor of the domain size, the current domain size is 30km*24km for 0.75 domain size
@@ -41,8 +41,11 @@ for index = 6
     asp_b =  asp_a/a_over_b            # coseismic b increase 
     Lc= input_parameter[index,10]     # characteristic slip distance      unit:m
     matrix_asp_ratio::Int= input_parameter[index,11]     # characteristic slip distance      unit:m
+    asperity_number::Int = input_parameter[index,12]  
 
-    FILE = "$(Domain)_$(res)_$(T)_$(FZlength)_$(halfwidth)_$(alpha)_$(cos_reduction)_$(multiple_asp)_$(a_over_b)_$(Lc)_$(matrix_asp_ratio)"
+    Fault_length = Domain*Domain_X/1000
+
+    FILE = "$(Domain)_$(res)_$(T)_$(FZlength)_$(halfwidth)_$(alpha)_$(cos_reduction)_$(multiple_asp)_$(a_over_b)_$(Lc)_$(matrix_asp_ratio)_$(asperity_number)"
     # global FILE = "$(FZdepth)_$(halfwidth)_$(res)_$(alpha)_$(cos_reduction)_$(multiple)_$(Domain)_$(coseismic_b)_$(Lc)"
     println(FILE)                                                                                                                                                                                                                                                                                                                             
     # path to save files
@@ -56,25 +59,25 @@ for index = 6
 
     # # moment_release_example(sliprate', FltX, tStart, t, N_timestep, criteria, measure_threshold)       
 
-    # Plot friction parameters
-    icsPlot(a_b, Seff, tauo, FltX)
-
     # max slip rate versus timestep
     VfmaxPlot(Vfmax, T, t)
 
     # healing analysis: Vfmax and regidity ratio vs. time
     healing_analysis(Vfmax, alphaa, t, yr2sec)
 
+    # Plot friction parameters
+    icsPlot(a_b, Seff, tauo, FltX,Fault_length)
+
     # culmulative slip
-    cumSlipPlot(delfsec[1:5:end,:], delfyr[1:5:end, :], FltX, hypo, d_hypo, 1.2*T);
+    cumSlipPlot(delfsec[1:5:end,:], delfyr[1:5:end, :], FltX, hypo, d_hypo, 1.2*T,Fault_length);
     # cumSlipPlot_no_hypocenter(delfsec[1:4:end,:], delfyr[1:end, :], FltX, 1.2*T);
 
     # slip rate vs timesteps
     # how many years to plot
-    eqCyclePlot(sliprate', FltX, T, t)
+    eqCyclePlot(sliprate', FltX, T, t,Fault_length)
 
     # shear stress level vs timesteps
-    eqCyclePlot_stress(stress', FltX, T, t)
+    eqCyclePlot_stress(stress', FltX, T, t,Fault_length)
                         
     # Nucleation_example(sliprate', weakeningrate', FltX, tStart, t, N_timestep, criteria, measure_threshold)    # only plot the last seismic event
 

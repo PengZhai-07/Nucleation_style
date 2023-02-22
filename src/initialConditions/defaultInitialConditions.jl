@@ -45,13 +45,13 @@ function fricDepth(FltX, asp_a, asp_b, matrix_a, Domain, multiple_matrix, multip
     N_remain::Int = N - asperity_number*(matrix_asp_ratio+1)   # put it at the beginning of the group
     
     println("Cell size: ", cell_size)
-    println("Total number of groups: ", N_group)
+    println("Total number of groups: ", asperity_number)
     println("Remain cells: ", N_remain)
 
     NS = multiple_matrix*10e6    #  tempory Seff equals matrix
     Seff::Array{Float64} = repeat([NS], FltNglob)
 
-    for i = 1:N_group
+    for i = 1:asperity_number
 
         index_depth = findall(abs(fP3[2])+ N_remain*cell_size+(i-1)*(matrix_asp_ratio+1)*cell_size .<= abs.(FltX) .<= abs(fP3[2])+ N_remain*cell_size+(i-1)*(matrix_asp_ratio+1)*cell_size+cell_size)
         println("asperity GLL node index:", index_depth)

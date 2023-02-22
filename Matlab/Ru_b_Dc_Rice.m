@@ -136,13 +136,13 @@ save("Experiment_point.mat",'P')
 % export_fig -dpng -r600 Nucleation_size_phase_diagram_b_L_Rice
 
 %% output the model parameter file
-
-fid  = fopen('../tremor.txt','wt');
-[u, v] = size(P);
-for i =1:u
-      fprintf(fid, ['0.75,16,',num2str(P(i,5)),',0,0,1.0,0.0,4,',num2str(P(i,2)),',',num2str(P(i,3)),'\n']);     
-%       fprintf(fid, ['0.8,500,',num2str(P(i,3)),',4,0.00,',num2str(P(i,4)),'\n']); 
-end
-fclose(fid);
+% 
+% fid  = fopen('../tremor.txt','wt');
+% [u, v] = size(P);
+% for i =1:u
+%       fprintf(fid, ['0.75,16,',num2str(P(i,5)),',0,0,1.0,0.0,4,',num2str(P(i,2)),',',num2str(P(i,3)),'\n']);     
+% %       fprintf(fid, ['0.8,500,',num2str(P(i,3)),',4,0.00,',num2str(P(i,4)),'\n']); 
+% end
+% fclose(fid);
 
 % 0.8 500 0.012 4 0.00 0.03
