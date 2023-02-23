@@ -46,7 +46,7 @@ println("Rigidity ratio of fault zone: ",alpha)
 println("Coseismic reduction of rigidity ratio: ", cos_reduction)
 
 # friction parameter on fault surface
-multiple_asp::Int = input_parameter[index,8]  # effective normal stress on fault: 10MPa*multiple
+multiple_asp::Float64 = input_parameter[index,8]  # effective normal stress on fault: 10MPa*multiple
 multiple_matrix::Float64 = 0.1              # 0.1*10MPa
 a_over_b::Float64 = input_parameter[index,9] 
 asp_a::Float64 = 0.005
@@ -83,7 +83,7 @@ if isdir(out_dir)
 end
 mkpath(out_dir)
 
-P = setParameters(FZdepth::Float64, halfwidth::Float64, res::Int, T::Int, alpha::Float64, multiple_matrix::Float64,multiple_asp::Int, Dc::Float64, Domain::Float64, asp_a::Float64, asp_b::Float64, matrix_a::Float64,matrix_asp_ratio::Int, G::Float64,N::Int,asperity_number::Int)    # usually includes constant parameters for each simulation 
+P = setParameters(FZdepth::Float64, halfwidth::Float64, res::Int, T::Int, alpha::Float64, multiple_matrix::Float64,multiple_asp::Float64, Dc::Float64, Domain::Float64, asp_a::Float64, asp_b::Float64, matrix_a::Float64,matrix_asp_ratio::Int, G::Float64,N::Int,asperity_number::Int)    # usually includes constant parameters for each simulation 
 # println(size(P[4].FltNI))   # total number of off-fault GLL nodes
 
 # include("$(@__DIR__)/NucleationSize.jl") 

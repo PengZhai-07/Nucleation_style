@@ -79,7 +79,8 @@ function VfmaxPlot(Vfmax, N, t)
     indx_last = floor(Int, findall(t .<= t_seconds)[end])   # last event!
 
     ax.plot(Vfmax, lw = 2.0)
-    ax.plot([0, indx_last],[1e-3, 1e-3] , "k", linestyle="-", label="Seismic threshold")
+    ax.plot([0, indx_last],[1e-1, 1e-1] , "k", linestyle="-", label="Regular earthquake threshold")
+    ax.plot([0, indx_last],[1e-3, 1e-3] , "k", linestyle="--", label="Inertial iterm threshold")
     ax.plot([0, indx_last],[1e-5, 1e-5] , "k", linestyle=":", label="Tremor threshold")
     ax.legend(loc="upper right") 
     ax.set_xlabel("Time steps")
@@ -172,7 +173,7 @@ function eqCyclePlot(sliprate, FltX, N, t,Fault_length)
     
 end
 
-function eqCyclePlot_stress(stress, FltX, N, t,Fault_length)
+function eqCyclePlot_stress(stress, FltX, N, t,Fault_length, multiple_asp)
 
     t_seconds = N * 365 * 24 * 60 * 60 
     indx_last = findall(t .<= t_seconds)[end]   # last event!
@@ -188,7 +189,7 @@ function eqCyclePlot_stress(stress, FltX, N, t,Fault_length)
     ax = fig.add_subplot(111)
 
     c = ax.imshow(value, cmap="viridis", aspect="auto",
-                norm=matplotlib.colors.Normalize(11,13),
+                norm=matplotlib.colors.Normalize(0.60*multiple_asp*10,maximum(maximum(value))),
                 interpolation="none",    # the interpolation method decide the final slip rate distrbution!!
                 extent=[0,length(value[1,:]), 0,Fault_length])
 
@@ -693,8 +694,9 @@ function healing_analysis(Vf, alphaa, t, yr2sec)
     indx_last = x[end]
 
     ax.plot(x, Vf, lw = 2.0)
-    ax.plot([x[1], x[end]],[1e-3, 1e-3] , "k", linestyle="-", label="Seismic threshold")
-    ax.plot([x[1], x[end]],[1e-5, 1e-5] , "k", linestyle=":", label="Tremor threshold")
+    ax.plot([0, indx_last],[1e-1, 1e-1] , "k", linestyle="-", label="Regular earthquake threshold")
+    ax.plot([0, indx_last],[1e-3, 1e-3] , "k", linestyle="--", label="Inertial iterm threshold")
+    ax.plot([0, indx_last],[1e-5, 1e-5] , "k", linestyle=":", label="Tremor threshold")
     ax.legend(loc="upper right") 
     ax.set_xlabel("Time (years)")
     ax.set_ylabel("Max. Slip rate (m/s)")

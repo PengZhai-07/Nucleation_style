@@ -19,8 +19,8 @@ global Domain_X::Int = 40e3
 N_timestep = 600      # maximum time steps to use in sliprate to calculate nucleation size
 criteria = 1e-1    # seismic threshold to measure the nucleation size
 measure_threshold = 1e-3    # where measure the width of nucleation zone: 1e-7m/s for 
-                            # constant weakening(expanding crack) and 1e-3m/s for fixed length patch
-for index = 12
+                            # contant weakening(expanding crack) and 1e-3m/s for fixed length patch
+for index = 19
     
     # domain parameters
     Domain = input_parameter[index,1]   # amplify factor of the domain size, the current domain size is 30km*24km for 0.75 domain size
@@ -33,7 +33,7 @@ for index = 12
     alpha = input_parameter[index,6]   # initial(background) rigidity ratio: fault zone/host rock
     cos_reduction = input_parameter[index,7]    # coseismic rigidity reduction 
     # friction parameter on fault surface
-    multiple_asp::Int = input_parameter[index,8]  # effective normal stress on fault: 10MPa*multiple
+    multiple_asp::Float64 = input_parameter[index,8]  # effective normal stress on fault: 10MPa*multiple
     multiple_matrix = 0.1
     a_over_b = input_parameter[index,9] 
     asp_a = 0.005
@@ -77,7 +77,7 @@ for index = 12
     eqCyclePlot(sliprate', FltX, T, t,Fault_length)
 
     # shear stress level vs timesteps
-    eqCyclePlot_stress(stress', FltX, T, t,Fault_length)
+    eqCyclePlot_stress(stress', FltX, T, t,Fault_length, multiple_asp)
                         
     # Nucleation_example(sliprate', weakeningrate', FltX, tStart, t, N_timestep, criteria, measure_threshold)    # only plot the last seismic event
 
