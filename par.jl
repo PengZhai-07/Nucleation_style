@@ -275,10 +275,10 @@ function setParameters(FZdepth::Float64, halfwidth::Float64, res::Int, T::Int, a
     #println("idx=", idx)
     #println(fbc[idx_2:end])
 
-    FltIglobBC::Vector{Int} = vcat(fbc[1:idx_1-1], fbc[idx_2+1:idx_2+idx_1-1])  # GLL nodes within creeping fault (>20 km)  with repeated nodes
+    FltIglobBC::Vector{Int} = vcat(fbc[1:idx_1], fbc[idx_2+1:idx_2+idx_1])  # GLL nodes within creeping fault (>20 km)  with repeated nodes
     # keep the number of GLL nodes in the two creeping zone the same
-    println("GLL nodes in creeping zone: ",fbc[1:idx_1-1])
-    println("GLL nodes in creeping zone: ",fbc[idx_2+1:idx_2+idx_1-1])
+    println("GLL nodes in creeping zone: ",fbc[1:idx_1])
+    println("GLL nodes in creeping zone: ",fbc[idx_2+1:idx_2+idx_1])
 
     # # Kelvin-Voigt Viscosity : one technical method to increase the convergence rate
     # Nel_ETA::Int = 0   # not used! 
