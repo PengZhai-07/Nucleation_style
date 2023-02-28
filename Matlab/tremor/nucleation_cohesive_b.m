@@ -10,7 +10,7 @@ r = 1;   % the shear wave reduction=20%  1-0.2=0.8  r is the rigidity ratio
 mu = 3e10;  % Pa 
 mu_D = r*mu;  % Pa
 H = 0;      % m  half-width of damage zone   
-sigma = 5e6;  % Pa
+sigma = 3e6;  % Pa
 a= 0.005;
 b = 0.01;
 cell_size = 5000/2/34;   % unit: m 

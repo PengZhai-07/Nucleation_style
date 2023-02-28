@@ -50,11 +50,11 @@ multiple_asp::Float64 = input_parameter[index,8]  # effective normal stress on f
 multiple_matrix::Float64 = 0.1              # 0.1*10MPa
 a_over_b::Float64 = input_parameter[index,9] 
 asp_a::Float64 = 0.005
-matrix_a::Float64 = 0.015
 asp_b::Float64 =  asp_a/a_over_b      # coseismic b increase 
 asp_criticalness::Float64 = input_parameter[index,10]
 matrix_asp_ratio::Int = input_parameter[index,11]
 asperity_number::Int = input_parameter[index,12]
+matrix_a::Float64 = input_parameter[index,13]
 
 N::Int = asperity_number*(matrix_asp_ratio+1) + matrix_asp_ratio       # number of cells in RSF fault
 G::Float64 = 3e10   # shear modulus of model material   unit: Pa
@@ -75,7 +75,7 @@ println("Cohesive zone size(m): ", 9*pi/32*G*Dc/asp_b/(multiple_asp*10e6))
 turbo = "/nfs/turbo/lsa-yiheh/yiheh-mistorage/pengz/data"
 project = "wholespace/tremor"
 # Output directory to save data
-out_dir = "$(turbo)/$(project)/$(Domain)_$(res)_$(T)_$(FZlength)_$(halfwidth)_$(alpha)_$(cos_reduction)_$(multiple_asp)_$(a_over_b)_$(asp_criticalness)_$(matrix_asp_ratio)_$(asperity_number)/"    
+out_dir = "$(turbo)/$(project)/$(Domain)_$(res)_$(T)_$(FZlength)_$(halfwidth)_$(alpha)_$(cos_reduction)_$(multiple_asp)_$(a_over_b)_$(asp_criticalness)_$(matrix_asp_ratio)_$(asperity_number)_$(matrix_a)/"    
 print("Output directory: ", out_dir)
 # clean old files 
 if isdir(out_dir)

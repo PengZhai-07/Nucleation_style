@@ -81,7 +81,7 @@ function VfmaxPlot(Vfmax, N, t)
     ax.plot(Vfmax, lw = 2.0)
     ax.plot([0, indx_last],[1e-1, 1e-1] , "k", linestyle="-", label="Regular earthquake threshold")
     ax.plot([0, indx_last],[1e-3, 1e-3] , "k", linestyle="--", label="Inertial iterm threshold")
-    ax.plot([0, indx_last],[1e-5, 1e-5] , "k", linestyle=":", label="Tremor threshold")
+    ax.plot([0, indx_last],[1e-6, 1e-6] , "k", linestyle=":", label="Tremor threshold")
     ax.legend(loc="upper right") 
     ax.set_xlabel("Time steps")
     ax.set_ylabel("Max. Slip rate (m/s)")
@@ -90,6 +90,41 @@ function VfmaxPlot(Vfmax, N, t)
     # show()
     
     figname = string(path, "Vfmax.png")
+    fig.savefig(figname, dpi = 300)
+end
+
+# Plot alpha and Vfmax on the same plot
+function healing_analysis(Vf, alphaa, t, yr2sec)
+    plot_params()
+    fig = PyPlot.figure(figsize=(7.2, 4.45))
+    ax = fig.add_subplot(111)
+    x = t./yr2sec
+    indx_last = x[end]
+
+    ax.plot(x, Vf, lw = 2.0)
+    ax.plot([0, indx_last],[1e-1, 1e-1] , "k", linestyle="-", label="Regular earthquake threshold")
+    ax.plot([0, indx_last],[1e-3, 1e-3] , "k", linestyle="--", label="Inertial iterm threshold")
+    ax.plot([0, indx_last],[1e-6, 1e-6] , "k", linestyle=":", label="Tremor threshold")
+    ax.legend(loc="upper right") 
+    ax.set_xlabel("Time (years)")
+    ax.set_ylabel("Max. Slip rate (m/s)")
+    ax.set_yscale("log")
+    #ax.set_xlim([0, 600])
+    ax.set_ylim([1e-10, 1e2])
+    
+    col="tab:red"
+    ax2 = ax.twinx()
+    
+    ax2.plot(t./yr2sec, alphaa.*100, c=col, lw=2.0, label="Shear modulus ratio")   
+    ax2.set_ylabel("Shear Modulus (% of host rock)")
+    ax2.set_ylim([20, 110])
+    ax2.get_xaxis().set_tick_params(color=col)
+    ax2.tick_params(axis="x", labelcolor=col)
+
+    #  ax.legend([lab1, lab2], loc=0)
+    # show()
+    
+    figname = string(path, "healing_analysis.png")
     fig.savefig(figname, dpi = 300)
 end
 
@@ -112,7 +147,7 @@ function cumSlipPlot(delfsec, delfyr, FltX, hypo, d_hypo, N,Fault_length)
     plt.rc("font",size=12)
     ax.plot(delfyr2, FltX, color="royalblue", lw=1.0)
     ax.plot(delfsec2, FltX[indx_1:indx_2], color="chocolate", lw=1.0)
-    ax.plot(d_hypo, hypo./1000, "*", color="saddlebrown", markersize=25)
+    ax.plot(d_hypo, hypo./1000, "*", color="saddlebrown", markersize=10)
     ax.set_xlabel("Cumulative Slip (m)")
     ax.set_ylabel("Depth (km)")
     ax.set_ylim([0,Fault_length])
@@ -171,6 +206,31 @@ function eqCyclePlot(sliprate, FltX, N, t,Fault_length)
     figname = string(path, "sliprate_time.png")
     fig.savefig(figname, dpi = 600)
     
+end
+
+# Plot the stressdrops after each earthquake
+function stressdrop_2(taubefore, tauafter, FltX, tStart, Fault_length, multiple_asp)
+    N = length(tStart)
+    plot_params()
+    fig = PyPlot.figure(figsize=(15, 30));
+    n = 10
+    for i = 2:2+n-1 
+    ax = fig.add_subplot(n/2,2,i-1)
+      ax.plot(taubefore[i,:], FltX, lw = 2.0, color="tab:orange", 
+              label="Shear stress before the earthquake", alpha=1.0);
+      ax.plot(tauafter[i,:], FltX, lw = 2.0, color="tab:blue", 
+              label="Shear stress after the earthquake", alpha=1.0);
+      ax.set_xlabel("Stress drop (MPa)");
+      ax.set_ylabel("Depth (km)");
+      ax.set_ylim([0,Fault_length]);
+      ax.set_xlim([0.55*multiple_asp*10, 0.65*multiple_asp*10]);
+      ax.invert_yaxis();
+      plt.legend();
+    end
+      show()
+      figname = string(path, "shear_stress_following.png")
+      fig.savefig(figname, dpi = 600)
+    #  end
 end
 
 function eqCyclePlot_stress(stress, FltX, N, t,Fault_length, multiple_asp)
@@ -520,7 +580,7 @@ end
 #         if (t_real[i] - t_real[1]) >= 0.1*j
 #             j = j+1
 #             average_shear_stress[j] = average_shear_stress_temp[i]
-#         end
+#         endƒ
 #     end
 
 #     apparent_friction_coefficient = average_shear_stress ./ normal_stress
@@ -685,64 +745,7 @@ function velocity_dependence(b_value, Vfmax, t, yr2sec)
     fig.savefig(figname, dpi = 300)
 end
 
-# Plot alpha and Vfmax on the same plot
-function healing_analysis(Vf, alphaa, t, yr2sec)
-    plot_params()
-    fig = PyPlot.figure(figsize=(7.2, 4.45))
-    ax = fig.add_subplot(111)
-    x = t./yr2sec
-    indx_last = x[end]
 
-    ax.plot(x, Vf, lw = 2.0)
-    ax.plot([0, indx_last],[1e-1, 1e-1] , "k", linestyle="-", label="Regular earthquake threshold")
-    ax.plot([0, indx_last],[1e-3, 1e-3] , "k", linestyle="--", label="Inertial iterm threshold")
-    ax.plot([0, indx_last],[1e-5, 1e-5] , "k", linestyle=":", label="Tremor threshold")
-    ax.legend(loc="upper right") 
-    ax.set_xlabel("Time (years)")
-    ax.set_ylabel("Max. Slip rate (m/s)")
-    ax.set_yscale("log")
-    #ax.set_xlim([0, 600])
-    ax.set_ylim([1e-10, 1e2])
-    
-    col="tab:red"
-    ax2 = ax.twinx()
-    
-    ax2.plot(t./yr2sec, alphaa.*100, c=col, lw=2.0, label="Shear modulus ratio")   
-    ax2.set_ylabel("Shear Modulus (% of host rock)")
-    ax2.set_ylim([20, 110])
-    ax2.get_xaxis().set_tick_params(color=col)
-    ax2.tick_params(axis="x", labelcolor=col)
-
-    #  ax.legend([lab1, lab2], loc=0)
-    # show()
-    
-    figname = string(path, "healing_analysis.png")
-    fig.savefig(figname, dpi = 300)
-end
-
-# Plot the stressdrops after each earthquake
-function stressdrop_2(taubefore, tauafter, FltX, tStart)
-    N = length(tStart)
-    plot_params()
-    fig = PyPlot.figure(figsize=(10, 20));
-    for i = 1:N 
-    ax = fig.add_subplot(N,1,i)
-      ax.plot(taubefore[i,:], FltX, lw = 2.0, color="tab:orange", 
-              label="Shear stress before the earthquake", alpha=1.0);
-      ax.plot(tauafter[i,:], FltX, lw = 2.0, color="tab:blue", 
-              label="Shear stress after the earthquake", alpha=1.0);
-      ax.set_xlabel("Stress drop (MPa)");
-      ax.set_ylabel("Depth (km)");
-      ax.set_ylim([0,20]);
-      ax.set_xlim([15,45]);
-      ax.invert_yaxis();
-      plt.legend();
-    end
-      show()
-      figname = string(path, "shear_stress_following.png")
-      fig.savefig(figname, dpi = 300)
-    #  end
-end
 
 # Plot the stressdrops after each earthquake
 function stressdrop_1(taubefore, tauafter, FltX)
@@ -757,8 +760,8 @@ function stressdrop_1(taubefore, tauafter, FltX)
               label="Shear stress after the earthquake", alpha=1.0);
       ax.set_xlabel("Stress drop (MPa)");
       ax.set_ylabel("Depth (km)");
-      ax.set_ylim([0,20]);
-      ax.set_xlim([15,45]);
+      ax.set_ylim([0,5]);
+      ax.set_xlim([5.5,6.5]);
       ax.invert_yaxis();
       plt.legend();
     
