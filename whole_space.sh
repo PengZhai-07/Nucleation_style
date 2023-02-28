@@ -17,5 +17,5 @@
 #SBATCH --output=/home/%u/log/%x-%j.log
 #SBATCH --error=/home/%u/log/error-%x-%j.log
 
-julia --threads 16 run.jl $SLURM_ARRAY_TASK_ID whole_space_1.txt
+julia --threads 16 run.jl $SLURM_ARRAY_TASK_ID whole_space.txt
 
