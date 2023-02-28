@@ -4,11 +4,13 @@ clc
 close all
 
 %%
+res = 32;
 gamma = pi/4;  % empirical constant parameter 
 mu = 3.20e10;  % Pa 
 sigma = 40e6;  % Pa
 a = 0.015;
 a_b = 0.5:0.05:0.95;
+T = zeros(1,length(a_b));
 b = a./a_b;
 r = 1;   % the shear wave reduction=20%  1-0.2=0.8  r is the rigidity ratio
 % LL = linspace(log10(0.5),log10(125),25);  % m
@@ -20,80 +22,88 @@ L = [0.5,0.6,0.8,1,1.3,1.5,2,2.5,3,4,5,6,8,10,12,16,20,25,30,40,50,63,80,100,125
 H = 0;    % half-width
 NS = zeros(length(r),length(L),length(H));
 W = 10000;
-m = 0;
+m = 0; n=0; q=0;
 for i = 1:length(b)
+        % define the simulation time for different a/b
+    if (0.49<=a_b(i)) && (a_b(i)<=0.56)
+        T(i) = 900;
+    elseif (0.59<=a_b(i)) && (a_b(i)<=0.71)
+        T(i) = 600;
+    elseif (0.74<=a_b(i)) && (a_b(i)<=0.86)
+        T(i) = 300;
+    else
+        T(i) = 100;
+    end
     mu_D = mu;  % Pa
     for j = 1:length(L)   
         for k = 1:length(H)
             syms y
-            exp = y*tanh(2*gamma*H(k)/y+atanh(mu_D/mu)) -...
-               2/pi*mu_D*L(j)*b(i)/sigma/(b(i)-a)^2;        % Rubin and Ampuero
+            exp = W/y*tanh(2*gamma*H(k)/W*y+atanh(mu_D/mu)) -...
+               2/pi*mu_D*L(j)*b(i)/sigma/(b(i)-a)^2;       % Rubin and Ampuero
 %                 exp = y*tanh(2*gamma*H(k)/y+atanh(mu_D(i)/mu)) -...
 %                  pi/4*mu_D(i)*L(j)/sigma/(b-a);
 %                exp = 1/y*tanh(2*H(k)*gamma/W*y+atanh(mu_D/mu)) -...
 %                        mu_D*L(j)/sigma/(a/a_b(i)-a)/W;    % without pi/4? 
             y = double(vpasolve(exp,[0,1000000000]));
-%             if ( 2<= y) && (y<= 3)
-%             if ( 2 <= y) && (y <= 30)
-%                 m = m+1;
-%                 P(m,:) = [log10(L(j)*1000), a_b(i), L(j),b(i)];
-%             end
-            Ru(i,j,k) = W/y;
+            Ru(i,j,k) = y;
             Cohesive(i,j,k) = (9*pi/32)*mu_D*r*L(j)/b(i)./sigma;
-%            Ru(i,j,k) = W/(mu_D*L(j)/sigma/(b(i)-a));
+            if (y>=1) && (Cohesive(i,j,k) > 400/res*3)
+                m = m+1;
+                P_1(m,:) = [log10(L(j)*1000), a_b(i), L(j),b(i), T(i)];     % resolution is enough
+            elseif (y>=1) && (Cohesive(i,j,k) <= 400/res*3)
+                n = n+1;
+                P_2(n,:) = [log10(L(j)*1000), a_b(i), L(j),b(i), T(i)];
+            else
+                q = q+1;
+                P_3(q,:) = [log10(L(j)*1000), a_b(i), L(j),b(i), T(i)];
+            end
         end
     end
 end
-
-for i = 1:length(b)
-    mu_D = mu;  % Pa
-    for j = 1:length(L)   
-        for k = 1:length(H)
-            syms y
-%             exp = y*tanh(2*gamma*H(k)/y+atanh(mu_D/mu)) -...
-%                2/pi*mu_D*L(j)*b(i)/sigma/(b(i)-a)^2;
-%                 exp = y*tanh(2*gamma*H(k)/y+atanh(mu_D(i)/mu)) -...
-%                  pi/4*mu_D(i)*L(j)/sigma/(b-a);
-               exp = 1/y*tanh(2*H(k)*gamma/W*y+atanh(mu_D/mu)) -...
-                       mu_D*L(j)/sigma/(a/a_b(i)-a)/W;    % without pi/4? 
-            y = double(vpasolve(exp,[0,1000000000]));
-?
-            Ru_1(i,j,k) = W/y;
-            Cohesive_1(i,j,k) = (9*pi/32)*mu_D*r*L(j)/b(i)./sigma;
-%            Ru(i,j,k) = W/(mu_D*L(j)/sigma/(b(i)-a));
-        end
-    end
-end
-
 % Ru = W./NS;
 [Y,X] = meshgrid(a_b, log10(L*1000));
 % A = pcolor(X,Y,Ru');
-v_1 = [2,3,7.5,18.35,56.4,88];
+% v = [2,3,7.5,18.35,56.4,88];
 % v = [2,3,5,10,15,20,30,40,50,60,70,80,100,200,400];
-v = [0.01, 0.1, 1, 3.8 ,10, 100];
+v = [0.1, 1,3.8, 11.5, 100];
 figure(1)
 set(0,'defaultfigurecolor','w')
 set(gcf,'Position',[20 20 800 400]);%左下角位置，宽高
-pcolor(X,Y,Cohesive')
-shading interp
-min(min(Cohesive))
-clim([0 75])
-c = colorbar;
-ylabel(c, '3*Cohesive zone size')
 hold on
-[c,h] = contour(X,Y,Ru',v);
+scatter(P_1(:,1),P_1(:,2) ,'*','r' )
+scatter(P_2(:,1),P_2(:,2) ,'^','r' )
+scatter(P_3(:,1),P_3(:,2) ,'o','r' )
+% pcolor(X,Y,Cohesive')
+% shading interp
+% colormap(gray)
+% min(min(Cohesive))
+% clim([0 75])
+% c = colorbar;
+% ylabel(c, '3*Cohesive zone size(m)')
+% hold on
+[c,h]=contour(X,Y,Ru',v);
+clabel(c,h)
+set(h,"color","black")
 xticks([log10(L*1000)])
 xticklabels([0.5,0.6,0.8,1,1.3,1.5,2,2.5,3,4,5,6,8,10,12,16,20,25,30,40,50,63,80,100,125])
 set(gca,'XDir','reverse');        %将x轴方向设置为反向(从右到左递增)。
-% set(gca,'YDir','reverse');        %将x轴方向设置为反向(从右到左递增)。
-colormap(gray)
-clabel(c,h,v)
-xlabel('D_{c}')
+%set(gca,'YDir','reverse');        %将x轴方向设置为反向(从右到左递增)。
+xlabel('D_{c}(mm)')
 ylabel('a/b')
-
+box on
 
 % cohesive zone size
-box on 
+
+%% output the model parameter file
+
+fid  = fopen('../../whole_space.txt','wt');
+[u, v] = size(P_1);
+for i =1:u
+      fprintf(fid, ['0.5,',num2str(res),',',num2str(P_1(i,5)),',0,0,1.0,0.0,4,',num2str(P_1(i,2)),',',num2str(P_1(i,3)),'\n']);     
+end
+fclose(fid);
+
+
 %%
 % yy = a./[0.018,0.019,0.020,0.021,0.022,0.023,0.025,0.027,0.029, 0.031];
 % xx = log10(10)*ones(1,length(yy));
@@ -145,7 +155,7 @@ box on
 %%  m = m+1;
 %                 P(m,:) = [log10(L(j)*1000), a_b(i), L(j),b(i)];
 % %             en
-export_fig -dpng -r600 Nucleation_size_phase_diagram_b_L_Rubin_Ampuero
+export_fig -dpng -r600 Ru_b_Dc_Rubin_Ampuero
 
 %% output the bash script for sbatch in Great lakes
 
@@ -203,12 +213,5 @@ export_fig -dpng -r600 Nucleation_size_phase_diagram_b_L_Rubin_Ampuero
 % end
 % fclose(fid);
 % 
-
-
-
-
-
-
-
 
 % 0.8 500 0.012 4 0.00 0.03

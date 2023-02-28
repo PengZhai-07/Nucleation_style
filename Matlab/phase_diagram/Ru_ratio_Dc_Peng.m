@@ -1,3 +1,4 @@
+%% damage zone rigidity ratio and characteristic slip distance
 %%
 clear
 close all
@@ -48,10 +49,10 @@ set(gca,'YDir','reverse');        %将x轴方向设置为反向(从右到左递�
 colormap(jet)
 clabel(c,h,v)
 hold on 
-plot(log10(8),1.1765,'*')
+% plot(log10(8),1.1765,'*')
 xlabel('characteristic weakening distance(mm)')
 ylabel('Compliancce level(G/G_{cz})')
 title([num2str(H)])
-export_fig -dpng -r600 Nucleation_size_phase_diagram_peng_2000
+export_fig -dpng -r600 Ru_ratio_Dc_Peng
 
 

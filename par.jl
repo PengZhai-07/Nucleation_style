@@ -271,18 +271,18 @@ function setParameters(FZdepth::Int, halfwidth::Int, res::Int, T::Int, alpha::Fl
     # println("fbc=", fbc)
     # println(findall(x .== -24e3)[1])    # the point on the fault at the depth of 24km
 
-    idx_1 = findall(fbc .== findall(x .>= -Domain*40e3*5/6)[1]-1)[1]     # lower boundary of frictional parameters: over 20km are all creeping fault
-    idx_2 = findall(fbc .== findall(x .>= -Domain*40e3/6)[1])[1] 
+    idx_1 = findall(fbc .== findall(x .>= -Domain*40e3*7/8)[1])[1]     # lower boundary of frictional parameters: over 20km are all creeping fault
+    idx_2 = findall(fbc .== findall(x .>= -Domain*40e3/8)[1])[1] 
 
     println("idx_1=", idx_1)
     println("idx_2=", idx_2)
     #println("idx=", idx)
     #println(fbc[idx_2:end])
 
-    FltIglobBC::Vector{Int} = vcat(fbc[1:idx_1], fbc[idx_2+2:idx_2+idx_1+1])  # GLL nodes within creeping fault (>20 km)  with repeated nodes
+    FltIglobBC::Vector{Int} = vcat(fbc[1:idx_1], fbc[idx_2+1:idx_2+idx_1])  # GLL nodes within creeping fault (>20 km)  with repeated nodes
     # keep the number of GLL nodes in the two creeping zone the same
     println(fbc[1:idx_1])
-    println(fbc[idx_2+2:idx_2+idx_1+1])
+    println(fbc[idx_2+1:idx_2+idx_1])
 
     # # Kelvin-Voigt Viscosity : one technical method to increase the convergence rate
     # Nel_ETA::Int = 0   # not used! 

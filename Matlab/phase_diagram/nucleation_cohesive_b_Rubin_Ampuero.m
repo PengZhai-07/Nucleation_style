@@ -55,7 +55,7 @@ xlabel('Evolution Effect b')
 ylabel('Cohesive zone size(m)')
 grid on
 box on
-export_fig -dpng -r600 nucleation_cohesive_b_Rubin_Ampuero
+% export_fig -dpng -r600 nucleation_cohesive_b_Rubin_Ampuero
 
 %% calculate Ru number for different case
 

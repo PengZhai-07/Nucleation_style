@@ -57,7 +57,7 @@ turbo = "/nfs/turbo/lsa-yiheh/yiheh-mistorage/pengz/data"
 project = "wholespace/phase_diagram_L_b"
 # Output directory to save data
 out_dir = "$(turbo)/$(project)/$(Domain)_$(res)_$(T)_$(FZlength)_$(halfwidth)_$(alpha)_$(cos_reduction)_$(multiple)_$(a_over_b)_$(Lc)/"    
-print("Output directory: ", out_dir)
+println("Output directory: ", out_dir)
 # clean old files 
 if isdir(out_dir)
     rm(out_dir, recursive = true)
@@ -84,7 +84,7 @@ include("$(@__DIR__)/src/otherFunctions.jl")
 
 include("$(@__DIR__)/src/main.jl")
 
-simulation_time = @elapsed @time main(P, alpha, cos_reduction, coseismic_b)     # usually includes variable parameters for each simulation 
+simulation_time = @elapsed @time main(P, alpha, cos_reduction, coseismic_b, Domain)     # usually includes variable parameters for each simulation 
 
 println("\n")
 
