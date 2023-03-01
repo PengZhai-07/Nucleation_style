@@ -20,10 +20,10 @@ function fricDepth(FltX, asp_a, asp_b, matrix_a, Domain, multiple_matrix, multip
     # setup the transiton for kinematic fault and RSF fault
     # [a-b, depth]   key points of friction coefficient change
     fP1 = [0.047, 0e3]  
-    fP2 = [0.047, -Domain_X*Domain/8]
+    fP2 = [0.024, -Domain_X*Domain/8]
     fP3 = [matrix_ab, -Domain_X*Domain/4]
     fP4 = [matrix_ab, -Domain_X*Domain*3/4]
-    fP5 = [0.047, -Domain_X*Domain*7/8]
+    fP5 = [0.024, -Domain_X*Domain*7/8]
     fP6 = [0.047, -Domain_X*Domain]
 
     # Return a vector I of the indices or keys of A
