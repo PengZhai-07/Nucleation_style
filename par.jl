@@ -101,7 +101,7 @@ function setParameters(FZdepth::Float64, halfwidth::Float64, res::Int, T::Int, a
     Vo::Vector{Float64} = repeat([1e-6], FltNglob)		#	Reference velocity 'Vo'  unit: m/s
     xLf::Vector{Float64} = repeat([Dc], FltNglob)    #	Dc (Lc)
 
-    Vthres::Float64 = 1e-6     # unit: m/s  if max slip rate is higher than this value, tremor happens
+    Vthres::Float64 = 1e-7     # unit: m/s  if max slip rate is higher than this value, tremor happens
     Vevne::Float64 = Vthres    # redefine the velocity threshold!!
 
     #-----------#

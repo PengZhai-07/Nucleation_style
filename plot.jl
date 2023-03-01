@@ -47,7 +47,7 @@ for index = 65
     Fault_length = Domain*Domain_X/1000
 
     
-    FILE = "$(Domain)_$(res)_$(T)_$(FZlength)_$(halfwidth)_$(alpha)_$(cos_reduction)_$(multiple_asp)_$(a_over_b)_$(Lc)_$(matrix_asp_ratio)_$(asperity_number)_$(matrix_a)"
+    FILE = "$(Domain)_$(res)_$(T)_$(FZlength)_$(halfwidth)_$(alpha)_$(cos_reduction)_$(multiple_asp)_$(a_over_b)_$(Lc)_$(matrix_asp_ratio)_$(asperity_number)_$(matrix_a)_1e-7"
     # FILE = "$(Domain)_$(res)_$(T)_$(FZlength)_$(halfwidth)_$(alpha)_$(cos_reduction)_$(multiple_asp)_$(a_over_b)_$(Lc)_$(matrix_asp_ratio)_$(asperity_number)"
     # global FILE = "$(FZdepth)_$(halfwidth)_$(res)_$(alpha)_$(cos_reduction)_$(multiple)_$(Domain)_$(coseismic_b)_$(Lc)"
     println(FILE)                                                                                                                                                                                                                                                                                                                             

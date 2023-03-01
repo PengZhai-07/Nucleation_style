@@ -19,12 +19,12 @@ function fricDepth(FltX, asp_a, asp_b, matrix_a, Domain, multiple_matrix, multip
 
     # setup the transiton for kinematic fault and RSF fault
     # [a-b, depth]   key points of friction coefficient change
-    fP1 = [0.047, 0e3]  
-    fP2 = [0.024, -Domain_X*Domain/8]
+    fP1 = [0.047, 0e3]       # creeping part
+    fP2 = [0.047, -Domain_X*Domain/8]
     fP3 = [matrix_ab, -Domain_X*Domain/4]
     fP4 = [matrix_ab, -Domain_X*Domain*3/4]
-    fP5 = [0.024, -Domain_X*Domain*7/8]
-    fP6 = [0.047, -Domain_X*Domain]
+    fP5 = [0.047, -Domain_X*Domain*7/8]
+    fP6 = [0.047, -Domain_X*Domain]    # creeping part
 
     # Return a vector I of the indices or keys of A
     fric_depth1 = findall(abs.(FltX) .<= abs(fP2[2]))
@@ -73,7 +73,28 @@ function fricDepth(FltX, asp_a, asp_b, matrix_a, Domain, multiple_matrix, multip
         Seff[index_depth] .= multiple_asp*10e6
         
     end
+
     tauo::Array{Float64} = Seff.*0.6
+
+    tP1 = [0.45*NS, 0e3]       # creeping part
+    tP2 = [0.45*NS, -Domain_X*Domain/8]
+    tP3 = [0.6*NS, -Domain_X*Domain/4]
+    tP4 = [0.6*NS, -Domain_X*Domain*3/4]
+    tP5 = [0.45*NS, -Domain_X*Domain*7/8]
+    tP6 = [0.45*NS, -Domain_X*Domain]    # creeping part
+
+    # Return a vector I of the indices or keys of A
+    tau_depth1 = findall(abs.(FltX) .<= abs(tP2[2]))
+    tau_depth2 = findall(abs(tP2[2]) .< abs.(FltX) .<= abs(tP3[2]))
+    tau_depth3 = findall(abs(tP3[2]) .< abs.(FltX) .<= abs(tP4[2]))
+    tau_depth4 = findall(abs(tP4[2]) .< abs.(FltX) .<= abs(tP5[2]))
+    tau_depth5 = findall(abs(tP5[2]) .< abs.(FltX) .<= abs(tP6[2]))
+
+    # the initial shear stress outside of seismogenic zone is smaller
+    tauo[tau_depth1] .= NS*0.45
+    tauo[tau_depth2] .= Int1D(tP2, tP3, FltX[tau_depth2])
+    tauo[tau_depth4] .= Int1D(tP4, tP5, FltX[tau_depth4])
+    tauo[tau_depth5] .= NS*0.45
 
     cca .= a_b .+ asp_b      # so a is variable and b is a constant in all depth
 

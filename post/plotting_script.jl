@@ -213,7 +213,7 @@ function stressdrop_2(taubefore, tauafter, FltX, tStart, Fault_length, multiple_
     N = length(tStart)
     plot_params()
     fig = PyPlot.figure(figsize=(15, 30));
-    n = 10
+    n = 8
     for i = 2:2+n-1 
     ax = fig.add_subplot(n/2,2,i-1)
       ax.plot(taubefore[i,:], FltX, lw = 2.0, color="tab:orange", 
