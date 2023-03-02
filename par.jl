@@ -14,8 +14,8 @@ include("$(@__DIR__)/src/initialConditions/defaultInitialConditions.jl")
 
 function setParameters(FZdepth::Int, halfwidth::Int, res::Int, T::Int, alpha::Float64, multiple::Int, Lc::Float64, Domain)
 
-    LX::Int = Domain*40e3  # depth dimension of rectangular domain
-    LY::Int = Domain*32e3 # off fault dimenstion of rectangular domain
+    LX::Int = Domain*Domain_X  # depth dimension of rectangular domain
+    LY::Int = Domain*Domain_Y # off fault dimenstion of rectangular domain
 
     NelX::Int = 25*res*Domain # no. of elements in x
     NelY::Int = 20*res*Domain # no. of elements in y
@@ -271,8 +271,8 @@ function setParameters(FZdepth::Int, halfwidth::Int, res::Int, T::Int, alpha::Fl
     # println("fbc=", fbc)
     # println(findall(x .== -24e3)[1])    # the point on the fault at the depth of 24km
 
-    idx_1 = findall(fbc .== findall(x .>= -Domain*40e3*7/8)[1])[1]     # lower boundary of frictional parameters: over 20km are all creeping fault
-    idx_2 = findall(fbc .== findall(x .>= -Domain*40e3/8)[1])[1] 
+    idx_1 = findall(fbc .== findall(x .>= -Domain*Domain_X*7/8)[1])[1]     # lower boundary of frictional parameters: over 20km are all creeping fault
+    idx_2 = findall(fbc .== findall(x .>= -Domain*Domain_X/8)[1])[1] 
 
     println("idx_1=", idx_1)
     println("idx_2=", idx_2)

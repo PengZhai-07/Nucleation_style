@@ -34,7 +34,177 @@ function plot_params()
   #plt.rc("figure", figsize=(7.2, 4.5))
 
 end
- 
+
+# Plot friction parameters
+function icsPlot(a_b, Seff, tauo, FltX,Domain)
+    plot_params()
+    fig = PyPlot.figure(figsize=(7.2, 4.45))
+    ax = fig.add_subplot(111)            
+    
+    ax.plot(Seff, FltX, "b", label="Normal Stress")
+    ax.plot(tauo, FltX, "orange", label="Shear Stress")
+    ax.set_xlabel("Stresses (MPa)")
+    ax.set_ylabel("Depth (km)")
+    ax.legend(loc="lower right") 
+    
+    col="tab:green"
+    ax2 = ax.twiny()
+    ax2.plot(a_b, FltX, "g",label="(a-b)")
+    #println(FltX)
+    seismogenic_depth = findall(abs(Domain*Domain_X/4) .< abs.(FltX) .<= abs(Domain*Domain_X*3/4))   # note: unit of FltX here is km
+    a_b[seismogenic_depth] .= a_b[seismogenic_depth] .- 0.006
+    #println(a_b)
+    ax2.plot(a_b, FltX, "r",label="coseismic (a-b)", linestyle=":")
+    ax2.set_xlabel("Rate-state friction value (a-b)", color=col)
+    ax2.get_xaxis().set_tick_params(color=col)
+    ax2.tick_params(axis="x", labelcolor=col)  
+    ax2.set_xlim([-0.015,0.040])
+    ax2.legend(loc="lower left") 
+
+    ax.set_ylim([0,Domain*Domain_X])
+    ax.invert_yaxis()
+    show()
+    
+    figname = string(path, "initial_condition.png")
+    fig.savefig(figname, dpi = 300)
+end
+
+
+# Plot Vfmax
+function VfmaxPlot(Vfmax, N, t)
+    plot_params()
+    fig = PyPlot.figure(figsize=(7.2, 3.45))
+    ax = fig.add_subplot(111)
+
+    t_seconds = (N+100) * 365 * 24 * 60 * 60 
+    indx_last = findall(t .<= t_seconds)[end]   # last event!
+
+    ax.plot(Vfmax[1:indx_last], lw = 2.0)
+    ax.plot([0, indx_last],[1e-3, 1e-3] , "k", linestyle=":", label="Seismic threshold")
+    ax.legend(loc="upper right") 
+    ax.set_xlabel("Time steps")
+    ax.set_ylabel("Max. Slip rate (m/s)")
+    ax.set_yscale("log")
+    ax.set_ylim([1e-10,1e2])
+    # show()
+    
+    figname = string(path, "Vfmax.png")
+    fig.savefig(figname, dpi = 300)
+end
+
+# Plot alpha and Vfmax on the same plot
+function healing_analysis(Vf, alphaa, t, yr2sec)
+    plot_params()
+    fig = PyPlot.figure(figsize=(7.2, 4.45))
+    ax = fig.add_subplot(111)
+    
+    ax.plot(t./yr2sec, Vf, lw = 2.0, label="Max. Slip rate")
+    lab1 = "Max. slip rate"
+    ax.set_ylabel("Max. Slip rate (m/s)")
+    ax.set_yscale("log")
+    #ax.set_xlim([0, 600])
+    ax.set_ylim([1e-10, 1e2])
+    
+    col="tab:red"
+    ax2 = ax.twinx()
+    
+    ax2.plot(t./yr2sec, alphaa.*100, c=col, lw=2.0, label="Shear modulus ratio")
+    # lab2 = "Shear modulus ratio"
+    ax.set_xlabel("Time (years)")
+    ax2.set_ylabel("Shear Modulus (% of host rock)")
+    ax2.set_ylim([20, 110])
+    ax2.get_xaxis().set_tick_params(color=col)
+    ax2.tick_params(axis="x", labelcolor=col)
+
+    #  ax.legend([lab1, lab2], loc=0)
+    # show()
+    
+    figname = string(path, "healing_analysis.png")
+    fig.savefig(figname, dpi = 300)
+end
+
+
+# Plot cumulative slip
+function cumSlipPlot(delfsec, delfyr, FltX, hypo, d_hypo, N, Domain)
+    
+    indx_1 = findall(abs.(FltX) .<= Domain*Domain_X*7/8)[1]
+    indx_2 = findall(abs.(FltX) .>= Domain*Domain_X/8)[end]
+
+    print(indx_1)
+    print(indx_2)
+
+    delfsec2 = transpose(delfsec[:, indx_1:indx_2])
+    delfyr2 = transpose(delfyr)
+
+    plot_params()
+    fig = PyPlot.figure(figsize=(7.2, 4.45))
+
+    ax = fig.add_subplot(111)
+    plt.rc("font",size=12)
+    ax.plot(delfyr2, FltX, color="royalblue", lw=1.0)
+    ax.plot(delfsec2, FltX[indx_1:indx_2], color="chocolate", lw=1.0)
+    ax.plot(d_hypo, hypo./1000, "*", color="saddlebrown", markersize=25)
+    ax.set_xlabel("Cumulative Slip (m)")
+    ax.set_ylabel("Depth (km)")
+    ax.set_ylim([0,Domain*Domain_X])
+
+    L = (N+100) * 365 * 24 * 60 * 60 * 1e-9
+    ax.set_xlim([0,L])
+    #ax.set_xlim([0,9.0])
+    ax.invert_yaxis()
+
+    # show()
+    
+    figname = string(path, "cumulative_slip.png")
+    fig.savefig(figname, dpi = 300)
+
+end
+
+
+# sliprate versus time plot
+# N is the number of years to plot
+function eqCyclePlot(sliprate, FltX, N, t, Domain)
+
+    t_seconds = N * 365 * 24 * 60 * 60 
+    indx_last = findall(t .<= t_seconds)[end]   # last event!
+    indx_last_int::Int = floor(indx_last/output_freq)
+
+    indx = findall(abs.(FltX) .<= Domain_X*Domain)[1]
+    value = sliprate[indx:end,1:indx_last_int]
+    
+    # print(findall(abs.(sliprate) .<= 1e-12))
+    value[findall(abs.(value) .<= 1e-15)] .= 1e-15 
+
+    # depth = FltX[indx:end]
+
+    plot_params()
+    fig = PyPlot.figure(figsize=(7.2, 4.45))
+    ax = fig.add_subplot(111)
+
+    c = ax.imshow(value, cmap="viridis", aspect="auto",
+                  norm=matplotlib.colors.LogNorm(vmin=1e-15, vmax=1e-3),
+                  interpolation="none",    # the interpolation method decide the final slip rate distrbution!!
+                  extent=[0,length(value[1,:]), 0,Domain*Domain_X])
+
+    # for stress
+    #  c = ax.imshow(value, cmap="inferno", aspect="auto",
+                  #  vmin=22.5, vmax=40,
+                  #  interpolation="bicubic",
+                  #  extent=[0,length(seismic_slipvel[1,:]), 0,16])
+    
+    ax.set_xlabel("Variable Timesteps")
+    ax.set_ylabel("Depth (km)")
+
+    ax.invert_yaxis()
+    cbar = fig.colorbar(c, label = "Slip rate(m/s)")
+    #   cbar.set_ticks(cbar.get_ticks()[1:2:end])
+    
+    # show()
+    figname = string(path, "sliprate_time.png")
+    fig.savefig(figname, dpi = 600)
+    
+end
+
 function moment_release_example(sliprate, FltX, tStart, t, N, criteria, measure_threshold)
     n_before = 150             # 200 time steps before seismic threshold 
     n = length(tStart)         # how many seimsic events
@@ -51,7 +221,7 @@ function moment_release_example(sliprate, FltX, tStart, t, N, criteria, measure_
         #println("Index of timestep in sliprate(output every 10) at the beginning of last seismic event:", indx_last_int)
         t_coseismic = t[indx_last:output_freq:indx_last+N*output_freq]   # accurate time for each sliprate
         
-        indx = findall(abs.(FltX) .<= 30)[1]
+        indx = findall(abs.(FltX) .<= Domain*Domain_X)[1]
         depth = FltX[indx:end]
         value = sliprate[indx:end, indx_last_int:indx_last_int+N]       # depth, timestep  # only use the slip rate data after the seismic threshold!
         
@@ -164,8 +334,8 @@ function moment_release_example(sliprate, FltX, tStart, t, N, criteria, measure_
 end
 
 
-function Nucleation(sliprate, weakeningrate, FltX, tStart, t, N, criteria, measure_threshold)
-    n_before = 200             # n_before*10 time steps before seismic threshold 
+function Nucleation(sliprate, weakeningrate, FltX, tStart, t, N, criteria, measure_threshold, Domain)
+    n_before = 50             # n_before*10 time steps before seismic threshold 
     n = length(tStart)         # how many seimsic events
     n_plot = 3      # number of plots of nucleation process
     NS_width = zeros(n-1,4)
@@ -174,7 +344,7 @@ function Nucleation(sliprate, weakeningrate, FltX, tStart, t, N, criteria, measu
     mm = 0
     plot_params()
     fig = PyPlot.figure(figsize=(10, 30))
-    for i = 1: n-1     # neglect the first 2 earthquake event
+    for i = 1: n-2     # neglect the first 2 earthquake event
         
         #println("Time of the last seismic event(s):",tStart[end])
         indx_last = findall(t[:] .<= tStart[i+1])[end]   
@@ -183,7 +353,7 @@ function Nucleation(sliprate, weakeningrate, FltX, tStart, t, N, criteria, measu
         #println("Index of timestep in sliprate(output every 10) at the beginning of last seismic event:", indx_last_int)
 
 
-        indx = findall(abs.(FltX) .<= 30)[1]
+        indx = findall(abs.(FltX) .<= Domain*Domain_X)[1]
         value = sliprate[indx:end,indx_last_int-n_before:indx_last_int+N]       # depth, timestep  # only use the slip rate data after the seismic threshold!
         value_1 = exp.(weakeningrate[indx:end,indx_last_int-n_before:indx_last_int+N]).*value./1e-6 
         depth = FltX[indx:end]
@@ -222,16 +392,16 @@ function Nucleation(sliprate, weakeningrate, FltX, tStart, t, N, criteria, measu
         min_Ω[i] = minimum(value_1[indx_nucleation[:], mm:n_before+nn])
 
         plot_params()   
-        if i in n-n_plot:n-1
+        if i in n-n_plot:n-2
             # plot slip rate profile
-            ax = fig.add_subplot(n_plot, 1, i-n+n_plot+1)
+            ax = fig.add_subplot(n_plot, 1, i-n+n_plot+2)
             # println(size(t[indx_last_int:indx_last_int + N]))
             # println(size(value))
 
             ax.plot(value[:,mm:5:n_before+nn], depth, color="red")        # plot every five steps
             # ax.plot(value[:,2], depth, color="red")        # only plot the slip rate over seismicthreshold
             ax.set_xscale("log")
-            ax.set_ylim([10,20])    
+            ax.set_ylim([Domain*Domain_X/8,Domain*Domain_X*7/8])    
             ax.set_ylabel("Depth(km)")
             ax.set_xlim([1e-6, 1e-0])
             ax.set_xlabel("Slip Velocity(m/s)")
@@ -248,8 +418,8 @@ function Nucleation(sliprate, weakeningrate, FltX, tStart, t, N, criteria, measu
     return NS_width, min_Ω
 end
 
-function Nucleation_example(sliprate, weakeningrate, FltX, tStart, t, N, criteria, measure_threshold)
-    n_before = 500             # 200 time steps before seismic threshold 
+function Nucleation_example(sliprate, weakeningrate, FltX, tStart, t, N, criteria, measure_threshold, Domain)
+    n_before = 50             # 200 time steps before seismic threshold 
     n = length(tStart)         # how many seimsic events
     # n = 5
     NS_width = zeros(n-1,4)
@@ -259,14 +429,14 @@ function Nucleation_example(sliprate, weakeningrate, FltX, tStart, t, N, criteri
     fig = PyPlot.figure(figsize=(20, 10))
     # for i = 1: n-1 
 
-    for i = 1     # plot the i_th normal earthquake: choose by yourself    if i=n-1, then plot the last one!!
+    for i = 5     # plot the i_th normal earthquake: choose by yourself    if i=n-1, then plot the last one!!
         #println("Time of the last seismic event(s):",tStart[end])
         indx_last = findall(t[:].<= tStart[i+1])[end]   
         indx_last_int::Int = floor(indx_last/output_freq)
         # indx_last_int::Int = floor(indx_last)
         #println("Index of timestep in sliprate(output every 10) at the beginning of last seismic event:", indx_last_int)
 
-        indx = findall(abs.(FltX) .<= 30)[1]
+        indx = findall(abs.(FltX) .<= Domain*Domain_X)[1]
         value = sliprate[indx:end,indx_last_int-n_before:indx_last_int+N]       # depth, timestep  # only use the slip rate data after the seismic threshold!
         value_1 = exp.(weakeningrate[indx:end,indx_last_int-n_before:indx_last_int+N]).*value./1e-6 
         depth = FltX[indx:end]
@@ -308,7 +478,7 @@ function Nucleation_example(sliprate, weakeningrate, FltX, tStart, t, N, criteri
         
         ax.plot(depth, value[:,mm:5:n_before+nn],color="red", )        # plot every five steps
         ax.set_yscale("log")
-        ax.set_xlim([10,20])    
+        ax.set_xlim([Domain*Domain_X/8,Domain*Domain_X*7/8])   
         ax.set_xlabel("Depth(km)")
         ax.set_ylim([1e-15, 1e1])
         ax.set_ylabel("Slip Velocity(m/s)")
@@ -317,7 +487,7 @@ function Nucleation_example(sliprate, weakeningrate, FltX, tStart, t, N, criteri
         ax2.plot(depth, value_1[:,mm:5:n_before+nn],color="blue", )        # plot every five steps
         ax2.plot([depth[1],depth[end]],[1, 1] , "k", linestyle=":", label="Ω=1")
         ax2.set_yscale("log")
-        ax2.set_xlim([10,20])    
+        ax2.set_xlim([Domain*Domain_X/8,Domain*Domain_X*7/8])  
         ax2.set_xlabel("Depth(km)")
         ax2.set_ylim([1e-2, 1e10])
         ax2.set_ylabel("weakeningrate")
@@ -584,71 +754,7 @@ function apparent_friction_new_prapogation(stress, index_start, index_end, delfs
 end
 
 
-# Plot Vfmax
-function VfmaxPlot(Vfmax, N, t)
-    plot_params()
-    fig = PyPlot.figure(figsize=(7.2, 3.45))
-    ax = fig.add_subplot(111)
 
-    t_seconds = (N+100) * 365 * 24 * 60 * 60 
-    indx_last = findall(t .<= t_seconds)[end]   # last event!
-
-    ax.plot(Vfmax[1:indx_last], lw = 2.0)
-    ax.plot([0, indx_last],[1e-3, 1e-3] , "k", linestyle=":", label="Seismic threshold")
-    ax.legend(loc="upper right") 
-    ax.set_xlabel("Time steps")
-    ax.set_ylabel("Max. Slip rate (m/s)")
-    ax.set_yscale("log")
-    ax.set_ylim([1e-10,1e2])
-    # show()
-    
-    figname = string(path, "Vfmax.png")
-    fig.savefig(figname, dpi = 300)
-end
-
-# sliprate versus time plot
-# N is the number of years to plot
-function eqCyclePlot(sliprate, FltX, N, t)
-
-    t_seconds = N * 365 * 24 * 60 * 60 
-    indx_last = findall(t .<= t_seconds)[end]   # last event!
-    indx_last_int::Int = floor(indx_last/output_freq)
-
-    indx = findall(abs.(FltX) .<= 30)[1]
-    value = sliprate[indx:end,1:indx_last_int]
-    
-    # print(findall(abs.(sliprate) .<= 1e-12))
-    value[findall(abs.(value) .<= 1e-15)] .= 1e-15 
-
-    # depth = FltX[indx:end]
-
-    plot_params()
-    fig = PyPlot.figure(figsize=(7.2, 4.45))
-    ax = fig.add_subplot(111)
-
-    c = ax.imshow(value, cmap="viridis", aspect="auto",
-                  norm=matplotlib.colors.LogNorm(vmin=1e-15, vmax=1e-3),
-                  interpolation="none",    # the interpolation method decide the final slip rate distrbution!!
-                  extent=[0,length(value[1,:]), 0,30])
-
-    # for stress
-    #  c = ax.imshow(value, cmap="inferno", aspect="auto",
-                  #  vmin=22.5, vmax=40,
-                  #  interpolation="bicubic",
-                  #  extent=[0,length(seismic_slipvel[1,:]), 0,16])
-    
-    ax.set_xlabel("Variable Timesteps")
-    ax.set_ylabel("Depth (km)")
-
-    ax.invert_yaxis()
-    cbar = fig.colorbar(c, label = "Slip rate(m/s)")
-    #   cbar.set_ticks(cbar.get_ticks()[1:2:end])
-    
-    # show()
-    figname = string(path, "sliprate_time.png")
-    fig.savefig(figname, dpi = 600)
-    
-end
 
 # Plot Vfmax
 function velocity_dependence(b_value, Vfmax, t, yr2sec)
@@ -681,36 +787,6 @@ function velocity_dependence(b_value, Vfmax, t, yr2sec)
     fig.savefig(figname, dpi = 300)
 end
 
-# Plot alpha and Vfmax on the same plot
-function healing_analysis(Vf, alphaa, t, yr2sec)
-    plot_params()
-    fig = PyPlot.figure(figsize=(7.2, 4.45))
-    ax = fig.add_subplot(111)
-    
-    ax.plot(t./yr2sec, Vf, lw = 2.0, label="Max. Slip rate")
-    lab1 = "Max. slip rate"
-    ax.set_ylabel("Max. Slip rate (m/s)")
-    ax.set_yscale("log")
-    #ax.set_xlim([0, 600])
-    ax.set_ylim([1e-10, 1e2])
-    
-    col="tab:red"
-    ax2 = ax.twinx()
-    
-    ax2.plot(t./yr2sec, alphaa.*100, c=col, lw=2.0, label="Shear modulus ratio")
-    # lab2 = "Shear modulus ratio"
-    ax.set_xlabel("Time (years)")
-    ax2.set_ylabel("Shear Modulus (% of host rock)")
-    ax2.set_ylim([20, 110])
-    ax2.get_xaxis().set_tick_params(color=col)
-    ax2.tick_params(axis="x", labelcolor=col)
-
-    #  ax.legend([lab1, lab2], loc=0)
-    # show()
-    
-    figname = string(path, "healing_analysis.png")
-    fig.savefig(figname, dpi = 300)
-end
 
 # Plot the stressdrops after each earthquake
 function stressdrop_2(taubefore, tauafter, FltX, tStart)
@@ -760,41 +836,7 @@ function stressdrop_1(taubefore, tauafter, FltX)
     #  end
 end
 
-# Plot cumulative slip
-function cumSlipPlot(delfsec, delfyr, FltX, hypo, d_hypo, N)
-    
-    indx_1 = findall(abs.(FltX) .<= 25)[1]
-    indx_2 = findall(abs.(FltX) .>= 5)[end]
 
-    print(indx_1)
-    print(indx_2)
-
-    delfsec2 = transpose(delfsec[:, indx_1:indx_2])
-    delfyr2 = transpose(delfyr)
-
-    plot_params()
-    fig = PyPlot.figure(figsize=(7.2, 4.45))
-
-    ax = fig.add_subplot(111)
-    plt.rc("font",size=12)
-    ax.plot(delfyr2, FltX, color="royalblue", lw=1.0)
-    ax.plot(delfsec2, FltX[indx_1:indx_2], color="chocolate", lw=1.0)
-    ax.plot(d_hypo, hypo./1000, "*", color="saddlebrown", markersize=25)
-    ax.set_xlabel("Cumulative Slip (m)")
-    ax.set_ylabel("Depth (km)")
-    ax.set_ylim([0,30])
-
-    L = (N+100) * 365 * 24 * 60 * 60 * 1e-9
-    ax.set_xlim([0,L])
-    #ax.set_xlim([0,9.0])
-    ax.invert_yaxis()
-
-    # show()
-    
-    figname = string(path, "cumulative_slip.png")
-    fig.savefig(figname, dpi = 300)
-
-end
 
 function cumSlipPlot_no_hypocenter(delfsec, delfyr, FltX, N)
 
@@ -987,39 +1029,6 @@ fig.savefig(figname, dpi = 300)
 end
 
 
-# Plot friction parameters
-function icsPlot(a_b, Seff, tauo, FltX )
-    plot_params()
-    fig = PyPlot.figure(figsize=(7.2, 4.45))
-    ax = fig.add_subplot(111)            
-    
-    ax.plot(Seff, FltX, "b", label="Normal Stress")
-    ax.plot(tauo, FltX, "orange", label="Shear Stress")
-    ax.set_xlabel("Stresses (MPa)")
-    ax.set_ylabel("Depth (km)")
-    ax.legend(loc="lower right") 
-    
-    col="tab:green"
-    ax2 = ax.twiny()
-    ax2.plot(a_b, FltX, "g",label="(a-b)")
-    #println(FltX)
-    seismogenic_depth = findall(abs(10) .< abs.(FltX) .<= abs(20))   # note: unit of FltX here is km
-    a_b[seismogenic_depth] .= a_b[seismogenic_depth] .- 0.006
-    #println(a_b)
-    ax2.plot(a_b, FltX, "r",label="coseismic (a-b)", linestyle=":")
-    ax2.set_xlabel("Rate-state friction value (a-b)", color=col)
-    ax2.get_xaxis().set_tick_params(color=col)
-    ax2.tick_params(axis="x", labelcolor=col)  
-    ax2.set_xlim([-0.015,0.040])
-    ax2.legend(loc="lower left") 
-
-    ax.set_ylim([0,30])
-    ax.invert_yaxis()
-    show()
-    
-    figname = string(path, "initial_condition.png")
-    fig.savefig(figname, dpi = 300)
-end
 
 function velocity_dependence_b(x1 ,x2, y1, y2)
     plot_params()

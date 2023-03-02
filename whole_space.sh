@@ -1,9 +1,9 @@
 #!/bin/bash
 
 #SBATCH --job-name=Phase_diagram
-#SBATCH --array=1-100
+#SBATCH --array=1-10
 
-##SBATCH --mail-user=pengzhai@umich.edu
+##SBATCH --mail-user=39 pengzhai@umich.edu
 ##SBATCH --mail-type=FAIL,ARRAY_TASKS
 #SBATCH --nodes=1
 ##SBATCH --ntasks-per-node=1

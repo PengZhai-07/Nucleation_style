@@ -8,14 +8,15 @@ using DelimitedFiles
 global output_freq = 10
 global Domain_X = 40e3
 
+
 turbo = "/nfs/turbo/lsa-yiheh/yiheh-mistorage/pengz/data"
 project = "wholespace/phase_diagram_L_b"
 
 # other input parameter
-input_parameter = readdlm("$(@__DIR__)/whole_space_1.txt", ',',  header=false)
+input_parameter = readdlm("$(@__DIR__)/whole_space.txt", ',',  header=false)
 a = size(input_parameter)[1]
 
-for index = 23
+for index = 39
     
     # domain parameters
     Domain = input_parameter[index,1]   # amplify factor of the domain size, the current domain size is 30km*24km for 0.75 domain size
@@ -23,12 +24,12 @@ for index = 23
     T::Int = input_parameter[index,3]   # total simulation time   unit:year
     # fault zone parameter
     FZlength::Int = input_parameter[index,4]    # length of fault zone: m
-    FZdepth::Int = (40e3*Domain+FZlength)/2   # depth of lower boundary of damage zone  unit: m    
+    FZdepth::Int = (Domain_X*Domain+FZlength)/2   # depth of lower boundary of damage zone  unit: m    
     halfwidth::Int =  input_parameter[index,5]   # half width of damage zone   unit:m
     alpha = input_parameter[index,6]   # initial(background) rigidity ratio: fault zone/host rock
     cos_reduction = input_parameter[index,7]    # coseismic rigidity reduction 
     # friction parameter on fault surface
-    multiple::Int = input_parameter[index,8]  # effective normal stress on fault: 10MPa*multiple
+    multiple::Int = input_parameter[index,8]  # effective normal stress on fault: 110000MPa*multiple
     a_over_b = input_parameter[index,9] 
     local a = 0.015
     coseismic_b::Float64 =  a/a_over_b            # coseismic b increase 
@@ -38,8 +39,8 @@ for index = 23
     global FILE = "$(Domain)_$(res)_$(T)_$(FZlength)_$(halfwidth)_$(alpha)_$(cos_reduction)_$(multiple)_$(a_over_b)_$(Lc)"
     println(FILE)
 
-    # global out_path = "$(turbo)/$(project)/$(FILE)/"
-    global out_path = "$(@__DIR__)/data/$(project)/$(FILE)/"
+    global out_path = "$(turbo)/$(project)/$(FILE)/"
+    # global out_path = "$(@__DIR__)/data/$(project)/$(FILE)/"
 
     # path to save files
     global path = "$(@__DIR__)/plots/$(project)/$(FILE)/"
@@ -56,7 +57,7 @@ for index = 23
     N = T
 
     # calculate the nucleation size and plot the nucleation process
-    N_timestep = 2000      # time steps to use in sliprate
+    N_timestep = 800      # time steps to use in sliprate
     # for i=1:6    1000
 
     criteria = 1e-1    # seismic threshold to measure the nucleation size
@@ -65,11 +66,15 @@ for index = 23
 
     # moment_release_example(sliprate', FltX, tStart, t, N_timestep, criteria, measure_threshold)       
 
+     # Plot friction parameters
+    icsPlot(a_b, Seff, tauo, FltX, Domain/1000)
+
+
     # max slip rate versus timestep
     VfmaxPlot(Vfmax, N, t)
 
     # culmulative slip
-    cumSlipPlot(delfsec[1:4:end,:], delfyr[1:end, :], FltX, hypo, d_hypo, N);
+    cumSlipPlot(delfsec[1:4:end,:], delfyr[1:end, :], FltX, hypo, d_hypo, N, Domain/1000);
     # cumSlipPlot_no_hypocenter(delfsec[1:4:end,:], delfyr[1:end, :], FltX, N);
     
     # healing analysis: Vfmax and regidity ratio vs. time
@@ -77,16 +82,16 @@ for index = 23
     
     # slip rate vs timesteps
     # how many years to plot
-    eqCyclePlot(sliprate', FltX, N, t)
+    eqCyclePlot(sliprate', FltX, N, t, Domain)
                         
-    Nucleation_example(sliprate',weakeningrate', FltX, tStart, t, N_timestep, criteria, measure_threshold)    # only plot the last seismic event
+    Nucleation_example(sliprate',weakeningrate', FltX, tStart, t, N_timestep, criteria, measure_threshold, Domain/1000)    # only plot the last seismic event
     # Nucleation_example_no_weakening_rate(sliprate', FltX, tStart, t, N_timestep, criteria, measure_threshold)    # only plot the last seismic event
 
-    NS_width, min_Ω = Nucleation(sliprate', weakeningrate', FltX, tStart, t, N_timestep, criteria, measure_threshold)
+    NS_width, min_Ω = Nucleation(sliprate', weakeningrate', FltX, tStart, t, N_timestep, criteria, measure_threshold, Domain/1000)
     println(NS_width)
     println(min_Ω)
 
-    df = mean(abs.(NS_width[:,1].-(Domain_X/1e3*Domain/2)))/(Domain_X/1e3*Domain/6)     # deviation factor of hypocenter
+    df = mean(abs.(NS_width[:,1].-(Domain_X/1e3*Domain/2)))/(Domain_X/1e3*Domain/4)     # deviation factor of hypocenter
     println(df)
     if  0 <= df < 0.2
         rupture_style = "Symmetric-bilateral rupture"
@@ -136,9 +141,7 @@ for index = 23
     # # eqCyclePlot_last_2(sliprate', FltX, tStart, t, N_timestep, n)
 
 
-    # # Plot friction parameters
-    # icsPlot(a_b, Seff, tauo, FltX)
-
+   
     # # Plot velocity dependence of b
     # velocity_dependence_b(1e-5, 1e-3, 0.019, 0.025)
 

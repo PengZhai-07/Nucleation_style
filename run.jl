@@ -13,6 +13,9 @@ using Printf, LinearAlgebra, DelimitedFiles, SparseArrays, AlgebraicMultigrid, S
 using Base.Threads
 # using PyPlot    # no matplotlib in wozhi
 # BLAS.set_num_threads(2)  # If the underlying BLAS is using multiple threads, higher flop rates are realized
+global Domain_X = 40e3
+global Domain_Y = 32e3
+
 
 include("$(@__DIR__)/par.jl")	    #	Set Parameters
 
@@ -33,7 +36,7 @@ println("Total simulation time(year): ",T)
 
 # fault zone parameter
 FZlength::Int = input_parameter[index,4]    # length of fault zone: m
-FZdepth::Int = (40*Domain+FZlength)/2   # depth of lower boundary of damage zone  unit: m    
+FZdepth::Int = (Domain_X*Domain+FZlength)/2   # depth of lower boundary of damage zone  unit: m    
 halfwidth::Int =  input_parameter[index,5]   # half width of damage zone   unit:m
 alpha = input_parameter[index,6]   # initial(background) rigidity ratio: fault zone/host rock
 cos_reduction = input_parameter[index,7]    # coseismic rigidity reduction 
