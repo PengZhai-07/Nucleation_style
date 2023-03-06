@@ -21,7 +21,7 @@ L = [0.5,0.6,0.8,1,1.3,1.5,2,2.5,3,4,5,6,8,10,12,16,20,25,30,40,50,63,80,100,125
 %H = [250, 500, 1000, 1500, 2000];      % m  half-width of damage zone
 H = 0;    % half-width
 NS = zeros(length(r),length(L),length(H));
-W = 10000;
+W = 10000;    % unit:m
 m = 0; n=0; q=0;
 for i = 1:length(b)
         % define the simulation time for different a/b
@@ -46,7 +46,10 @@ for i = 1:length(b)
 %                        mu_D*L(j)/sigma/(a/a_b(i)-a)/W;    % without pi/4? 
             y = double(vpasolve(exp,[0,1000000000]));
             Ru(i,j,k) = y;
+            kk = mu/(W/2)/pi;
+            C_1(i,j,k) = b(i)/a*(1-kk*L(j)/b(i)/sigma);
             Cohesive(i,j,k) = (9*pi/32)*mu_D*r*L(j)/b(i)./sigma;
+         
             if (y>=1) && (Cohesive(i,j,k) > 400/res*3)
                 m = m+1;
                 P_1(m,:) = [log10(L(j)*1000), a_b(i), L(j),b(i), T(i)];     % resolution is enough
@@ -65,22 +68,26 @@ end
 % A = pcolor(X,Y,Ru');
 % v = [2,3,7.5,18.35,56.4,88];
 % v = [2,3,5,10,15,20,30,40,50,60,70,80,100,200,400];
-v = [0.1, 1,3.8, 11.5, 100];
+
 figure(1)
 set(0,'defaultfigurecolor','w')
 set(gcf,'Position',[20 20 800 400]);%左下角位置，宽高
+pcolor(X,Y,C_1')
 hold on
+shading interp
+colormap(gray)
+clim([min(min(C_1)),max(max(C_1))])
+c = colorbar;
+ylabel(c, 'C1')
+v = [1,1.1,1.2,1.3,1.4,1.5];
+[c,h]=contour(X,Y,C_1',v);
+clabel(c,h)
+set(h,"color","blue")
+
 scatter(P_1(:,1),P_1(:,2) ,'*','r' )
 scatter(P_2(:,1),P_2(:,2) ,'^','r' )
 scatter(P_3(:,1),P_3(:,2) ,'o','r' )
-% pcolor(X,Y,Cohesive')
-% shading interp
-% colormap(gray)
-% min(min(Cohesive))
-% clim([0 75])
-% c = colorbar;
-% ylabel(c, '3*Cohesive zone size(m)')
-% hold on
+v = [0.1, 1,3.8, 11.5, 100];
 [c,h]=contour(X,Y,Ru',v);
 clabel(c,h)
 set(h,"color","black")
