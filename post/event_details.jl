@@ -10,7 +10,7 @@ using LinearAlgebra
 #       dimension along depth is the same as the rupture
 #       dimension perpendicular to the plane
 #..........................................................
-function moment_magnitude_new(mu, FltX, delfafter, stressdrops)
+function moment_magnitude_new(mu, FltX, delfafter, stressdrops, delfsec, index_ds_start, index_ds_end, stress, index_start, index_end)
     # Final coseismic slip of each earthquake
     FltNglob = length(FltX)         # number of GLL nodes on fault
 
@@ -18,39 +18,61 @@ function moment_magnitude_new(mu, FltX, delfafter, stressdrops)
     seismic_moment = zeros(iter)
     rupture_len = zeros(iter)
     fault_slip = zeros(iter)
-    temp_sigma = 0
-    iter2 = 1 
+    E_T0 = zeros(iter)
+    E_R = zeros(iter)
+    ER_M0_ratio = zeros(iter)
+    Radiation_eff = zeros(iter)
 
     del_sigma = zeros(iter)
     
     # calculate the nearest grid size
     dx = diff(FltX).*1e3        # Fltx: real depth(km) of all nodes on the fault 
 
-    for i = 1:iter
+    for i = 1:iter    # for each recorded event
         
-        # slip threshold = 1% of maximum slip
+        # slip threshold = 1% of maximum final slip
         slip_thres = 0.01*maximum(delfafter[:,i])
 
         # area = slip*(rupture dimension along depth)
         # zdim = rupture along z dimension = depth rupture dimension
-        area = 0; zdim = 0; temp_sigma = 0; temp_slip = 0
+        area = 0; zdim = 0; temp_sigma = 0; 
+        temp_sigma = 0
+        temp_E_T0 = 0
+        temp_E_R = 0
 
-        for j = 1:FltNglob
-            if delfafter[j,i] >= slip_thres
+        for j = 1:FltNglob      # total points on fault
+            if  delfafter[j,i] >= slip_thres    # only the points with final slip > 1% of maximum slip are counted
                 area = area + delfafter[j,i]*dx[j-1]
                 zdim = zdim + dx[j-1]     
-                temp_slip = temp_slip + delfafter[j,i]*dx[j-1]
 
                 # Avg. stress drops along rupture area
                 temp_sigma = temp_sigma + stressdrops[j,i]*dx[j-1]
+
+                # available energy
+                temp_E_T0 = temp_E_T0 + stressdrops[j,i]*delfafter[j,i]*(-dx[j-1])    # stress(MPa) * slip(m)
+
+                n = index_ds_end[i] - index_ds_start[i]
+                temp_E_R = temp_E_R + sum((stress[index_start[i]:index_start[i]+n-1,j].-stress[index_start[i]+n,j]).*(delfsec[index_ds_start[i]+1:index_ds_end[i],j].- delfsec[index_ds_start[i]:index_ds_end[i]-1,j]))*(-dx[j-1])
+                # temp_E_R = temp_E_R + sum((stress[index_start[i]:index_end[i]-1,j].-stress[index_end[i],j]).*(delfsec[index_ds_start[i]+1:index_ds_end[i],j].- delfsec[index_ds_start[i]:index_ds_end[i]-1,j]))*(-dx[j-1])
             end
         end
-        
-        seismic_moment[i] = mu*area*zdim
+
+        E_T0[i] = 0.5*temp_E_T0   # based on Huang et al.(2014) equation (2)
+        println("available energy:",E_T0[i])
+        println("fracture(rupture energy):", temp_E_R)
+        E_R[i] = E_T0[i] - temp_E_R
+        println("radiated energy:",E_R[i])
+        ER_M0_ratio[i] = -E_R[i]/(mu*area)    # without dimension along strike (in or out wall)
+
+        seismic_moment[i] = mu*area*zdim    # assume that the rupture area is a square
         # average stress drop
         del_sigma[i] = temp_sigma/zdim
+
+        # radiation efficiency
+        Radiation_eff[i] = 2*mu/del_sigma[i]*ER_M0_ratio[i]
+
         # average fault slip
-        fault_slip[i] = temp_slip/zdim
+        fault_slip[i] = area/zdim
         # rupture length along depth
         rupture_len[i] = -zdim
 
@@ -59,7 +81,7 @@ function moment_magnitude_new(mu, FltX, delfafter, stressdrops)
     #  del_sigma = filter!(x->x!=0, del_sigma)
     Mw = (2/3)*log10.(seismic_moment.*1e7) .- 10.7   # Kanamori(1977) and Hanks and Karamori(1979)
 
-    return Mw, del_sigma, fault_slip, rupture_len
+    return Mw, del_sigma, fault_slip, rupture_len, Radiation_eff
 end
 
 
@@ -71,7 +93,7 @@ function get_index(t, tStart, tEnd)     # get the index of time when earthquake 
     for i in eachindex(tStart[:,1])       # number of seismic events
         temp_start = findall(t[:] .<= tStart[i])[end]       # t[:] us recognized as float value but t is only a substring.
         temp_end = findall(t[:] .<= tEnd[i])[end]
-        indx_start[i]= floor(temp_start/output_freq)          # output every 10 timesteps
+        indx_start[i]= floor(temp_start/output_freq) +1          # output every 10 timesteps
         indx_end[i] = floor(temp_end/output_freq)
     end
     return indx_start, indx_end
@@ -88,7 +110,7 @@ function get_index_delfsec(N_events, delfsec)    # get the index of all coseismi
     
     j = 1
     for i = 1:length(delfsec[:,1]) - 1
-            if delfsec[i+1,1] - delfsec[i,1] >= 0.5    # the differnce of two group of 
+            if delfsec[i+1,1] - delfsec[i,1] >= 5e-4    # the differnce of two group of 
                 # coseismic slip is at least 0.5 m, so as to get the index of start and end of cosesimic slip
                 index_ds_end[j] = i    
                 index_ds_start[j+1] = i+1    

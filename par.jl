@@ -223,7 +223,7 @@ function setParameters(FZdepth::Float64, halfwidth::Float64, res::Int, T::Int, a
     # iFlt: index of GLL nodes on the fault!!
     FltL::Vector{Float64}, iFlt::Vector{Int} = BoundaryMatrix!(NGLL, NelX, NelY, 
                        rho1, vs1, rho2, vs2, dy_deta, dx_dxi, wgll, iglob, 'L')
-    # println(iFlt)
+    println("Points on fault line:",iFlt)
 
     # what is FltZ? Faulr impedance matrix  FltZ = jac1D(dy_deta)*wgll*rho1/dt_min  used in NRsearch
     # M = wgll2.*rho1 (damage zone).*jac (dx_dxi*dy_deta)
@@ -278,7 +278,7 @@ function setParameters(FZdepth::Float64, halfwidth::Float64, res::Int, T::Int, a
     FltIglobBC::Vector{Int} = vcat(fbc[1:idx_1], fbc[idx_2+1:idx_2+idx_1])  # GLL nodes within creeping fault (>20 km)  with repeated nodes
     # keep the number of GLL nodes in the two creeping zone the same
     println("GLL nodes in creeping zone: ",fbc[1:idx_1])
-    println("GLL nodes in creeping zone: ",fbc[idx_2+1:idx_2+idx_1])
+    println("GLL nodes in creeping zone: ",fbc[idx_2:idx_2+idx_1-1])
 
     # # Kelvin-Voigt Viscosity : one technical method to increase the convergence rate
     # Nel_ETA::Int = 0   # not used! 

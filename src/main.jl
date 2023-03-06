@@ -224,6 +224,8 @@ function main(P, alphaa, cos_reduction, coseismic_b)
     it = 0  # current the number of timesteps
     t = 0.  # current simualtion time
     Vfmax = 0.    # max slip rate of the fault
+    N_half = floor(Int64, length(P[4].iFlt)/2) # half number of total on fault nodes
+    println("Half number of total on fault nodes", N_half)
     
     # evolution of timesteps
     tStart2 = dt          # using with healing
@@ -424,8 +426,9 @@ function main(P, alphaa, cos_reduction, coseismic_b)
 
 
         end # of isolver if loop
-
-        Vfmax = 2*maximum(v[P[4].iFlt]) .+ P[2].Vpl   # background plate motion rate: P[2].Vpl
+        # only half of the model is counted
+        
+        Vfmax = 2*maximum(v[P[4].iFlt][1:N_half]) .+ P[2].Vpl   # background plate motion rate: P[2].Vpl
 
 # velocity dependent b (evolution effect)
         b_initial = coseismic_b
@@ -546,7 +549,7 @@ function main(P, alphaa, cos_reduction, coseismic_b)
 
         if Vfmax > 1.01*P[2].Vthres
 
-            if mod(it,10) == 0             # output the shear stress every 10 steps as the shear stess
+            if mod(it,output_freq) == 0             # output the shear stress every 10 steps as the shear stess
                 write(dfsec_et, join(2*d[P[4].iFlt] .+ P[2].Vpl*t, " "), "\n")
             end
 
@@ -555,7 +558,7 @@ function main(P, alphaa, cos_reduction, coseismic_b)
                 idd += 1
                 idelevne = 1
                 tevneb = t
-                tevne = tevneinc      # every 0.1sls
+                tevne = tevneinc      # every 0.1s
 
                 write(dfsec, join(2*d[P[4].iFlt] .+ P[2].Vpl*t, " "), "\n")
             

@@ -12,7 +12,7 @@ project = "wholespace/tremor"
 input_parameter = readdlm("$(@__DIR__)/tremor_end_number.txt", ',', header=false)
 a = size(input_parameter)[1]
 # output_frequency for sliprate, stress and weakening rate
-global output_freq::Int = 10   
+global output_freq::Int = 1   
 global Domain_X::Int = 40e3
 
 # calculate the nucleation size and plot the nucleation process

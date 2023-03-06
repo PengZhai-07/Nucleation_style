@@ -72,8 +72,8 @@ end
 # Plot Vfmax
 function VfmaxPlot(Vfmax, N, t)
     plot_params()
-    fig = PyPlot.figure(figsize=(7.2, 3.45))
-    ax = fig.add_subplot(111)
+    fig = PyPlot.figure(figsize=(15, 5))
+    ax = fig.add_subplot(211)
 
     t_seconds = (N) * 365 * 24 * 60 * 60 
     indx_last = floor(Int, findall(t .<= t_seconds)[end])   # last event!
@@ -89,6 +89,18 @@ function VfmaxPlot(Vfmax, N, t)
     ax.set_ylim([1e-10,1e2])
     # show()
     
+    ax = fig.add_subplot(212)
+    Vfmax_ex = Vfmax[4000:6000]
+    ax.plot(Vfmax_ex, lw = 2.0)
+    ax.plot([0, length(Vfmax_ex)],[1e-1, 1e-1] , "k", linestyle="-", label="Regular earthquake threshold")
+    ax.plot([0, length(Vfmax_ex)],[1e-3, 1e-3] , "k", linestyle="--", label="Inertial iterm threshold")
+    ax.plot([0, length(Vfmax_ex)],[1e-6, 1e-6] , "k", linestyle=":", label="Tremor threshold")
+    ax.legend(loc="upper right") 
+    ax.set_xlabel("Time steps")
+    ax.set_ylabel("Max. Slip rate (m/s)")
+    ax.set_yscale("log")
+    ax.set_ylim([1e-10,1e2])
+
     figname = string(path, "Vfmax.png")
     fig.savefig(figname, dpi = 300)
 end

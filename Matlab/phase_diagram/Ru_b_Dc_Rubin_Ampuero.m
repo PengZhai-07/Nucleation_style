@@ -40,6 +40,7 @@ for i = 1:length(b)
 %             end
             Ru(i,j,k) = W/y;
             Cohesive(i,j,k) = (9*pi/32)*mu_D*r*L(j)/b(i)./sigma;
+            C_1(i,j,k) = b(i)/a*(1-mu*L(j)/b(i)/sigma);
 %            Ru(i,j,k) = W/(mu_D*L(j)/sigma/(b(i)-a));
         end
     end
@@ -61,6 +62,13 @@ set(gcf,'Position',[20 20 800 400]);%左下角位置，宽高
 % c = colorbar;
 % ylabel(c, '3*Cohesive zone size(m)')
 % hold on
+pcolor(X,Y,C_1')
+shading interp
+colormap(gray)
+% clim([0 75])
+c = colorbar;
+ylabel(c, 'C1')
+hold on
 [c,h]=contour(X,Y,Ru',v);
 clabel(c,h)
 set(h,"color","black")

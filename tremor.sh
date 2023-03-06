@@ -18,3 +18,5 @@
 #SBATCH --error=/home/%u/log/error-%x-%j.log
 
 julia --threads 16 run.jl $SLURM_ARRAY_TASK_ID tremor_end_number.txt
+
+

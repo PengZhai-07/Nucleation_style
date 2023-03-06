@@ -49,7 +49,7 @@ println("Total number of all seismic events:", N_events)
 println("Total number of all on-fault GLL nodes:",size(delfafter,2))    
 
 # displacement on fault line for different time 
-delfsec = readdlm(string(out_path, "delfsec.out"))   # every 0.1 second
+delfsec = readdlm(string(out_path, "delfsec.out"))   # every 0.1 second, but if timestep is large enough, it should be every timestep!!
 delfyr = readdlm(string(out_path, "delfyr.out"))
 # print(size(delfyr))
 
@@ -67,9 +67,9 @@ indx = Int(length(event_stress[1,:])/2)
 
 taubefore = event_stress[:,1:indx]
 tauafter = event_stress[:,indx+1:end]
-stressdrops = taubefore .- tauafter
+stressdrops = taubefore .- tauafter      # unit: MPa 
 
-stress = readdlm(string(out_path, "stress.out"), header=false)   # timesteps/10, shear stress on fault line points
+stress = readdlm(string(out_path, "stress.out"), header=false)   # unit: MPa  timesteps/10, shear stress on fault line points
 # get the start and end time of every seismic event
 index_start, index_end = get_index(t, tStart, tEnd)         # 
 println(index_start)
@@ -81,16 +81,16 @@ G = 3e10
 rho1::Float64 = 2670
 vs1::Float64 = sqrt(G/rho1)
 rho2 = rho1
-vs2 = sqrt(alphaa[1])*vs1
+vs2 = sqrt(alphaa[1])*vs1   # initial shear wave velocity
 mu = rho2*vs2^2    # to calculate seismic moment
 println("Shear modulus of damage zone:",mu)
 
-Mw, del_sigma, fault_slip, rupture_len =
-        moment_magnitude_new(mu, FltX, delfafter', stressdrops');
+Mw, del_sigma, fault_slip, rupture_len, Radiation_eff =
+        moment_magnitude_new(mu, FltX, delfafter', stressdrops', delfsec_et,index_ds_start, index_ds_end, stress,index_start, index_end);   # Time*L
 
 println("Moment magnitudes of all seismic events:", Mw)
 println("Average stress drops of all seismic events(MPa):", del_sigma)
 println("Average fault slips of all seismic events(m):", fault_slip)
 println("Rupture lengths along depth of all seismic events(km):", rupture_len./1e3)
-
+println("Radiation efficiency of all seismic events:", Radiation_eff)
 

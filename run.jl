@@ -103,7 +103,7 @@ include("$(@__DIR__)/src/otherFunctions.jl")
 include("$(@__DIR__)/src/main.jl")
 
 # output_frequency for sliprate, stress and weakening rate
-global output_freq::Int = 10   
+global output_freq::Int = 1  
 simulation_time = @elapsed @time main(P, alpha, cos_reduction, asp_b)     # usually includes variable parameters for each simulation 
 
 println("\n")
