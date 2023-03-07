@@ -138,6 +138,9 @@ function main(P, alphaa, cos_reduction, coseismic_b)
     nevne::Int= 0
     slipstart::Int= 0
     idd::Int = 0
+    inn::Int = 0      # record the line number of each coseismic event
+    inn_event::Int = 0 # record the line number
+
     it_s = 0; it_e = 0
     rit = 0
     # Here v is not zero!!!  0.5e-3 m/s
@@ -211,6 +214,7 @@ function main(P, alphaa, cos_reduction, coseismic_b)
     #open(string(out_dir,"slip.out"), "w") do slip   
     open(string(out_dir,"delfsec.out"), "w") do dfsec   # cultivate displacement(coseismic)
     open(string(out_dir,"delfsec_each_timestep.out"), "w") do dfsec_et   # cultivate displacement(coseismic)
+    open(string(out_dir,"delfsec_each_timestep_endline.out"), "w") do dfsec_et_endline
     open(string(out_dir,"delfyr.out"), "w") do dfyr   # cultivate displacement(interseismic)
     open(string(out_dir,"event_time.out"), "w") do event_time    # start and end time and hypocenter of earthquake event
     open(string(out_dir,"event_stress.out"), "w") do event_stress  # shear stress before and after 
@@ -225,7 +229,7 @@ function main(P, alphaa, cos_reduction, coseismic_b)
     t = 0.  # current simualtion time
     Vfmax = 0.    # max slip rate of the fault
     N_half = floor(Int64, length(P[4].iFlt)/2) # half number of total on fault nodes
-    println("Half number of total on fault nodes", N_half)
+    println("Half number of total on fault nodes:", N_half)
     
     # evolution of timesteps
     tStart2 = dt          # using with healing
@@ -475,7 +479,7 @@ function main(P, alphaa, cos_reduction, coseismic_b)
             tStart = t
             taubefore = (tau +P[3].tauo)./1e6     # once switch into dynamic solution, record the shear stress before earthquake
             # hypocenter: fault location where slip rate exceed threshold value firstly!!
-            vhypo, indx = findmax(2*v[P[4].iFlt] .+ P[2].Vpl)
+            vhypo, indx = findmax(2*v[P[4].iFlt][1:N_half] .+ P[2].Vpl)
             hypo = P[3].FltX[indx]
             d_hypo = delfref[indx]
 
@@ -548,12 +552,15 @@ function main(P, alphaa, cos_reduction, coseismic_b)
         end
 
         if Vfmax > 1.01*P[2].Vthres
-
+            
+            inn_event = 1
             if mod(it,output_freq) == 0             # output the shear stress every 10 steps as the shear stess
+                inn += 1
                 write(dfsec_et, join(2*d[P[4].iFlt] .+ P[2].Vpl*t, " "), "\n")
             end
 
-            if idelevne == 0                  # record the first step
+
+            if  idelevne == 0                  # record the first step
                 nevne = nevne + 1
                 idd += 1
                 idelevne = 1
@@ -574,6 +581,10 @@ function main(P, alphaa, cos_reduction, coseismic_b)
 
         else
             idelevne = 0
+            if inn_event == 1   
+                write(dfsec_et_endline, join(inn, " "), "\n")
+            end
+            inn_event = 0
         end
 
         current_sliprate = 2*v[P[4].iFlt] .+ P[2].Vpl
@@ -628,5 +639,7 @@ end
 end
 end
 end
+end
+
 
 # These ends are for opened output files

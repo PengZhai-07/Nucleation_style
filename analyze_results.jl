@@ -54,7 +54,11 @@ delfyr = readdlm(string(out_path, "delfyr.out"))
 # print(size(delfyr))
 
 delfsec_et = readdlm(string(out_path, "delfsec_each_timestep.out"), header=false)    # every 10 timesteps in coseismic phase
-index_ds_start, index_ds_end = get_index_delfsec(N_events, delfsec_et)        
+index_ds_start, index_ds_end = get_index_delfsec(N_events, delfsec_et)      
+# index_ds_end = readdlm(string(out_path, "delfsec_each_timestep_endline.out"), header=false) 
+# index_ds_start::Int = zeros(length(index_ds_end))
+# index_ds_start[2:end] = (index_ds_end .+ 1)[1:end-1]
+# index_ds_start[1] = 1
 # here the number of effective events should depend on the event_time.out file 
 # and we ignore some small events
  
@@ -85,12 +89,20 @@ vs2 = sqrt(alphaa[1])*vs1   # initial shear wave velocity
 mu = rho2*vs2^2    # to calculate seismic moment
 println("Shear modulus of damage zone:",mu)
 
-Mw, del_sigma, fault_slip, rupture_len, Radiation_eff =
-        moment_magnitude_new(mu, FltX, delfafter', stressdrops', delfsec_et,index_ds_start, index_ds_end, stress,index_start, index_end);   # Time*L
+Mw, del_sigma, fault_slip, rupture_len, scaled_energy, radiation_eff =
+        moment_magnitude_new(mu/1e6, FltX, delfafter', stressdrops', delfsec_et,index_ds_start, index_ds_end, stress,index_start, index_end);   # Time*L
 
 println("Moment magnitudes of all seismic events:", Mw)
 println("Average stress drops of all seismic events(MPa):", del_sigma)
 println("Average fault slips of all seismic events(m):", fault_slip)
 println("Rupture lengths along depth of all seismic events(km):", rupture_len./1e3)
-println("Radiation efficiency of all seismic events:", Radiation_eff)
 
+println("Saled energy of all seismic events:", scaled_energy)
+println("Radiation efficiency of all seismic events:", radiation_eff)
+
+open(string(path,"Scaled energy info.out"), "w") do io
+        for i in eachindex(Mw)
+                write(io, join(hcat(Mw[i], del_sigma[i], fault_slip[i], rupture_len[i]/1e3, 
+                scaled_energy[i], radiation_eff[i]), " "), "\n") 
+        end
+end

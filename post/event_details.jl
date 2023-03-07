@@ -21,7 +21,7 @@ function moment_magnitude_new(mu, FltX, delfafter, stressdrops, delfsec, index_d
     E_T0 = zeros(iter)
     E_R = zeros(iter)
     ER_M0_ratio = zeros(iter)
-    Radiation_eff = zeros(iter)
+    radiation_eff = zeros(iter)
 
     del_sigma = zeros(iter)
     
@@ -58,18 +58,19 @@ function moment_magnitude_new(mu, FltX, delfafter, stressdrops, delfsec, index_d
         end
 
         E_T0[i] = 0.5*temp_E_T0   # based on Huang et al.(2014) equation (2)
-        println("available energy:",E_T0[i])
+        println("available energy(Pa*m^2):",E_T0[i])
         println("fracture(rupture energy):", temp_E_R)
         E_R[i] = E_T0[i] - temp_E_R
         println("radiated energy:",E_R[i])
         ER_M0_ratio[i] = -E_R[i]/(mu*area)    # without dimension along strike (in or out wall)
+        println("scaled energy:", ER_M0_ratio[i])
 
         seismic_moment[i] = mu*area*zdim    # assume that the rupture area is a square
         # average stress drop
-        del_sigma[i] = temp_sigma/zdim
+        del_sigma[i] = temp_sigma/zdim*3      # average stress drop for all asperities excluding the background matrix
 
         # radiation efficiency
-        Radiation_eff[i] = 2*mu/del_sigma[i]*ER_M0_ratio[i]
+        radiation_eff[i] = 2*mu/del_sigma[i]*ER_M0_ratio[i]      # here the unit of stress is MPa
 
         # average fault slip
         fault_slip[i] = area/zdim
@@ -81,7 +82,7 @@ function moment_magnitude_new(mu, FltX, delfafter, stressdrops, delfsec, index_d
     #  del_sigma = filter!(x->x!=0, del_sigma)
     Mw = (2/3)*log10.(seismic_moment.*1e7) .- 10.7   # Kanamori(1977) and Hanks and Karamori(1979)
 
-    return Mw, del_sigma, fault_slip, rupture_len, Radiation_eff
+    return Mw, del_sigma, fault_slip, rupture_len, ER_M0_ratio, radiation_eff
 end
 
 
