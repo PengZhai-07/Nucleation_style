@@ -46,8 +46,8 @@ for i = 1:length(b)
 %                        mu_D*L(j)/sigma/(a/a_b(i)-a)/W;    % without pi/4? 
             y = double(vpasolve(exp,[0,1000000000]));
             Ru(i,j,k) = y;
-            kk = mu/(W/2)/pi;
-            C_1(i,j,k) = b(i)/a*(1-kk*L(j)/b(i)/sigma);
+            kk = mu/W*2/pi;     % for antiplane shear strain with constant slip
+            C_1(i,j,k) = b(i)/a*(1-kk*L(j)/b(i)/sigma);     % with equation (17) and kk= G*neta/L
             Cohesive(i,j,k) = (9*pi/32)*mu_D*r*L(j)/b(i)./sigma;
          
             if (y>=1) && (Cohesive(i,j,k) > 400/res*3)
