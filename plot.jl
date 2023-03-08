@@ -86,7 +86,7 @@ for index = 65
     stressdrop_2(taubefore, tauafter, FltX, tStart, Fault_length, multiple_asp)    # the row is the number of event
               
     # I only choose the first froup of events:
-    migration_speed = abs((hypo[10]-hypo[8])/(tStart[10]-tEnd[8]))
+    migration_speed = abs((hypo[10]-hypo[7])/(tStart[10]-tEnd[7]))
     println("The migration speed of tremors is about(m/s): ", migration_speed)
 
 

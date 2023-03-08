@@ -58,14 +58,15 @@ function moment_magnitude_new(mu, FltX, delfafter, stressdrops, delfsec, index_d
         end
 
         E_T0[i] = 0.5*temp_E_T0   # based on Huang et al.(2014) equation (2)
-        println("available energy(Pa*m^2):",E_T0[i])
-        println("fracture(rupture energy):", temp_E_R)
+        println("available energy(MPa*m^2):",E_T0[i])
+        println("fracture(rupture energy(MPa*m^2):", temp_E_R)
         E_R[i] = E_T0[i] - temp_E_R
-        println("radiated energy:",E_R[i])
+        println("radiated energy(MPa*m^2):",E_R[i])
         ER_M0_ratio[i] = -E_R[i]/(mu*area)    # without dimension along strike (in or out wall)
         println("scaled energy:", ER_M0_ratio[i])
 
-        seismic_moment[i] = mu*area*zdim    # assume that the rupture area is a square
+        seismic_moment[i] = mu*1e6*area*zdim    # assume that the rupture area is a square
+        println("seismic moment(N*m):", seismic_moment)
         # average stress drop
         del_sigma[i] = temp_sigma/zdim*3      # average stress drop for all asperities excluding the background matrix
 
