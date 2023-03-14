@@ -193,11 +193,11 @@ function eqCyclePlot(sliprate, FltX, N, t,Fault_length)
     # depth = FltX[indx:end]
 
     plot_params()
-    fig = PyPlot.figure(figsize=(7.2, 4.45))
+    fig = PyPlot.figure(figsize=(10, 6))
     ax = fig.add_subplot(111)
 
-    c = ax.imshow(value, cmap="viridis", aspect="auto",
-                  norm=matplotlib.colors.LogNorm(vmin=1e-9, vmax=1e-3),
+    c = ax.imshow(value, cmap="rainbow", aspect="auto",
+                  norm=matplotlib.colors.LogNorm(vmin=1e-7, vmax=1e-6),
                   interpolation="none",    # the interpolation method decide the final slip rate distrbution!!
                   extent=[0,length(value[1,:]), 0,Fault_length])
 
@@ -215,7 +215,33 @@ function eqCyclePlot(sliprate, FltX, N, t,Fault_length)
     #   cbar.set_ticks(cbar.get_ticks()[1:2:end])
     
     # show()
-    figname = string(path, "sliprate_time.png")
+    figname = string(path, "sliprate_time_1.png")
+    fig.savefig(figname, dpi = 600)
+
+    plot_params()
+    fig = PyPlot.figure(figsize=(10, 6))
+    ax = fig.add_subplot(111)
+
+    c = ax.imshow(value, cmap="rainbow", aspect="auto",
+                  norm=matplotlib.colors.LogNorm(vmin=1e-7, vmax=1e-5),
+                  interpolation="none",    # the interpolation method decide the final slip rate distrbution!!
+                  extent=[0,length(value[1,:]), 0,Fault_length])
+
+    # for stress
+    #  c = ax.imshow(value, cmap="inferno", aspect="auto",
+                  #  vmin=22.5, vmax=40,
+                  #  interpolation="bicubic",
+                  #  extent=[0,length(seismic_slipvel[1,:]), 0,16])
+    
+    ax.set_xlabel("Variable Timesteps")
+    ax.set_ylabel("Depth (km)")
+
+    ax.invert_yaxis()
+    cbar = fig.colorbar(c, label = "Slip rate(m/s)")
+    #   cbar.set_ticks(cbar.get_ticks()[1:2:end])
+    
+    # show()
+    figname = string(path, "sliprate_time_2.png")
     fig.savefig(figname, dpi = 600)
     
 end

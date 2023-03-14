@@ -25,7 +25,7 @@ for index = 65
     # domain parameters
     Domain = input_parameter[index,1]   # amplify factor of the domain size, the current domain size is 30km*24km for 0.75 domain size
     res::Int =  input_parameter[index,2]   # resolution of mesh: should be an integer
-    T::Int = input_parameter[index,3]   # total simulation time   unit:year
+    T::Int= input_parameter[index,3]   # total simulation time   unit:year
     # fault zone parameter
     FZlength = input_parameter[index,4]    # length of fault zone: m
     FZdepth = (Domain_X*Domain+FZlength)/2   # depth of lower boundary of damage zone  unit: m    
@@ -47,7 +47,7 @@ for index = 65
     Fault_length = Domain*Domain_X/1000
 
     
-    FILE = "$(Domain)_$(res)_$(T)_$(FZlength)_$(halfwidth)_$(alpha)_$(cos_reduction)_$(multiple_asp)_$(a_over_b)_$(Lc)_$(matrix_asp_ratio)_$(asperity_number)_$(matrix_a)_1e-7"
+    FILE = "$(Domain)_$(res)_$(T)_$(FZlength)_$(halfwidth)_$(alpha)_$(cos_reduction)_$(multiple_asp)_$(a_over_b)_$(Lc)_$(matrix_asp_ratio)_$(asperity_number)_$(matrix_a)"
     # FILE = "$(Domain)_$(res)_$(T)_$(FZlength)_$(halfwidth)_$(alpha)_$(cos_reduction)_$(multiple_asp)_$(a_over_b)_$(Lc)_$(matrix_asp_ratio)_$(asperity_number)"
     # global FILE = "$(FZdepth)_$(halfwidth)_$(res)_$(alpha)_$(cos_reduction)_$(multiple)_$(Domain)_$(coseismic_b)_$(Lc)"
     println(FILE)                                                                                                                                                                                                                                                                                                                             
@@ -72,7 +72,7 @@ for index = 65
     icsPlot(a_b, Seff, tauo, FltX,Fault_length)
 
     # culmulative slip
-    cumSlipPlot(delfsec[1:50:end,:], delfyr[1:1:end, :], FltX, hypo, d_hypo, 1.2*T,Fault_length);
+    cumSlipPlot(delfsec_et[1:50:end,:], delfyr[1:1:end, :], FltX, hypo, d_hypo, 1.2*T,Fault_length);
     # cumSlipPlot_no_hypocenter(delfsec[1:4:end,:], delfyr[1:end, :], FltX, 1.2*T);
 
     # slip rate vs timesteps
@@ -85,10 +85,14 @@ for index = 65
     # coseismic stress drop for each event
     stressdrop_2(taubefore, tauafter, FltX, tStart, Fault_length, multiple_asp)    # the row is the number of event
               
-    # I only choose the first froup of events:
-    migration_speed = abs((hypo[10]-hypo[7])/(tStart[10]-tEnd[7]))
-    println("The migration speed of tremors is about(m/s): ", migration_speed)
+    # # I only choose the first froup of events:
+    # migration_speed = abs((hypo[10]-hypo[7])/(tStart[10]-tEnd[7]))
+    # println("The migration speed of tremors is about(m/s): ", migration_speed)
 
+    println("Time of each tremor:", t[7230], t[7450], t[7620],t[8010],t[8210], t[8320], t[8440], t[8530])
+    println("The forward migration speed of tremors is about(m/s): ", 703/(t[8010]-t[7230]))
+    println("The reversed migration speed of tremors is about(m/s): ", 937.2/(t[8530]-t[8010]))
+    println("The time difference of two ruptures is about(hour): ", (t[8470]-t[7870])/3600," ", (t[7870]-t[7090])/3600)
 
     # Nucleation_example(sliprate', weakeningrate', FltX, tStart, t, N_timestep, criteria, measure_threshold)    # only plot the last seismic event
 

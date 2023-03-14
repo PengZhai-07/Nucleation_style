@@ -13,6 +13,7 @@ Vfmax = time_vel[:,2]
 alphaa = time_vel[:,3]         # initial background rigidity ratio
 #b_value = time_vel[:,5]
 
+
 # Order of storage: Seff, tauo, FltX, cca, ccb, xLf
 params = readdlm(string(out_path, "params.out"), header=false)
 Seff = params[1,:]
@@ -49,7 +50,7 @@ println("Total number of all seismic events:", N_events)
 println("Total number of all on-fault GLL nodes:",size(delfafter,2))    
 
 # displacement on fault line for different time 
-delfsec = readdlm(string(out_path, "delfsec.out"))   # every 0.1 second, but if timestep is large enough, it should be every timestep!!
+# delfsec = readdlm(string(out_path, "delfsec.out"))   # every 0.1 second, but if timestep is large enough, it should be every timestep!!
 delfyr = readdlm(string(out_path, "delfyr.out"))
 # print(size(delfyr))
 

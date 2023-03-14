@@ -12,7 +12,6 @@
 #
 ###############################################################################
 
-
 # Healing exponential function
 function healing2(t,tStart,dam, cos_reduction)
     """ hmax: coseismic damage amplitude
@@ -40,8 +39,8 @@ end
 function main(P, alphaa, cos_reduction, coseismic_b)
 
     # please refer to par.jl to see the specific meaning of P
-    # P[1] = integer  Nel, FltNglob, yr2sec, Total_time, IDstate, nglob
-    # P[2] = float    ETA, Vpl, Vthres, Vevne, dt
+    # P[1] = integer  Nel, FltNglob, yr2sec, IDstate, nglob
+    # P[2] = float    Total_time, ETA, Vpl, Vthres, Vevne, dt
     # P[3] = float array   fo, Vo, xLf, M, BcBC, BcRC, FltL, FltZ, FltX, cca, ccb, Seff, tauo, XiLf, x_out, y_out
     # P[4] = integer array   iFlt, iBcB, iBcR, iBcT, FltIglobBC, FltNI, out_seis
     # P[5] = ksparse   
@@ -127,7 +126,7 @@ function main(P, alphaa, cos_reduction, coseismic_b)
     tvsx::Float64 = 0.01*P[1].yr2sec  # 0.1 years for interseismic period
     tvsxinc::Float64 = tvsx
 
-    tevneinc::Float64 = 0.01    # 0.1 second for coseismic phase
+    tevneinc::Float64 = 0.1    # 0.1 second for coseismic phase
     delfref = zeros(P[1].FltNglob)
 
     # Iterators
@@ -247,7 +246,7 @@ function main(P, alphaa, cos_reduction, coseismic_b)
     SSS = 0
     seismogenic_depth = findall(abs(10e3) .< abs.(P[3].FltX) .<= abs(20e3))
 
-    while t < P[1].Total_time
+    while t < P[2].Total_time
         it = it + 1
 
         t = t + dt   # dt is the initial smallest timestep: dtmin
@@ -560,24 +559,24 @@ function main(P, alphaa, cos_reduction, coseismic_b)
             end
 
 
-            if  idelevne == 0                  # record the first step
-                nevne = nevne + 1
-                idd += 1
-                idelevne = 1
-                tevneb = t
-                tevne = tevneinc      # every 0.1s
+            # if  idelevne == 0                  # record the first step
+            #     nevne = nevne + 1
+            #     idd += 1
+            #     idelevne = 1
+            #     tevneb = t
+            #     tevne = tevneinc      # every 0.1s
 
-                write(dfsec, join(2*d[P[4].iFlt] .+ P[2].Vpl*t, " "), "\n")
+            #     write(dfsec, join(2*d[P[4].iFlt] .+ P[2].Vpl*t, " "), "\n")
             
-            end
+            # end
 
-            if idelevne == 1 && (t - tevneb) > tevne      # output at least every 0.1 s in the following steps
-                nevne = nevne + 1
-                idd += 1
+            # if idelevne == 1 && (t - tevneb) > tevne      # output at least every 0.1 s in the following steps
+            #     nevne = nevne + 1
+            #     idd += 1
 
-                write(dfsec, join(2*d[P[4].iFlt] .+ P[2].Vpl*t, " "), "\n")
-                tevne = tevne + tevneinc
-            end
+            #     write(dfsec, join(2*d[P[4].iFlt] .+ P[2].Vpl*t, " "), "\n")
+            #     tevne = tevne + tevneinc
+            # end
 
         else
             idelevne = 0
@@ -598,14 +597,14 @@ function main(P, alphaa, cos_reduction, coseismic_b)
         # Write stress, sliprate, slip to file every 10 timesteps
         if mod(it,output_freq) == 0
             write(sliprate, join(2*v[P[4].iFlt] .+ P[2].Vpl, " "), "\n")
-            write(weakeningrate, join(psi, " "), "\n")
+            # write(weakeningrate, join(psi, " "), "\n")
             write(stress, join((tau + P[3].tauo)./1e6, " "), "\n")
         end
 
         # Determine quasi-static or dynamic regime based on max-slip velocity
         #  if isolver == 1 && Vfmax < 5e-3 || isolver == 2 && Vfmax < 2e-3
         # when to change the solver
-        if isolver == 1 && Vfmax < 5e-3 || isolver == 2 && Vfmax < 2e-3    
+        if isolver == 1 && Vfmax < P[2].Vthres || isolver == 2 && Vfmax < P[2].Vthres  
             # 0.5e-3 is the initial slip rate, so that there is an initial earthquake at zero time!!
             # in addition, 5e-3 is half of the vthres, if it necessary to convert to dynamic regime in advance??
             isolver = 1   # quasi-static

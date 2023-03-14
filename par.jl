@@ -12,7 +12,7 @@ include("$(@__DIR__)/src/damageEvol.jl")   #    Stiffness index of damaged mediu
 include("$(@__DIR__)/src/BoundaryMatrix.jl")    #	Boundary matrices
 include("$(@__DIR__)/src/initialConditions/defaultInitialConditions.jl")
 
-function setParameters(FZdepth::Float64, halfwidth::Float64, res::Int, T::Int, alpha::Float64, multiple_matrix::Float64,multiple_asp::Float64, Dc::Float64, Domain::Float64, asp_a::Float64, asp_b::Float64, matrix_a::Float64,matrix_asp_ratio::Int, G::Float64,N::Int,asperity_number::Int)
+function setParameters(FZdepth::Float64, halfwidth::Float64, res::Int, T::Float64, alpha::Float64, multiple_matrix::Float64,multiple_asp::Float64, Dc::Float64, Domain::Float64, asp_a::Float64, asp_b::Float64, matrix_a::Float64,matrix_asp_ratio::Int, G::Float64,N::Int,asperity_number::Int)
 
     LX::Int = Domain*Domain_X  # depth dimension of rectangular domain
     LY::Int = Domain*Domain_Y # off fault dimenstion of rectangular domain
@@ -47,7 +47,7 @@ function setParameters(FZdepth::Float64, halfwidth::Float64, res::Int, T::Int, a
 
     yr2sec::Int = 365*24*60*60
 
-    Total_time::Int = T*yr2sec     # Set the total time for simulation here
+    Total_time::Float64 = T*yr2sec     # Set the total time for simulation here
 
     CFL::Float64 = 0.6	#	Courant stability number     c*(dt/dx) <= 1
 
@@ -302,8 +302,8 @@ function setParameters(FZdepth::Float64, halfwidth::Float64, res::Int, T::Int, a
     println("ThickY: ", ThickY, " m")
     @printf("dt: %1.09f s\n", dt)   # minimal timestep during coseismic stage
 
-    return params_int(Nel, FltNglob, yr2sec, Total_time, IDstate, nglob),
-            params_float(ETA, Vpl, Vthres, Vevne, dt, G, ThickY),
+    return params_int(Nel, FltNglob, yr2sec, IDstate, nglob),
+            params_float(Total_time, ETA, Vpl, Vthres, Vevne, dt, G, ThickY),
             # arrary = vector
             params_farray(fo, Vo, xLf, M, BcBC, BcRC, BcTC, FltL, FltZ, FltX, cca, ccb, a_b, Seff, Snormal, SSpp, 
             tauo, XiLf, x_out, y_out),
@@ -322,7 +322,7 @@ struct params_int{T<:Int}
 
     # Time parameters
     yr2sec::T       # how many seconds in a year
-    Total_time::T   # Total simulation time
+    
     IDstate::T      # the type of the friction law
 
     # Fault setup parameters
@@ -336,7 +336,8 @@ struct params_float{T<:AbstractFloat}
     #  coefint1::T
     #  coefint2::T
     # shear modulus
-     
+    Total_time::T
+    
     ETA::T    # do not use the 
 
     # Earthquake parameters
