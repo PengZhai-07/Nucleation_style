@@ -4,8 +4,8 @@ clc
 close all
 
 %%
-res = 32;
-gamma = pi/4;  % empirical constant parameter 
+res = 16;
+gamma = pi/4;  % empirical constant parameter about geometry
 mu = 3.20e10;  % Pa 
 sigma = 40e6;  % Pa
 a = 0.015;
@@ -21,7 +21,7 @@ L = [0.5,0.6,0.8,1,1.3,1.5,2,2.5,3,4,5,6,8,10,12,16,20,25,30,40,50,63,80,100,125
 %H = [250, 500, 1000, 1500, 2000];      % m  half-width of damage zone
 H = 0;    % half-width
 NS = zeros(length(r),length(L),length(H));
-W = 10000;    % unit:m
+W = 5000;    % unit:m
 m = 0; n=0; q=0;
 for i = 1:length(b)
         % define the simulation time for different a/b
@@ -87,7 +87,7 @@ set(h,"color","blue")
 scatter(P_1(:,1),P_1(:,2) ,'*','r' )
 scatter(P_2(:,1),P_2(:,2) ,'^','r' )
 scatter(P_3(:,1),P_3(:,2) ,'o','r' )
-v = [0.1, 1,3.8, 11.5, 100];
+v = [0.1, 1,3.8, 11.5, 50, 100];
 [c,h]=contour(X,Y,Ru',v);
 clabel(c,h)
 set(h,"color","black")
@@ -105,8 +105,9 @@ box on
 
 fid  = fopen('../../whole_space.txt','wt');
 [u, v] = size(P_1);
+u
 for i =1:u
-      fprintf(fid, ['0.5,',num2str(res),',',num2str(P_1(i,5)),',0,0,1.0,0.0,4,',num2str(P_1(i,2)),',',num2str(P_1(i,3)),'\n']);     
+      fprintf(fid, ['0.25,',num2str(res),',',num2str(P_1(i,5)),',0,0,1.0,0.0,4,',num2str(P_1(i,2)),',',num2str(P_1(i,3)),'\n']);     
 end
 fclose(fid);
 

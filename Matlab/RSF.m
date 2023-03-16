@@ -52,6 +52,7 @@ for i =1:length(t)
 end
 plot(D,tau/sigma,'r')
 hold on
+
 %% strengthening
 b = 0.010;
 for i = 1:length(t)

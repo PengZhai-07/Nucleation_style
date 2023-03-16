@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #SBATCH --job-name=Phase_diagram
-#SBATCH --array=1-10
+#SBATCH --array=1-74
 
 ##SBATCH --mail-user=39 pengzhai@umich.edu
 ##SBATCH --mail-type=FAIL,ARRAY_TASKS
@@ -9,7 +9,7 @@
 ##SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=16
 
-#SBATCH --mem=30000m
+#SBATCH --mem=5000m
 #SBATCH --time=14-00:00:00
 #SBATCH --partition=standard
 #SBATCH --account=yiheh1
