@@ -11,6 +11,7 @@ sigma = 40e6;  % Pa
 a = 0.015;
 a_b = 0.5:0.05:0.95;
 T = zeros(1,length(a_b));
+nT = zeros(1,length(a_b));
 b = a./a_b;
 r = 1;   % the shear wave reduction=20%  1-0.2=0.8  r is the rigidity ratio
 % LL = linspace(log10(0.5),log10(125),25);  % m
@@ -44,15 +45,21 @@ for i = 1:length(b)
 %                  pi/4*mu_D(i)*L(j)/sigma/(b-a);
 %                exp = 1/y*tanh(2*H(k)*gamma/W*y+atanh(mu_D/mu)) -...
 %                        mu_D*L(j)/sigma/(a/a_b(i)-a)/W;    % without pi/4? 
-            y = double(vpasolve(exp,[0,1000000000]));
+            y = double(vpasolve(exp,[0,1000000000])) ;
+
             Ru(i,j,k) = y;
             kk = mu/W*2/pi;     % for antiplane shear strain with constant slip
             C_1(i,j,k) = b(i)/a*(1-kk*L(j)/b(i)/sigma);     % with equation (17) and kk= G*neta/L
             Cohesive(i,j,k) = (9*pi/32)*mu_D*r*L(j)/b(i)./sigma;
-         
-            if (y>=1) && (Cohesive(i,j,k) > 400/res*3)
+        
+            if (y>=1) && (Cohesive(i,j,k) > 400/res*3)                                
+                if y > 10
+                    nT=200;
+                else
+                    nT=800;
+                end
                 m = m+1;
-                P_1(m,:) = [log10(L(j)*1000), a_b(i), L(j),b(i), T(i)];     % resolution is enough
+                P_1(m,:) = [log10(L(j)*1000), a_b(i), L(j),b(i), T(i), nT];     % resolution is enough
             elseif (y>=1) && (Cohesive(i,j,k) <= 400/res*3)
                 n = n+1;
                 P_2(n,:) = [log10(L(j)*1000), a_b(i), L(j),b(i), T(i)];
@@ -87,7 +94,7 @@ set(h,"color","blue")
 scatter(P_1(:,1),P_1(:,2) ,'*','r' )
 scatter(P_2(:,1),P_2(:,2) ,'^','r' )
 scatter(P_3(:,1),P_3(:,2) ,'o','r' )
-v = [0.1, 1,3.8, 11.5, 50, 100];
+v = [0.1, 1,3.8, 9, 20,30,50, 100];
 [c,h]=contour(X,Y,Ru',v);
 clabel(c,h)
 set(h,"color","black")
@@ -107,7 +114,7 @@ fid  = fopen('../../whole_space.txt','wt');
 [u, v] = size(P_1);
 u
 for i =1:u
-      fprintf(fid, ['0.25,',num2str(res),',',num2str(P_1(i,5)),',0,0,1.0,0.0,4,',num2str(P_1(i,2)),',',num2str(P_1(i,3)),'\n']);     
+      fprintf(fid, ['0.25,',num2str(res),',',num2str(P_1(i,5)),',0,0,1.0,0.0,4,',num2str(P_1(i,2)),',',num2str(P_1(i,3)),',',num2str(P_1(i,6)),'\n']);     
 end
 fclose(fid);
 

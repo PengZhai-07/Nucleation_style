@@ -15,7 +15,7 @@ using Base.Threads
 # BLAS.set_num_threads(2)  # If the underlying BLAS is using multiple threads, higher flop rates are realized
 global Domain_X = 40e3
 global Domain_Y = 32e3
-
+global Output_freq = 10
 
 include("$(@__DIR__)/par.jl")	    #	Set Parameters
 
@@ -50,7 +50,7 @@ multiple::Int = input_parameter[index,8]  # effective normal stress on fault: 10
 a_over_b = input_parameter[index,9] 
 a = 0.015
 coseismic_b =  a/a_over_b            # coseismic b increase 
-Lc= input_parameter[index,10]     # characteristic slip distance      unit:m
+Lc = input_parameter[index,10]     # characteristic slip distance      unit:m
 println("Effective normal stress(10MPa*multiple): ", multiple)
 println("Coseismic b: ", coseismic_b)
 println("characteristic slip distance(m): ", Lc)
@@ -73,12 +73,12 @@ P = setParameters(FZdepth, halfwidth, res, T, alpha, multiple, Lc, Domain)    # 
 
 include("$(@__DIR__)/NucleationSize.jl") 
 # calculate the nucleation size of initial rigidity ratio!!
-h_hom_host, h_hom_dam = NucleationSize(P, alpha)
+h_hom_host, h_hom_dam = NucleationSize(P, alpha, a, coseismic_b)
 println("The nucleation size of homogeneous host medium:", h_hom_host, " m")
 println("The nucleation size of homogeneous damage medium:", h_hom_dam, " m")
 # # h_dam = h_hom/3           # with alphaa = 0.60
 # # println("The approximate nucleation size of damage zone medium:", h_dam, " m")
-CZone = CohesiveZoneSize(P, alpha)
+CZone = CohesiveZoneSize(P, alpha, coseismic_b)
 println("The downlimit (damage) Cohesive zone size:", CZone, " m")
 
 include("$(@__DIR__)/src/dtevol.jl")
@@ -86,6 +86,7 @@ include("$(@__DIR__)/src/NRsearch.jl")
 include("$(@__DIR__)/src/otherFunctions.jl")
 
 include("$(@__DIR__)/src/main.jl")
+
 
 simulation_time = @elapsed @time main(P, alpha, cos_reduction, coseismic_b, Domain)     # usually includes variable parameters for each simulation 
 

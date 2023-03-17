@@ -97,7 +97,7 @@ function setParameters(FZdepth::Int, halfwidth::Int, res::Int, T::Int, alpha::Fl
     # frictional parameters along the fault line (X direction)
     fo::Vector{Float64} = repeat([0.6], FltNglob)       #	Reference friction coefficient
     Vo::Vector{Float64} = repeat([1e-6], FltNglob)		#	Reference velocity 'Vo'  unit: m/s
-    xLf::Vector{Float64} = repeat([Lc], FltNglob)    #	Dc (Lc)
+    xLf::Vector{Float64} = repeat([Lc], FltNglob)    #	Dc (Lc)     unit: m
 
     Vthres::Float64 = 0.001     # unit: m/s  if max slip rate is higher than this value, earthquake happens
     Vevne::Float64 = Vthres    # redefine the velocity threshold!!

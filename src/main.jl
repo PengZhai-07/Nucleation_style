@@ -138,6 +138,9 @@ function main(P, alphaa, cos_reduction, coseismic_b,Domain)
     nevne::Int= 0
     slipstart::Int= 0
     idd::Int = 0
+    inn::Int = 0      # record the line number of each coseismic event
+    inn_event::Int = 0 # record the line number
+
     it_s = 0; it_e = 0
     rit = 0
     # Here v is not zero!!!  0.5e-3 m/s
@@ -238,7 +241,7 @@ function main(P, alphaa, cos_reduction, coseismic_b,Domain)
  
     # time dependence of b value
     SSS = 0
-    seismogenic_depth = findall(abs(10e3) .< abs.(P[3].FltX) .<= abs(20e3))
+    seismogenic_depth = findall(abs(Domain_X*Domain/4) .< abs.(P[3].FltX) .<= abs(Domain_X*Domain*3/4))
 
     while t < P[1].Total_time
         it = it + 1
@@ -545,31 +548,37 @@ function main(P, alphaa, cos_reduction, coseismic_b,Domain)
 
         if Vfmax > 1.01*P[2].Vthres
 
-            if mod(it,10) == 0             # output the shear stress every 10 steps as the shear stess
+            inn_event = 1
+            if mod(it,Output_freq) == 0             # output the shear stress every 10 steps as the shear stess
+                inn += 1
                 write(dfsec_et, join(2*d[P[4].iFlt] .+ P[2].Vpl*t, " "), "\n")
             end
 
-            if idelevne == 0                  # record the first step
-                nevne = nevne + 1
-                idd += 1
-                idelevne = 1
-                tevneb = t
-                tevne = tevneinc      # every 0.1sls
+            # if idelevne == 0                  # record the first step
+            #     nevne = nevne + 1
+            #     idd += 1
+            #     idelevne = 1
+            #     tevneb = t
+            #     tevne = tevneinc      # every 0.1sls
 
-                write(dfsec, join(2*d[P[4].iFlt] .+ P[2].Vpl*t, " "), "\n")
+            #     write(dfsec, join(2*d[P[4].iFlt] .+ P[2].Vpl*t, " "), "\n")
             
-            end
+            # end
 
-            if idelevne == 1 && (t - tevneb) > tevne      # output at least every 0.1 s in the following steps
-                nevne = nevne + 1
-                idd += 1
+            # if idelevne == 1 && (t - tevneb) > tevne      # output at least every 0.1 s in the following steps
+            #     nevne = nevne + 1
+            #     idd += 1
 
-                write(dfsec, join(2*d[P[4].iFlt] .+ P[2].Vpl*t, " "), "\n")
-                tevne = tevne + tevneinc
-            end
+            #     write(dfsec, join(2*d[P[4].iFlt] .+ P[2].Vpl*t, " "), "\n")
+            #     tevne = tevne + tevneinc
+            # end
 
         else
             idelevne = 0
+            if inn_event == 1   
+                write(dfsec_et_endline, join(inn, " "), "\n")
+            end
+            inn_event = 0
         end
 
         current_sliprate = 2*v[P[4].iFlt] .+ P[2].Vpl
@@ -581,7 +590,7 @@ function main(P, alphaa, cos_reduction, coseismic_b,Domain)
         end
 
         # Write stress, sliprate, slip to file every 10 timesteps
-        if mod(it,10) == 0
+        if mod(it,Output_freq) == 0
             write(sliprate, join(2*v[P[4].iFlt] .+ P[2].Vpl, " "), "\n")
             write(weakeningrate, join(psi, " "), "\n")
             write(stress, join((tau + P[3].tauo)./1e6, " "), "\n")

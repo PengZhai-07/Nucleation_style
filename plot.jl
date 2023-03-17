@@ -16,7 +16,7 @@ project = "wholespace/phase_diagram_L_b"
 input_parameter = readdlm("$(@__DIR__)/whole_space.txt", ',',  header=false)
 a = size(input_parameter)[1]
 
-for index = 39
+for index = 72:74
     
     # domain parameters
     Domain = input_parameter[index,1]   # amplify factor of the domain size, the current domain size is 30km*24km for 0.75 domain size
@@ -57,7 +57,7 @@ for index = 39
     N = T
 
     # calculate the nucleation size and plot the nucleation process
-    N_timestep = 800      # time steps to use in sliprate
+    N_timestep::Int = input_parameter[index,11]       # time steps to use in sliprate
     # for i=1:6    1000
 
     criteria = 1e-1    # seismic threshold to measure the nucleation size
@@ -74,7 +74,7 @@ for index = 39
     VfmaxPlot(Vfmax, N, t)
 
     # culmulative slip
-    cumSlipPlot(delfsec[1:4:end,:], delfyr[1:end, :], FltX, hypo, d_hypo, N, Domain/1000);
+    cumSlipPlot(delfsec[1:end,:], delfyr[1:4:end, :], FltX, hypo, d_hypo, N, Domain/1000);
     # cumSlipPlot_no_hypocenter(delfsec[1:4:end,:], delfyr[1:end, :], FltX, N);
     
     # healing analysis: Vfmax and regidity ratio vs. time
@@ -82,9 +82,9 @@ for index = 39
     
     # slip rate vs timesteps
     # how many years to plot
-    eqCyclePlot(sliprate', FltX, N, t, Domain)
+    eqCyclePlot(sliprate', FltX, N, t, Domain/1000)
                         
-    Nucleation_example(sliprate',weakeningrate', FltX, tStart, t, N_timestep, criteria, measure_threshold, Domain/1000)    # only plot the last seismic event
+    Nucleation_example(sliprate', weakeningrate', FltX, tStart, t, N_timestep, criteria, measure_threshold, Domain/1000)    # only plot the last seismic event
     # Nucleation_example_no_weakening_rate(sliprate', FltX, tStart, t, N_timestep, criteria, measure_threshold)    # only plot the last seismic event
 
     NS_width, min_Ω = Nucleation(sliprate', weakeningrate', FltX, tStart, t, N_timestep, criteria, measure_threshold, Domain/1000)
@@ -95,14 +95,14 @@ for index = 39
     println(df)
     if  0 <= df < 0.2
         rupture_style = "Symmetric-bilateral rupture"
-    elseif 0.2 <= df <= 0.6
+    elseif 0.2 <= df <= 0.7
         rupture_style = "Asymmetric-bilateral rupture"
-    elseif 0.6 < df <= 1.0
+    elseif 0.7 < df <= 1.0
         rupture_style = "Unilateral rupture"
     end
     println(rupture_style)
 
-    if mean(min_Ω) > 1.01
+    if mean(min_Ω) > 10
         nucleation_style = "fixed length nucleation"
     else
         nucleation_style = "constant weakening nucleation"
@@ -128,9 +128,9 @@ for index = 39
 
     # # stressdrop_1(taubefore[1,:], tauafter[1,:], FltX)    # the row is the number of event
 
-    # # coseismic stress drop
-    # stressdrop_2(taubefore, tauafter, FltX, tStart)    # the row is the number of event
-    # # default is the first event, so taubefore is the initial shear stress: 0.6*normal stress
+    # coseismic stress drop
+    stressdrop_2(taubefore, tauafter, FltX, tStart, Domain/1000)    # the row is the number of event
+    # default is the first event, so taubefore is the initial shear stress: 0.6*normal stress
 
     # #Plot hypo(km) vs event number, average stress drop(MPa), duration(s), moment magnitude.
     # hypo_Mw_stressdrop(hypo, Mw, del_sigma, delfafter,FltX)
@@ -147,4 +147,5 @@ for index = 39
 
     # # plot the b value in rate and state friction law
     # velocity_dependence(b_value, Vfmax, t, yr2sec)
+
 end

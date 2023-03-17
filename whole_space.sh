@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #SBATCH --job-name=Phase_diagram
-#SBATCH --array=1-74
+#SBATCH --array=1
 
 ##SBATCH --mail-user=39 pengzhai@umich.edu
 ##SBATCH --mail-type=FAIL,ARRAY_TASKS
