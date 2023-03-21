@@ -13,10 +13,10 @@ turbo = "/nfs/turbo/lsa-yiheh/yiheh-mistorage/pengz/data"
 project = "wholespace/phase_diagram_L_b"
 
 # other input parameter
-input_parameter = readdlm("$(@__DIR__)/whole_space.txt", ',',  header=false)
+input_parameter = readdlm("$(@__DIR__)/SSE_Creep.txt", ',',  header=false)
 a = size(input_parameter)[1]
 
-for index = 72:74
+for index = 20
     
     # domain parameters
     Domain = input_parameter[index,1]   # amplify factor of the domain size, the current domain size is 30km*24km for 0.75 domain size
@@ -29,7 +29,7 @@ for index = 72:74
     alpha = input_parameter[index,6]   # initial(background) rigidity ratio: fault zone/host rock
     cos_reduction = input_parameter[index,7]    # coseismic rigidity reduction 
     # friction parameter on fault surface
-    multiple::Int = input_parameter[index,8]  # effective normal stress on fault: 110000MPa*multiple
+    multiple::Int = input_parameter[index,8]  # effective normal stress on fault: 10MPa*multiple
     a_over_b = input_parameter[index,9] 
     local a = 0.015
     coseismic_b::Float64 =  a/a_over_b            # coseismic b increase 
@@ -64,7 +64,7 @@ for index = 72:74
     measure_threshold = 1e-3    # where measure the width of nucleation zone: 1e-7m/s for 
                                 # constant weakening(expanding crack) and 1e-3m/s for fixed length patch
 
-    # moment_release_example(sliprate', FltX, tStart, t, N_timestep, criteria, measure_threshold)       
+    # moment_release_example(sliprate', FltX, tStart, t, N_timestep, criteria, measure_threshold, Domain/1000)       
 
      # Plot friction parameters
     icsPlot(a_b, Seff, tauo, FltX, Domain/1000)
@@ -73,13 +73,17 @@ for index = 72:74
     # max slip rate versus timestep
     VfmaxPlot(Vfmax, N, t)
 
+
     # culmulative slip
-    cumSlipPlot(delfsec[1:end,:], delfyr[1:4:end, :], FltX, hypo, d_hypo, N, Domain/1000);
+    cumSlipPlot(delfsec[1:4:end,:], delfyr[1:4:end, :], FltX, hypo, d_hypo, N, Domain/1000);
     # cumSlipPlot_no_hypocenter(delfsec[1:4:end,:], delfyr[1:end, :], FltX, N);
     
     # healing analysis: Vfmax and regidity ratio vs. time
-    healing_analysis(Vfmax, alphaa, t, yr2sec)
-    
+    V_max = healing_analysis(Vfmax, alphaa, t, yr2sec)
+    open(string(path,"Maximum_slip_velocity.out"), "w") do io
+        write(io, join(V_max), "\n") 
+    end
+
     # slip rate vs timesteps
     # how many years to plot
     eqCyclePlot(sliprate', FltX, N, t, Domain/1000)
@@ -95,28 +99,33 @@ for index = 72:74
     println(df)
     if  0 <= df < 0.2
         rupture_style = "Symmetric-bilateral rupture"
-    elseif 0.2 <= df <= 0.7
+    elseif 0.2 <= df <= 0.8
         rupture_style = "Asymmetric-bilateral rupture"
-    elseif 0.7 < df <= 1.0
+    elseif 0.8 < df <= 1.0
         rupture_style = "Unilateral rupture"
     end
     println(rupture_style)
-
-    if mean(min_Ω) > 10
+    Ω = mean(min_Ω)
+    if  Ω > 5         # this criterion is not accurate
         nucleation_style = "fixed length nucleation"
     else
         nucleation_style = "constant weakening nucleation"
     end
     println(nucleation_style)
 
-    open(string(path,"nucleation info.out"), "w") do io
+    open(string(path,"nucleation.out"), "w") do io
         for i = 1: size(NS_width)[1]
             write(io, join(vcat(NS_width[i,:],min_Ω[i])," "), "\n") 
         end
+    end
+    open(string(path,"nucleation_stats.out"), "w") do io
+        write(io, join(df), "\n") 
         write(io, join(rupture_style), "\n") 
+        write(io, join(Ω), "\n") 
         write(io, join(nucleation_style), "\n") 
     end
-    
+
+
 
     # # # plot the variation of apparent stress
     # # # apparent_friction(stress, index_start, index_end, delfsec, index_ds_start, index_ds_end, depth, t, 2, 50)
@@ -135,10 +144,10 @@ for index = 72:74
     # #Plot hypo(km) vs event number, average stress drop(MPa), duration(s), moment magnitude.
     # hypo_Mw_stressdrop(hypo, Mw, del_sigma, delfafter,FltX)
 
-    # # # sliprate versus time for the last event
-    # # n = 2        # how many seismic events to plot
-    # # eqCyclePlot_last_1(sliprate', FltX, tStart, t, N_timestep, n)
-    # # eqCyclePlot_last_2(sliprate', FltX, tStart, t, N_timestep, n)
+    # sliprate versus time for the last event
+    n = 3        # how many seismic events to plot
+    eqCyclePlot_last_1(sliprate', FltX, tStart, t, N_timestep, n,Domain/1000)
+    eqCyclePlot_last_2(sliprate', FltX, tStart, t, N_timestep, n,Domain/1000)
 
 
    

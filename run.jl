@@ -15,7 +15,7 @@ using Base.Threads
 # BLAS.set_num_threads(2)  # If the underlying BLAS is using multiple threads, higher flop rates are realized
 global Domain_X = 40e3
 global Domain_Y = 32e3
-global Output_freq = 10
+global output_freq = 10
 
 include("$(@__DIR__)/par.jl")	    #	Set Parameters
 

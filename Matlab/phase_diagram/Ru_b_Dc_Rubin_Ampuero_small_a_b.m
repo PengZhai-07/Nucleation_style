@@ -4,12 +4,12 @@ clc
 close all
 
 %%
-res = 32;
+res = 16;
 gamma = pi/4;  % empirical constant parameter about geometry
 mu = 3.20e10;  % Pa 
 sigma = 40e6;  % Pa
 a = 0.015;
-a_b = 0.2:0.05:0.95;
+a_b = 0.05:0.05:0.95;
 T = zeros(1,length(a_b));
 nT = zeros(1,length(a_b));
 b = a./a_b;
@@ -17,8 +17,7 @@ r = 1;   % the shear wave reduction=20%  1-0.2=0.8  r is the rigidity ratio
 % LL = linspace(log10(0.5),log10(125),25);  % m
 % L = 10.^(LL);
 % L = [0.5,0.6,0.8,1,1.3,1.5,2,2.5,3,4,5,6,8,10,12,16,20,25,30,40,50,63,80,100,125]*10^-3;
-L = [0.5,0.6,0.8,1,1.3,1.5,2,2.5,3,4,5,6,8,10,12,16,20,25,30,40,50,63,80,100,125,160,200,250,300]*10^-3;
-
+L = [0.5,0.6,0.8,1,1.3,1.5,2,2.5,3,4,5,6,8,10,12,16,20,25,30,40,50,63,80,100,125,160,200,250,300,400,500,630,800,1000]*10^-3;
 %L = [0.5, 1.3, 4, 12, 40, 125]*10^-3;       % m
 %H = [250, 500, 1000, 1500, 2000];      % m  half-width of damage zone
 H = 0;    % half-width
@@ -43,23 +42,20 @@ for i = 1:length(b)
     mu_D = mu;  % Pa
     for j = 1:length(L)   
         for k = 1:length(H)
-            if a_b(i) > 0.3781
-                syms y 
-                exp = W/y*tanh(2*gamma*H(k)/W*y+atanh(mu_D/mu)) -...
-                   2/pi*mu_D*L(j)*b(i)/sigma/(b(i)-a)^2;       % Rubin and Ampuero for a/b>0.5
-    %                 exp = y*tanh(2*gamma*H(k)/y+atanh(mu_D(i)/mu)) -... %
-                    % pi/4*mu_D(i)*L(j)/sigma/(b-a); %                exp =
-                    % 1/y*tanh(2*H(k)*gamma/W*y+atanh(mu_D/mu)) -... %
-                    % mu_D*L(j)/sigma/(a/a_b(i)-a)/W;    % without pi/4?
-                y = double(vpasolve(exp,[0,1000000000])) ;
-            else
-                y = W/(2*1.3774*mu_D*L(j)/b(i)/sigma);                        % Rubin and Ampuero for a/b<0.3781
-            end
+            %syms y
+            %exp = W/y*tanh(2*gamma*H(k)/W*y+atanh(mu_D/mu)) -...
+               %2/pi*mu_D*L(j)*b(i)/sigma/(b(i)-a)^2;       % Rubin and Ampuero for a/b>0.5
+% %                 exp = y*tanh(2*gamma*H(k)/y+atanh(mu_D(i)/mu)) -...
+% %                  pi/4*mu_D(i)*L(j)/sigma/(b-a);
+% %                exp = 1/y*tanh(2*H(k)*gamma/W*y+atanh(mu_D/mu)) -...
+% %                        mu_D*L(j)/sigma/(a/a_b(i)-a)/W;    % without pi/4? 
+            %y = double(vpasolve(exp,[0,1000000000])) ;
+            y = 1.3774*mu_D*L(j)/b(i)/sigma;                        % Rubin and Ampuero for a/b<0.3781
             Ru(i,j,k) = y;
             kk = mu/W*2/pi;     % for antiplane shear strain with constant slip
             C_1(i,j,k) = b(i)/a*(1-kk*L(j)/b(i)/sigma);     % with equation (17) and kk= G*neta/L
             Cohesive(i,j,k) = (9*pi/32)*mu_D*r*L(j)/b(i)./sigma;
-
+        
             if (y>=1) && (Cohesive(i,j,k) > 400/res*3)                                
                 if y > 10
                     nT = 200;
@@ -73,9 +69,9 @@ for i = 1:length(b)
             elseif (y>=1) && (Cohesive(i,j,k) <= 400/res*3)
                 n = n+1;
                 P_2(n,:) = [log10(L(j)*1000), a_b(i), L(j),b(i), T(i)];
-            elseif (y<1) && (y>0.5)
+            elseif y<1 && (y>0.5)
                 q = q+1;
-                P_3(q,:) = [log10(L(j)*1000), a_b(i), L(j),b(i), T(i), nT];
+                P_3(q,:) = [log10(L(j)*1000), a_b(i), L(j),b(i), T(i)];
             end
         end
     end
@@ -102,35 +98,32 @@ clabel(c,h)
 set(h,"color","blue")
 % different nucleation style
 % fixed length
-% row_fl = [69:84,85:100,101:115,117:129,131:140,144:151,157:162,168:172, 179:182, 188:189]+19;
-% scatter(P_1(row_fl,1), P_1(row_fl,2),'*','r' )
-% % constant weakening
-% row_cw = [116,130,141:143,152:156,163:167, 173:178,183:187, 190:195, 196:204]+19;
-% scatter(P_1(row_cw,1), P_1(row_cw,2),'*','b' )
+row_fl = [69:84,85:100,101:115,117:129,131:140,144:151,157:162,168:172, 179:182, 188:189]+19;
+scatter(P_1(row_fl,1), P_1(row_fl,2),'*','r' )
+% constant weakening
+row_cw = [116,130,141:143,152:156,163:167, 173:178,183:187, 190:195, 196:204]+19;
+scatter(P_1(row_cw,1), P_1(row_cw,2),'*','b' )
 % other cases
 scatter(P_2(:,1),P_2(:,2) ,'^','r' )    % resolution limit
 scatter(P_3(:,1),P_3(:,2) ,'o','r' )   %  no normal earthquakes
-v = [0.1,0.5,1,3.7, 7.5, 18,30];
+v = [0.1,0.5,1,3.7, 7.5, 18];
 [c,h]=contour(X,Y,Ru',v);
 clabel(c,h)
 set(h,"color","black")
 xticks([log10(L*1000)])
-xticklabels([0.5,0.6,0.8,1,1.3,1.5,2,2.5,3,4,5,6,8,10,12,16,20,25,30,40,50,63,80,100,125,160,200,250,300])
-yticks([0.2:0.05:0.35,0.3781,0.4:0.05:0.55,0.57,0.6:0.05:0.95])
-yticklabels([0.2:0.05:0.35,0.3781,0.4:0.05:0.55,0.57,0.6:0.05:0.95])
+xticklabels([0.5,0.6,0.8,1,1.3,1.5,2,2.5,3,4,5,6,8,10,12,16,20,25,30,40,50,63,80,100,125,160,200,250,300,400,500,630,800,1000])
+yticks([0.05:0.05:0.35,0.3781,0.4:0.05:0.95])
+yticklabels([0.05:0.05:0.35,0.3781,0.4:0.05:0.95])
 set(gca,'XDir','reverse');        %将x轴方向设置为反向(从右到左递增)。
 %set(gca,'YDir','reverse');        %将x轴方向设置为反向(从右到左递增)。
 xlabel('D_{c}(mm)')
 ylabel('a/b')
 box on
 %% rupture style
-text(log10(80),0.4,"Symmetric-bilateral",'Rotation',40)
-text(log10(25),0.4,["Unsymmetric-";"bilateral";"and unilateral"],'Rotation',40)
-text(log10(12),0.4,"Full and partial",'Rotation',40)
-text(log10(6),0.4,"Crack-like with aftershocks ",'Rotation',40)
-text(log10(4),0.4,"Pulse-like with aftershocks ",'Rotation',40)
-plot([log10(0.5), log10(1000)],[0.3781,0.3781], "k--")
-plot([log10(0.5), log10(1000)],[0.57,0.57], "k--")
+text(log10(80),0.32,"Symmetric-bilateral",'Rotation',40)
+text(log10(40),0.32,["Unsymmetric-";"bilateral";"and unilateral"],'Rotation',40)
+text(log10(20),0.32,"Full and partial",'Rotation',40)
+text(log10(10),0.32,"Crack-like with aftershocks ",'Rotation',40)
 %% output the model parameter file for seisic events
 fid  = fopen('../../whole_space.txt','wt');
 [u, v] = size(P_1);
@@ -145,7 +138,7 @@ fid  = fopen('../../SSE_Creep.txt','wt');
 [u, v] = size(P_3);
 u
 for i =1:u
-      fprintf(fid, ['0.25,',num2str(res),',',num2str(P_3(i,5)),',0,0,1.0,0.0,4,',num2str(P_3(i,2)),',',num2str(P_3(i,3)),',',num2str(P_1(i,6)),'\n']);     
+      fprintf(fid, ['0.25,',num2str(res),',',num2str(P_3(i,5)),',0,0,1.0,0.0,4,',num2str(P_3(i,2)),',',num2str(P_3(i,3)),'\n']);     
 end
 fclose(fid);
 
