@@ -12,7 +12,7 @@ include("$(@__DIR__)/src/damageEvol.jl")   #    Stiffness index of damaged mediu
 include("$(@__DIR__)/src/BoundaryMatrix.jl")    #	Boundary matrices
 include("$(@__DIR__)/src/initialConditions/defaultInitialConditions.jl")
 
-function setParameters(FZdepth::Float64, halfwidth::Float64, res::Int, T::Float64, alpha::Float64, multiple_matrix::Float64,multiple_asp::Float64, Dc::Float64, Domain::Float64, asp_a::Float64, asp_b::Float64, matrix_a::Float64,matrix_asp_ratio::Int, G::Float64,N::Int,asperity_number::Int)
+function setParameters(FZdepth::Float64, halfwidth::Float64, res::Int, T::Float64, alpha::Float64, multiple_matrix::Float64,multiple_asp::Float64, Dc::Float64, Domain::Float64, asp_a::Float64, asp_b::Float64, matrix_a::Float64,matrix_asp_ratio::Int, G::Float64,N::Int,asperity_number::Int,Vthres::Float64)
 
     LX::Int = Domain*Domain_X  # depth dimension of rectangular domain
     LY::Int = Domain*Domain_Y # off fault dimenstion of rectangular domain
@@ -101,8 +101,7 @@ function setParameters(FZdepth::Float64, halfwidth::Float64, res::Int, T::Float6
     Vo::Vector{Float64} = repeat([1e-6], FltNglob)		#	Reference velocity 'Vo'  unit: m/s
     xLf::Vector{Float64} = repeat([Dc], FltNglob)    #	Dc (Lc)
 
-    Vthres::Float64 = 1e-7     # unit: m/s  if max slip rate is higher than this value, tremor happens
-    Vevne::Float64 = Vthres    # redefine the velocity threshold!!
+    Vevne::Float64 = 1e-7    # redefine the velocity threshold to record coseimsic phase
 
     #-----------#
     #-----------#

@@ -36,11 +36,11 @@ d_hypo = event_time[:,4]    # unit: m
 println("Cumulative slips when earthquakes happen:",d_hypo) 
 println("Depth of all seismic events:",hypo)
 
-sliprate = readdlm(string(out_path, "sliprate.out"), header=false)  
+sliprate = readdlm(string(out_path, "sliprate.out"), header=false, use_mmap=true)  
 println("Dimension of sliprate:",size(sliprate))
 
-weakeningrate = exp.(readdlm(string(out_path, "weakeningrate.out"), header=false))
-println("Dimension of weakeningrate:",size(weakeningrate))
+# weakeningrate = exp.(readdlm(string(out_path, "weakeningrate.out"), header=false,use_mmap=true))
+# println("Dimension of weakeningrate:",size(weakeningrate))
 
 # coseismic slip on fault for all different events(row)
 delfafter = readdlm(string(out_path, "coseismic_slip.out"), header=false)
@@ -54,8 +54,8 @@ println("Total number of all on-fault GLL nodes:",size(delfafter,2))
 delfyr = readdlm(string(out_path, "delfyr.out"))
 # print(size(delfyr))
 
-delfsec_et = readdlm(string(out_path, "delfsec_each_timestep.out"), header=false)    # every 10 timesteps in coseismic phase
-# index_ds_start, index_ds_end = get_index_delfsec(N_events, delfsec_et)      
+delfsec_et = readdlm(string(out_path, "delfsec_each_timestep.out"), header=false, use_mmap=true)    # every 10 timesteps in coseismic phase
+# # index_ds_start, index_ds_end = get_index_delfsec(N_events, delfsec_et)      
 
 println(size(delfsec_et))
 temp = readdlm(string(out_path, "delfsec_each_timestep_endline.out"), header=false)
@@ -68,10 +68,6 @@ println(index_ds_start)
 # here the number of effective events should depend on the event_time.out file 
 # and we ignore some small events
  
-
-
-
-
 event_stress = readdlm(string(out_path, "event_stress.out"), header=false)
 indx = Int(length(event_stress[1,:])/2)
 

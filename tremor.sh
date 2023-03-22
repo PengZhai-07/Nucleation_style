@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #SBATCH --job-name=tremor_test
-#SBATCH --array=70
+#SBATCH --array=74-76
 
 ##SBATCH --mail-user=pengzhai@umich.edu
 ##SBATCH --mail-type=FAIL,ARRAY_TASKS
@@ -18,5 +18,3 @@
 #SBATCH --error=/home/%u/log/error-%x-%j.log
 
 julia --threads 16 run.jl $SLURM_ARRAY_TASK_ID tremor_end_number.txt
-
-

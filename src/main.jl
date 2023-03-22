@@ -468,7 +468,7 @@ function main(P, alphaa, cos_reduction, coseismic_b)
         # Output the variables before and after events
         #-----
         # record the coseismic event!!
-        if  Vfmax > 1.01*P[2].Vthres && slipstart == 0
+        if  Vfmax > 1.01*P[2].Vevne && slipstart == 0
 
             it_s = it_s + 1
             delfref = 2*d[P[4].iFlt] .+ P[2].Vpl*t
@@ -485,7 +485,7 @@ function main(P, alphaa, cos_reduction, coseismic_b)
         end
 
         # slip rate is lower than Vthres(When earthquake ends or at the beginning )
-        if Vfmax < 0.99*P[2].Vthres && slipstart == 1
+        if Vfmax < 0.99*P[2].Vevne && slipstart == 1
             it_e = it_e + 1
             delfafter = 2*d[P[4].iFlt] .+ P[2].Vpl*t .- delfref     # coseismic slip
             
@@ -550,7 +550,7 @@ function main(P, alphaa, cos_reduction, coseismic_b)
             tvsx = tvsx + tvsxinc     # output frequency: 2 years
         end
 
-        if Vfmax > 1.01*P[2].Vthres
+        if Vfmax > 1.01*P[2].Vevne
             
             inn_event = 1
             if mod(it,output_freq) == 0             # output the shear stress every 10 steps as the shear stess
@@ -558,25 +558,24 @@ function main(P, alphaa, cos_reduction, coseismic_b)
                 write(dfsec_et, join(2*d[P[4].iFlt] .+ P[2].Vpl*t, " "), "\n")
             end
 
+            if  idelevne == 0                  # record the first step
+                nevne = nevne + 1
+                idd += 1
+                idelevne = 1
+                tevneb = t
+                tevne = tevneinc      # every 0.1s
 
-            # if  idelevne == 0                  # record the first step
-            #     nevne = nevne + 1
-            #     idd += 1
-            #     idelevne = 1
-            #     tevneb = t
-            #     tevne = tevneinc      # every 0.1s
-
-            #     write(dfsec, join(2*d[P[4].iFlt] .+ P[2].Vpl*t, " "), "\n")
+                write(dfsec, join(2*d[P[4].iFlt] .+ P[2].Vpl*t, " "), "\n")
             
-            # end
+            end
 
-            # if idelevne == 1 && (t - tevneb) > tevne      # output at least every 0.1 s in the following steps
-            #     nevne = nevne + 1
-            #     idd += 1
+            if idelevne == 1 && (t - tevneb) > tevne      # output at least every 0.1 s in the following steps
+                nevne = nevne + 1
+                idd += 1
 
-            #     write(dfsec, join(2*d[P[4].iFlt] .+ P[2].Vpl*t, " "), "\n")
-            #     tevne = tevne + tevneinc
-            # end
+                write(dfsec, join(2*d[P[4].iFlt] .+ P[2].Vpl*t, " "), "\n")
+                tevne = tevne + tevneinc
+            end
 
         else
             idelevne = 0
@@ -605,7 +604,7 @@ function main(P, alphaa, cos_reduction, coseismic_b)
         #  if isolver == 1 && Vfmax < 5e-3 || isolver == 2 && Vfmax < 2e-3
         # when to change the solver
         if isolver == 1 && Vfmax < P[2].Vthres || isolver == 2 && Vfmax < P[2].Vthres  
-            # 0.5e-3 is the initial slip rate, so that there is an initial earthquake at zero time!!
+            # 0.5e-3 is the initial slip rate, so that there is an initial earthquake at zesro time!!
             # in addition, 5e-3 is half of the vthres, if it necessary to convert to dynamic regime in advance??
             isolver = 1   # quasi-static
         else

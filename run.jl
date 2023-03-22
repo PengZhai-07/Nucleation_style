@@ -16,6 +16,8 @@ using Base.Threads
 
 global Domain_X = 40e3
 global Domain_Y = 32e3
+# output_frequency for slipralslste, stress and weakening rate
+global output_freq::Int = 100  
 
 include("$(@__DIR__)/par.jl")	    #	Set Parameters
 
@@ -55,6 +57,7 @@ asp_criticalness::Float64 = input_parameter[index,10]
 matrix_asp_ratio::Int = input_parameter[index,11]
 asperity_number::Int = input_parameter[index,12]
 matrix_a::Float64 = input_parameter[index,13]
+Vthres::Float64 = input_parameter[index,14]
 
 N::Int = asperity_number*(matrix_asp_ratio+1) + matrix_asp_ratio       # number of cells in RSF fault
 G::Float64 = 3e10   # shear modulus of model material   unit: Pa
@@ -75,7 +78,7 @@ println("Cohesive zone size(m): ", 9*pi/32*G*Dc/asp_b/(multiple_asp*10e6))
 turbo = "/nfs/turbo/lsa-yiheh/yiheh-mistorage/pengz/data"
 project = "wholespace/tremor"
 # Output directory to save data
-out_dir = "$(turbo)/$(project)/$(Domain)_$(res)_$(T)_$(FZlength)_$(halfwidth)_$(alpha)_$(cos_reduction)_$(multiple_asp)_$(a_over_b)_$(asp_criticalness)_$(matrix_asp_ratio)_$(asperity_number)_$(matrix_a)_1e-7_1e-7/"    
+out_dir = "$(turbo)/$(project)/$(Domain)_$(res)_$(T)_$(FZlength)_$(halfwidth)_$(alpha)_$(cos_reduction)_$(multiple_asp)_$(a_over_b)_$(asp_criticalness)_$(matrix_asp_ratio)_$(asperity_number)_$(matrix_a)_$(Vthres)/"    
 print("Output directory: ", out_dir)
 # clean old files 
 if isdir(out_dir)
@@ -83,7 +86,7 @@ if isdir(out_dir)
 end
 mkpath(out_dir)
 
-P = setParameters(FZdepth::Float64, halfwidth::Float64, res::Int, T::Float64, alpha::Float64, multiple_matrix::Float64,multiple_asp::Float64, Dc::Float64, Domain::Float64, asp_a::Float64, asp_b::Float64, matrix_a::Float64,matrix_asp_ratio::Int, G::Float64,N::Int,asperity_number::Int)    # usually includes constant parameters for each simulation 
+P = setParameters(FZdepth::Float64, halfwidth::Float64, res::Int, T::Float64, alpha::Float64, multiple_matrix::Float64,multiple_asp::Float64, Dc::Float64, Domain::Float64, asp_a::Float64, asp_b::Float64, matrix_a::Float64,matrix_asp_ratio::Int,G::Float64,N::Int,asperity_number::Int,Vthres::Float64)    # usually includes constant parameters for each simulation 
 # println(size(P[4].FltNI))   # total number of off-fault GLL nodes
 
 # include("$(@__DIR__)/NucleationSize.jl") 
@@ -102,8 +105,7 @@ include("$(@__DIR__)/src/otherFunctions.jl")
 
 include("$(@__DIR__)/src/main.jl")
 
-# output_frequency for sliprate, stress and weakening rate
-global output_freq::Int = 1  
+
 simulation_time = @elapsed @time main(P, alpha, cos_reduction, asp_b)     # usually includes variable parameters for each simulation 
 
 println("\n")
