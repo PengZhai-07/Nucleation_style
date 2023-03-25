@@ -934,7 +934,7 @@ end
 function eqCyclePlot_last_1(sliprate, FltX, tStart, t, N, n,Domain)
         NS_width = zeros(n,1)
         plot_params()
-        fig = PyPlot.figure(figsize=(7.2, 10))
+        fig = PyPlot.figure(figsize=(7.2, 20))
     for i = length(tStart)-n: length(tStart)-1
         #println("Time of the last seismic event(s):",tStart[end])
         indx_last = findall(t[:] .<= tStart[i])[end]   # last event!
@@ -993,7 +993,7 @@ end
 # sliprate versus time for last 3 events
 function eqCyclePlot_last_2(sliprate, FltX, tStart, t,N,n, Domain)
     plot_params()
-    fig = PyPlot.figure(figsize=(7.2, 10))
+    fig = PyPlot.figure(figsize=(7.2, 20))
 
     for i = length(tStart)-n: length(tStart)-1
         #println("Time of the last seismic event(s):",tStart[end])
