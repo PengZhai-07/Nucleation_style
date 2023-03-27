@@ -40,7 +40,7 @@ function moment_magnitude_new(mu, FltX, delfafter, stressdrops, delfsec, index_d
         temp_E_T0 = 0
         temp_E_R = 0
 
-        for j = 1:FltNglob      # total points on fault
+        for j = 2:FltNglob      # total points on fault
             if  delfafter[j,i] >= slip_thres    # only the points with final slip > 1% of maximum slip are counted
                 area = area + delfafter[j,i]*dx[j-1]
                 zdim = zdim + dx[j-1]     

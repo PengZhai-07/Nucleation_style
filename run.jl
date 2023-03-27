@@ -17,7 +17,7 @@ using Base.Threads
 global Domain_X = 40e3
 global Domain_Y = 32e3
 # output_frequency for slipralslste, stress and weakening rate
-global output_freq::Int = 100  
+global output_freq::Int = 1  
 
 include("$(@__DIR__)/par.jl")	    #	Set Parameters
 

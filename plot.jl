@@ -12,7 +12,7 @@ project = "wholespace/tremor"
 input_parameter = readdlm("$(@__DIR__)/tremor_end_number.txt", ',', header=false)
 a = size(input_parameter)[1]
 # output_frequency for sliprate, stress and weakening rate
-global output_freq::Int = 100   
+global output_freq::Int = 10   
 global Domain_X::Int = 40e3
 
 # calculate the nucleation size and plot the nucleation process
@@ -20,7 +20,7 @@ N_timestep = 600      # maximum time steps to use in sliprate to calculate nucle
 criteria = 1e-1    # seismic threshold to measure the nucleation size
 measure_threshold = 1e-3    # where measure the width of nucleation zone: 1e-7m/s for 
                             # contant weakening(expanding crack) and 1e-3m/s for fixed length patch
-for index = 70:72
+for index = 77
     
     # domain parameters
     Domain = input_parameter[index,1]   # amplify factor of the domain size, the current domain size is 30km*24km for 0.75 domain size

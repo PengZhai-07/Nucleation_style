@@ -81,7 +81,7 @@ function VfmaxPlot(Vfmax, N, t, Vthres)
     ax.plot(Vfmax, lw = 2.0)
     ax.plot([0, indx_last],[1e-1, 1e-1] , "k", linestyle="-", label="Regular earthquake threshold")
     ax.plot([0, indx_last],[Vthres, Vthres] , "k", linestyle="--", label="Inertial iterm threshold")
-    ax.plot([0, indx_last],[Vthres, Vthres] , "k", linestyle=":", label="Tremor threshold")
+    ax.plot([0, indx_last],[1e-7, 1e-7] , "k", linestyle=":", label="Tremor threshold")
     ax.legend(loc="upper right") 
     ax.set_xlabel("Time steps")
     ax.set_ylabel("Max. Slip rate (m/s)")
@@ -94,7 +94,7 @@ function VfmaxPlot(Vfmax, N, t, Vthres)
     ax.plot(Vfmax_ex, lw = 2.0)
     ax.plot([0, length(Vfmax_ex)],[1e-1, 1e-1] , "k", linestyle="-", label="Regular earthquake threshold")
     ax.plot([0, length(Vfmax_ex)],[Vthres, Vthres] , "k", linestyle="--", label="Inertial iterm threshold")
-    ax.plot([0, length(Vfmax_ex)],[Vthres, Vthres] , "k", linestyle=":", label="Tremor threshold")
+    ax.plot([0, length(Vfmax_ex)],[1e-7, 1e-7] , "g", linestyle=":", label="Tremor threshold")
     ax.legend(loc="upper right") 
     ax.set_xlabel("Time steps")
     ax.set_ylabel("Max. Slip rate (m/s)")
@@ -106,7 +106,7 @@ function VfmaxPlot(Vfmax, N, t, Vthres)
 end
 
 # Plot alpha and Vfmax on the same plot
-function healing_analysis(Vf, alphaa, t, yr2sec. Vthres)
+function healing_analysis(Vf, alphaa, t, yr2sec, Vthres)
     plot_params()
     fig = PyPlot.figure(figsize=(7.2, 4.45))
     ax = fig.add_subplot(111)
@@ -116,7 +116,7 @@ function healing_analysis(Vf, alphaa, t, yr2sec. Vthres)
     ax.plot(x, Vf, lw = 2.0)
     ax.plot([0, indx_last],[1e-1, 1e-1] , "k", linestyle="-", label="Regular earthquake threshold")
     ax.plot([0, indx_last],[Vthres, Vthres], "k", linestyle="--", label="Inertial iterm threshold")
-    ax.plot([0, indx_last],[Vthres, Vthres], "k", linestyle=":", label="Tremor threshold")
+    ax.plot([0, indx_last],[1e-7, 1e-7], "g", linestyle=":", label="Tremor threshold")
     ax.legend(loc="upper right") 
     ax.set_xlabel("Time (years)")
     ax.set_ylabel("Max. Slip rate (m/s)")
@@ -251,7 +251,7 @@ function stressdrop_2(taubefore, tauafter, FltX, tStart, Fault_length, multiple_
     N = length(tStart)
     plot_params()
     fig = PyPlot.figure(figsize=(15, 30));
-    n = 8
+    n = 2
     for i = 2:2+n-1 
     ax = fig.add_subplot(n/2,2,i-1)
       ax.plot(taubefore[i,:], FltX, lw = 2.0, color="tab:orange", 
