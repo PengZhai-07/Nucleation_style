@@ -14,12 +14,12 @@ project = "wholespace/phase_diagram_L_b"
 
 # other input parameter
 # input_parameter = readdlm("$(@__DIR__)/SSE_Creep.txt", ',',  header=false)
-input_parameter = readdlm("$(@__DIR__)/SSE_Creep_2.txt", ',',  header=false)
+# input_parameter = readdlm("$(@__DIR__)/SSE_Creep_2.txt", ',',  header=false)
 # input_parameter = readdlm("$(@__DIR__)/all_cases.txt", ',',  header=false)
-# input_parameter = readdlm("$(@__DIR__)/whole_space.txt", ',',  header=false)
+input_parameter = readdlm("$(@__DIR__)/whole_space.txt", ',',  header=false)
 a = size(input_parameter)[1]
 
-for index = 1
+for index = 129
     
     # domain parameters
     Domain = input_parameter[index,1]   # amplify factor of the domain size, the current domain size is 30km*24km for 0.75 domain size
@@ -91,7 +91,12 @@ for index = 1
     # how many years to plot
     eqCyclePlot(sliprate', FltX, N, t, Domain/1000)
                         
+    # theoretical nucleation size
+    TNS = 2/pi*3.2e10*Lc*(a/a_over_b)/(multiple*10e6)/(a/a_over_b-a)^2/1000     # unit: km
+    println("Theoretical nuclewtion size: ", TNS)
+
     Nucleation_example(sliprate', weakeningrate', FltX, tStart, t, N_timestep, criteria, measure_threshold, Domain/1000)    # only plot the last seismic event
+    Nucleation_example_evolution(sliprate', weakeningrate', FltX, tStart, t, N_timestep, criteria, measure_threshold, Domain/1000, TNS)    # only plot the last seismic event
     # Nucleation_example_no_weakening_rate(sliprate', FltX, tStart, t, N_timestep, criteria, measure_threshold)    # only plot the last seismic event
 
     NS_width, min_Ω = Nucleation(sliprate', weakeningrate', FltX, tStart, t, N_timestep, criteria, measure_threshold, Domain/1000)
@@ -152,8 +157,6 @@ for index = 1
     eqCyclePlot_last_1(sliprate', FltX, tStart, t, N_timestep, n,Domain/1000)
     eqCyclePlot_last_2(sliprate', FltX, tStart, t, N_timestep, n,Domain/1000)
 
-
-   
     # # Plot velocity dependence of b
     # velocity_dependence_b(1e-5, 1e-3, 0.019, 0.025)
 

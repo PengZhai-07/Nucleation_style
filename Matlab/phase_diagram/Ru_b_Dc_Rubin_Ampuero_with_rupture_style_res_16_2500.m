@@ -23,7 +23,7 @@ L = [2,2.5,3,4,5,6,8,10,12,16,20,25,30,40,50,63,80,100,125,160,200,250,300]*10^-
 %H = [250, 500, 1000, 1500, 2000];      % m  half-width of damage zone
 H = 0;    % half-width
 NS = zeros(length(r),length(L),length(H));
-W = 5000;    % unit:m
+W = 2500;    % unit:m
 m = 0; n=0; q=0;
 for i = 1:length(b)
         % define the simulation time for different a/b
@@ -101,50 +101,54 @@ colormap(summer)
 clim([min(min(C_1)),max(max(C_1))])
 c = colorbar;
 ylabel(c, 'C1')
-v = [1, 1.75,3.0]
-[c,h]=contour(X,Y,C_1',v)
+v = [1, 1.75,3.0];
+[c,h]=contour(X,Y,C_1',v);
 clabel(c,h)
 set(h,"color","magenta")
 % different nucleation style
 %        fixed length and pulse-like
-i = [66];
+i = [];
 scatter(P_1(i,1), P_1(i,2),'d','r' )
 % fixed length and crack-like
-i = [1,34,50, 67:68,85:87,102, 118,];
+i = [];
 scatter(P_1(i,1), P_1(i,2),'x','r' )
 % fixed length and partial
-i = [2:6, 19:22, 35:37,51:53, 69:70,88:89, 103:104,119:121,];
+i = [97];
 scatter(P_1(i,1), P_1(i,2),'v','r' )
 % fixed length and unilateral
-i = [7:12,23:27,38:43,54:59, 71:75,90:91,105:108, 122:123];
+i = [98:100];
 scatter(P_1(i,1), P_1(i,2),'square','r' )
 % fixed length and bilateral
-i = [13:17,28:33,44:49,60:65,76:80,92:97,109:111];
+i = [101:107];
 scatter(P_1(i,1), P_1(i,2),'*','r' )
-% constant weakening and pulse-like
-i = [];
-scatter(P_1(i,1), P_1(i,2),'d','b' )
-% constant weakening and crack-like
-i = [];
-scatter(P_1(i,1), P_1(i,2),'x','b' )
-% constant weakening and partial
-i = [134:136,148:150];
-scatter(P_1(i,1), P_1(i,2),'v','b' )
-% constant weakening and unilateral
-i = [124, 137:139, 151:152, 162:165, 174:175];
-scatter(P_1(i,1), P_1(i,2),'square','b' )
-% constant weakening and bilateral
-i = [81, 98:99, 112:114,  125:130 140:145,153:159,166:171,176:181,184:190,193:196, 199];
-scatter(P_1(i,1), P_1(i,2),'*','b' )
-
-%  SSE
-i = [82, 100, 115:116, 131:132,146:147,160,172:173,182:183,191:192,197:198, 200:201];
+% SSE
+i = [108:109];
 scatter(P_1(i,1), P_1(i,2),'o','y' )
-scatter([log10(200), log10(250)], [0.35,0.3], 'o','y' )
-% creep(amximum 1e-9m/s < slip rate < 1e-8 m/s)
-i = [83:84, 101, 117, 133,161];
-scatter(P_1(i,1), P_1(i,2),'o','g' )
-scatter([log10(300),log10(250), log10(300) ], [0.35,0.35,0.3], 'o','g' )
+
+% % constant weakening and pulse-like
+% i = [];
+% scatter(P_1(i,1), P_1(i,2),'d','b' )
+% % constant weakening and crack-like
+% i = [];
+% scatter(P_1(i,1), P_1(i,2),'x','b' )
+% % constant weakening and partial
+% i = [134:136,148:150];
+% scatter(P_1(i,1), P_1(i,2),'v','b' )
+% % constant weakening and unilateral
+% i = [124, 137:139, 151:152, 162:165, 174:175];
+% scatter(P_1(i,1), P_1(i,2),'square','b' )
+% % constant weakening and bilateral
+% i = [81, 98:99, 112:114,  125:130 140:145,153:159,166:171,176:181,184:190,193:196, 199];
+% scatter(P_1(i,1), P_1(i,2),'*','b' )
+% 
+% %  SSE
+% i = [82, 100, 115:116, 131:132,146:147,160,172:173,182:183,191:192,197:198, 200:201];
+% scatter(P_1(i,1), P_1(i,2),'o','y' )
+% scatter([log10(200), log10(250)], [0.35,0.3], 'o','y' )
+% % creep(amximum 1e-9m/s < slip rate < 1e-8 m/s)
+% i = [83:84, 101, 117, 133,161];
+% scatter(P_1(i,1), P_1(i,2),'o','g' )
+% scatter([log10(300),log10(250), log10(300) ], [0.35,0.35,0.3], 'o','g' )
 
 % % % other cases
 % scatter(P_2(:,1),P_2(:,2) ,'^','r' )    % resolution limit
@@ -161,21 +165,21 @@ set(gca,'XDir','reverse');        %将x轴方向设置为反向(从右到左递�
 xlabel('D_{c}(mm)')
 ylabel('a/b')
 box on
-%% rupture style
-text(log10(200),0.4,"SSE(<0.1m/s) and Creep(<1e-8m/s)",'Rotation',40)
-text(log10(80),0.4,"Symmetric-bilateral",'Rotation',40)
-text(log10(25),0.4,["Unsymmetric-";"bilateral";"and unilateral"],'Rotation',40)
-text(log10(12),0.4,"Full and partial",'Rotation',40)
-text(log10(6),0.4,"Crack-like with aftershocks ",'Rotation',40)
-text(log10(3),0.4,["Pulse-like with";  "aftershocks"],'Rotation',40)
-plot([log10(0.5), log10(1000)],[0.3781,0.3781], "k--")
-plot([log10(0.5), log10(1000)],[0.57,0.57], "k--")
+% %% rupture style
+% text(log10(200),0.4,"SSE(<0.1m/s) and Creep(<1e-8m/s)",'Rotation',40)
+% text(log10(80),0.4,"Symmetric-bilateral",'Rotation',40)
+% text(log10(25),0.4,["Unsymmetric-";"bilateral";"and unilateral"],'Rotation',40)
+% text(log10(12),0.4,"Full and partial",'Rotation',40)
+% text(log10(6),0.4,"Crack-like with aftershocks ",'Rotation',40)
+% text(log10(3),0.4,["Pulse-like with";  "aftershocks"],'Rotation',40)
+% plot([log10(0.5), log10(1000)],[0.3781,0.3781], "k--")
+% plot([log10(0.5), log10(1000)],[0.57,0.57], "k--")
 %% output the model parameter file for seisic events
 fid  = fopen('../../whole_space.txt','wt');
 [u, v] = size(P_1);
 u
 for i =1:u
-      fprintf(fid, ['0.25,',num2str(res),',',num2str(P_1(i,5)),',0,0,1.0,0.0,4,',num2str(P_1(i,2)),',',num2str(P_1(i,3)),',',num2str(P_1(i,6)),'\n']);     
+      fprintf(fid, ['0.125,',num2str(res),',',num2str(P_1(i,5)),',0,0,1.0,0.0,4,',num2str(P_1(i,2)),',',num2str(P_1(i,3)),',',num2str(P_1(i,6)),'\n']);     
 end
 fclose(fid);
 

@@ -61,14 +61,14 @@ delfyr = readdlm(string(out_path, "delfyr.out"))
 delfsec_et = readdlm(string(out_path, "delfsec_each_timestep.out"), header=false)    # every 10 timesteps in coseismic phase
 println(size(delfsec_et))
 
-# index_ds_start, index_ds_end = get_index_delfsec(N_events, delfsec_et)        # here the number of event should depend on the event_time.out file, ignore some small events
-temp = readdlm(string(out_path, "delfsec_each_timestep_endline.out"), header=false)
-index_ds_end::Vector{Int} = temp[:,1]
-println(index_ds_end)
-index_ds_start::Vector{Int64} = zeros(length(index_ds_end))
-index_ds_start[2:end] = (index_ds_end .+ 1)[1:end-1]
-index_ds_start[1] = 1
-println(index_ds_start)
+index_ds_start, index_ds_end = get_index_delfsec(N_events, delfsec_et)        # here the number of event should depend on the event_time.out file, ignore some small events
+# temp = readdlm(string(out_path, "delfsec_each_timestep_endline.out"), header=false)
+# index_ds_end::Vector{Int} = temp[:,1]
+# println(index_ds_end)
+# index_ds_start::Vector{Int64} = zeros(length(index_ds_end))
+# index_ds_start[2:end] = (index_ds_end .+ 1)[1:end-1]
+# index_ds_start[1] = 1
+# println(index_ds_start)
 
 event_stress = readdlm(string(out_path, "event_stress.out"), header=false)
 indx = Int(length(event_stress[1,:])/2)

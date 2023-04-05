@@ -309,7 +309,6 @@ function main(P, alphaa, cos_reduction, coseismic_b,Domain)
                 Vf1[iFBC] .= P[2].Vpl     # set slip rate on creep fault to be plate motion rate
                 # current slip rate 
                 Vf .= (Vf0 + Vf1)/2   # slip rate on creeping fault:  P[2].Vpl  
-                v[P[4].iFlt] .= 0.5*(Vf .- P[2].Vpl)   # slip rate on creeping fault:  0 
 
             end
             
@@ -405,9 +404,9 @@ function main(P, alphaa, cos_reduction, coseismic_b,Domain)
 
             # step5: add the fault boundary term to the sum of internal forces
             tau .= tau2 .- P[3].tauo
-
             tau[iFBC] .= 0.
 
+ 
             # here I don not need to set the cosesimic slip on creeping zone to be plate motion rate
             psi .= psi2
             # 
@@ -420,11 +419,11 @@ function main(P, alphaa, cos_reduction, coseismic_b,Domain)
             # step7: Correction
             v .= v .+ half_dt*a
 
-            v[P[4].FltIglobBC] .= 0.
-            a[P[4].FltIglobBC] .= 0.
-
-            #### Line 861: Omitting P_Ma
-
+            # step8: get half on-fault and off-fault slip rate
+            # on fault
+            v[P[4].iFlt] .= 0.5*(v[P[4].iFlt] .- P[2].Vpl)
+            # off-fault GLL nodes
+            v[P[4].FltNI] .= (d[P[4].FltNI] .- dPre[P[4].FltNI])/dt
 
         end # of isolver if loop
 
