@@ -11,8 +11,9 @@ title = ["(a)", "(b)", "(c)", "(d)"]
 # Global variables
 yr2sec = 365*24*60*60
 # comment this part if there is nothing in event_time temporarily
-fig = PyPlot.figure(figsize=(10, 25));
+fig = PyPlot.figure(figsize=(6, 15));
 fig.patch.set_facecolor("#fff8e5")
+plt.rc("font",size=12)
 
 for i = 1:4                   # normal stress
     # for j = 1:4              # cos_reduction 
@@ -53,15 +54,15 @@ for i = 1:4                   # normal stress
 
         # culmulative slip
         #cumSlipPlot(delfsec[1:end,:], delfyr[1:end, :], FltX);
-        indx = findall(abs.(FltX) .<= 20)[1]
-        delfsec2 = transpose(delfsec[:,indx:end])
-        delfyr2 = transpose(delfyr)
+        indx = findall(abs.(FltX) .<= 15)[1]           
+        delfsec2 = transpose(delfsec[1:5:end,indx:end])  # 0.5 seconds
+        delfyr2 = transpose(delfyr[1:2:end,:])       # 4 year 
 
         delfsec = 0
         delfyr = 0
 
         ax = fig.add_subplot(4,1, i)
-        plt.rc("font",size=12)
+        
         ax.plot(delfyr2, FltX, color="royalblue", lw=1.0)
         ax.plot(delfsec2, FltX[indx:end], color="chocolate", lw=1.0)
         #ax.plot(d_hypo, hypo./1000 , "*", color="saddlebrown", markersize=20)
