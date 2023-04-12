@@ -7,7 +7,7 @@ using PyPlot
 using StatsBase
 using LaTeXStrings
 using PyCall
-mpl = pyimport("matplotlib")
+# mpl = pyimport("matplotlib")
 
 # Default plot params
 function plot_params()
@@ -417,8 +417,11 @@ function cumSlipPlot_no_hypocenter(delfsec, delfyr, FltX)
 
     plot_params()
     fig = PyPlot.figure(figsize=(7.2, 4.45))
+    fig.patch.set_facecolor("#fff8e5")
+    # fig.patch.set_facecolor('#fff5d7')
 
     ax = fig.add_subplot(111)
+    
     plt.rc("font",size=12)
     ax.plot(delfyr2, FltX, color="royalblue", lw=1.0)
     ax.plot(delfsec2, FltX[indx:end], color="chocolate", lw=1.0)
@@ -645,14 +648,14 @@ end
 # Plot friction parameters
 function icsPlot(a_b, Seff, tauo, FltX )
     plot_params()
-    fig = PyPlot.figure(figsize=(7.2, 4.45))
+    fig = PyPlot.figure(figsize=(5, 5))
     ax = fig.add_subplot(111)            
     
     ax.plot(Seff, FltX, "b", label="Normal Stress")
     ax.plot(tauo, FltX, "orange", label="Shear Stress")
     ax.set_xlabel("Stresses (MPa)")
     ax.set_ylabel("Depth (km)")
-    ax.legend(loc="lower right") 
+    ax.legend(loc="lower left",fontsize="x-small") 
     
     col="tab:green"
     ax2 = ax.twiny()
@@ -661,19 +664,40 @@ function icsPlot(a_b, Seff, tauo, FltX )
     seismogenic_depth = findall(abs(2) .< abs.(FltX) .<= abs(12))   # note: unit of FltX here is km
     a_b[seismogenic_depth] .= a_b[seismogenic_depth] .- 0.006
     #println(a_b)
-    ax2.plot(a_b, FltX, "r",label="coseismic (a-b)", linestyle=":")
+    #ax2.plot(a_b, FltX, "r",label="coseismic (a-b)", linestyle=":")
     ax2.set_xlabel("Rate-state friction value (a-b)", color=col)
     ax2.get_xaxis().set_tick_params(color=col)
     ax2.tick_params(axis="x", labelcolor=col)  
     ax2.set_xlim([-0.015,0.040])
-    ax2.legend(loc="lower left") 
+    ax2.legend(loc="lower right", fontsize="x-small") 
 
     ax.set_ylim([0,20])
     ax.invert_yaxis()
+    
+    # ax3 = fig.add_subplot(122)   
+    
+    # x = [0,2,2,0]
+    # y = [-5,-5,15,15]
+    # ax3.fill(x,y,"r")
+
+    # ax3.plot([0 ,0], [-15,15], "k", linewidth=2)
+    # ax3.plot([24 ,24], [-15,15], "k:", linewidth=2)
+    # ax3.plot([0 ,24], [15,15], "k--", linewidth=2)
+    # ax3.plot([0, 24], [-15,-15], "k:", linewidth=2)
+
+    # ax3.scatter(5,0, s=100, color="black", marker="o", facecolors="none",linewidth=2 )
+    # ax3.scatter(5,0, s=10, color="black", marker="." )
+    # ax3.scatter(-5,0, s=100, color="black", marker="o", facecolors="none",linewidth=2 )
+    # ax3.scatter(-5,0, s=60, color="black", marker="x", )
+    # ax3.axes.get_xaxis().set_visible(false)
+    # ax3.axes.get_yaxis().set_visible(false)
+    
+    # ax3.axis("off")
+
     show()
     
     figname = string(path, "initial_condition.png")
-    fig.savefig(figname, dpi = 300)
+    fig.savefig(figname, dpi = 600, bbox_inches="tight", pad_inches=0)
 end
 
 function velocity_dependence_b(x1 ,x2, y1, y2)
