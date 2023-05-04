@@ -106,7 +106,7 @@ end
 # seperate coseismic slip due to different events
 function get_index_delfsec(N_events, delfsec)    # get the index of all coseismic slip when earthquake begins and ends
                                                 # include the first artificial seismic event
-
+                                  
     index_ds_start::Vector{Int} = zeros(N_events)      # 1d Vector
     index_ds_end::Vector{Int} = zeros(N_events)
     index_ds_start[1] = 1

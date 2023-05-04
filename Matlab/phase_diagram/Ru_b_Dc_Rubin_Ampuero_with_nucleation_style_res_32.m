@@ -60,17 +60,29 @@ for i = 1:length(b)
             C_1(i,j,k) = b(i)/a*(1-kk*L(j)/b(i)/sigma);     % with equation (17) and kk= G*neta/L
             Cohesive(i,j,k) = (9*pi/32)*mu_D*r*L(j)/b(i)./sigma;
 
-            if (y>=1.0) && (Cohesive(i,j,k) > 400/res*3)                                
-                if y > 16
-                    nT = 200;
-                elseif y > 10
-                    nT = 600;
-                elseif y>5
-                    nT = 1200;
-                elseif y>2
-                    nT = 2000;
-                else
-                    nT = 4000;
+            if (y>=1.0) && (Cohesive(i,j,k) > 400/res*3)
+                if  a_b(i) < 0.79
+                    if (y > 16) 
+                        nT = 400;
+                    elseif y > 10                     
+                        nT = 1000;
+                    elseif y>6 
+                        nT = 1600;
+                    elseif y>4 
+                        nT = 2200;
+                    elseif y>2
+                        nT = 3200;
+                    else
+                        nT = 3800;
+                    end
+                else 
+                    if y>3              
+                        nT = 2000;
+                    elseif y>2
+                        nT = 3500;
+                    else
+                        nT = 5200;
+                    end
                 end
                 m = m+1;
                 P_1(m,:) = [log10(L(j)*1000), a_b(i), L(j),b(i), T(i), nT];     % resolution is enough
@@ -98,17 +110,21 @@ end
 figure(1)
 set(0,'defaultfigurecolor','w')
 set(gcf,'Position',[20 20 1400 800]);%左下角位置，宽高
-pcolor(X,Y,C_1')
-hold on
-shading interp
-colormap(summer)
-clim([min(min(C_1)),max(max(C_1))])
-c = colorbar;
-ylabel(c, 'C1')
-v = [1, 1.75,3.0]
-[c,h]=contour(X,Y,C_1',v)
-clabel(c,h)
-set(h,"color","magenta")
+
+% pcolor(X,Y,C_1')
+% hold on
+% shading interp
+% colormap(summer)
+% clim([min(min(C_1)),max(max(C_1))])
+% c = colorbar;
+% ylabel(c, 'C1')
+% v = [1, 1.75,3.0]
+% [c,h]=contour(X,Y,C_1',v)
+% clabel(c,h)
+% set(h,"color","magenta")
+
+hold on 
+
 % different nucleation style
 %        fixed length and pulse-like
 % i = [66];
@@ -172,16 +188,43 @@ text(log10(25),0.4,["Unsymmetric-";"bilateral";"and unilateral"],'Rotation',40)
 text(log10(12),0.4,"Full and partial",'Rotation',40)
 text(log10(6),0.4,"Crack-like with aftershocks ",'Rotation',40)
 text(log10(3),0.4,["Pulse-like with";  "aftershocks"],'Rotation',40)
-plot([log10(0.5), log10(1000)],[0.3781,0.3781], "k--")
-plot([log10(0.5), log10(1000)],[0.57,0.57], "k--")
-%% output the model parameter file for seisic events
-fid  = fopen('../../whole_space_32.txt','wt');
-[u, v] = size(P_1);
-u
-for i =1:u
-      fprintf(fid, ['0.25,',num2str(res),',',num2str(P_1(i,5)),',0,0,1.0,0.0,4,',num2str(P_1(i,2)),',',num2str(P_1(i,3)),',',num2str(P_1(i,6)),'\n']);     
+plot([log10(2), log10(300)],[0.3781,0.3781], "k--")
+% plot([log10(0.5), log10(1000)],[0.57,0.57], "k--")
+
+j = 0;
+for i = 1: length(P_1)
+    if P_1(i,2) > 0.39
+        j = j + 1;
+        filename = ['/home/pengzhai/Spear-normal-stress/plots/wholespace/phase_diagram_L_b/',...
+            '0.25_',num2str(res),'_',num2str(P_1(i,5)),'_0_0_1.0_0.0_4_',num2str(P_1(i,2)),'_',num2str(P_1(i,3)),...
+            '/nucleation_stats.out'];
+        disp(filename)
+        if exist(filename, "file") == 0
+            disp("File does not exist")
+            continue
+        end
+            
+        fileID  = fopen(filename,'r');
+        A = textscan(fileID, '%f', 4, 'HeaderLines',3);
+        EEP = A{1}(1);
+        if EEP > 0    % constant weakening
+            scatter(P_1(i,1), P_1(i,2),'*','b' )
+        else       % fixed length patch
+            scatter(P_1(i,1), P_1(i,2),'*','r' )
+        end
+        fclose(fileID);
+    end
 end
-fclose(fid);
+
+
+%% output the model parameter file for seisic events
+% fid  = fopen('../../whole_space_32.txt','wt');
+% [u, v] = size(P_1);
+% u
+% for i =1:u
+%       fprintf(fid, ['0.25,',num2str(res),',',num2str(P_1(i,5)),',0,0,1.0,0.0,4,',num2str(P_1(i,2)),',',num2str(P_1(i,3)),',',num2str(P_1(i,6)),'\n']);     
+% end
+% fclose(fid);
 
 %% output the model parameter file for SSES and Creep
 % fid  = fopen('../../SSE_Creep.txt','wt');
@@ -251,7 +294,7 @@ fclose(fid);
 %%  m = m+1;
 %                 P(m,:) = [log10(L(j)*1000), a_b(i), L(j),b(i)];
 % %             en
-export_fig -dpng -r300 Ru_b_Dc_Rubin_Ampuero_rupture_style
+export_fig -dpng -r300 separate_nucleation_style_32
 
 %% output the bash script for sbatch in Great lakes
 

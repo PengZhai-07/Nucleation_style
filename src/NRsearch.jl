@@ -18,7 +18,7 @@ function FBC!(IDstate, P::params_farray, NFBC, FltNglob, psi1, Vf1, tau1, psi2, 
     
         if Vf1[j] > 1e10 || isnan(Vf1[j]) == 1 || isnan(tau1[j]) == 1         
             
-            println("Fault Location = ", j)
+            println(" Fault Location = ", j)
             println(" Vf1 = ", Vf1[j])
             println(" tau1 = ", tau1[j])
 

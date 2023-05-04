@@ -60,17 +60,29 @@ for i = 1:length(b)
             C_1(i,j,k) = b(i)/a*(1-kk*L(j)/b(i)/sigma);     % with equation (17) and kk= G*neta/L
             Cohesive(i,j,k) = (9*pi/32)*mu_D*r*L(j)/b(i)./sigma;
 
-            if (y>=1.0) && (Cohesive(i,j,k) > 400/res*3)                                
-                if y > 16
-                    nT = 200;
-                elseif y > 10
-                    nT = 600;
-                elseif y>5
-                    nT = 1200;
-                elseif y>2
-                    nT = 2000;
-                else
-                    nT = 4000;
+            if (y>=1.0) && (Cohesive(i,j,k) > 400/res*3)
+                if  a_b(i) < 0.79
+                    if (y > 16) 
+                        nT = 400;
+                    elseif y > 10                     
+                        nT = 1000;
+                    elseif y>6 
+                        nT = 1600;
+                    elseif y>4 
+                        nT = 2200;
+                    elseif y>2
+                        nT = 3200;
+                    else
+                        nT = 3800;
+                    end
+                else 
+                    if y>3              
+                        nT = 2000;
+                    elseif y>2
+                        nT = 3500;
+                    else
+                        nT = 5200;
+                    end
                 end
                 m = m+1;
                 P_1(m,:) = [log10(L(j)*1000), a_b(i), L(j),b(i), T(i), nT];     % resolution is enough
@@ -89,6 +101,8 @@ for i = 1:length(b)
         end
     end
 end
+
+
 % Ru = W./NS;
 [Y,X] = meshgrid(a_b, log10(L*1000));
 % A = pcolor(X,Y,Ru');
@@ -98,19 +112,24 @@ end
 figure(1)
 set(0,'defaultfigurecolor','w')
 set(gcf,'Position',[20 20 1400 800]);%左下角位置，宽高
-pcolor(X,Y,C_1')
+
+
+% pcolor(X,Y,C_1')
+% hold on
+% shading interp
+% colormap(summer)
+% clim([min(min(C_1)),max(max(C_1))])
+% c = colorbar;
+% ylabel(c, 'C1')
+% v = [1, 1.75,3.0]
+% [c,h]=contour(X,Y,C_1',v)
+% clabel(c,h)
+% set(h,"color","magenta")
+
 hold on
-shading interp
-colormap(summer)
-clim([min(min(C_1)),max(max(C_1))])
-c = colorbar;
-ylabel(c, 'C1')
-v = [1, 1.75,3.0]
-[c,h]=contour(X,Y,C_1',v)
-clabel(c,h)
-set(h,"color","magenta")
-% different nucleation style
-%        fixed length and pulse-like
+
+% % different nucleation style
+% %        fixed length and pulse-like
 % i = [66];
 % scatter(P_1(i,1), P_1(i,2),'d','r' )
 % % fixed length and crack-like
@@ -140,7 +159,7 @@ set(h,"color","magenta")
 % % constant weakening and bilateral
 % i = [81, 98:99, 112:114,  125:130 140:145,153:159,166:171,176:181,184:190,193:196, 199];
 % scatter(P_1(i,1), P_1(i,2),'*','b' )
-
+% 
 % %  SSE
 % i = [82, 100, 115:116, 131:132,146:147,160,172:173,182:183,191:192,197:198, 200:201];
 % scatter(P_1(i,1), P_1(i,2),'o','y' )
@@ -150,8 +169,13 @@ set(h,"color","magenta")
 % scatter(P_1(i,1), P_1(i,2),'o','g' )
 % scatter([log10(300),log10(250), log10(300) ], [0.35,0.35,0.3], 'o','g' )
 
-% % % other cases
-% scatter(P_2(:,1),P_2(:,2) ,'^','r' )    % resolution limit
+
+% all test cases
+scatter(P_1(:,1),P_1(:,2) ,'*','r' )    % resolution limit
+
+% % other cases
+scatter(P_2(:,1),P_2(:,2) ,'^','r' )    % resolution limit
+
 v = [0.1, 0.5, 1,2,4, 8, 16,32, 64];
 [c,h]=contour(X,Y,Ru',v);
 clabel(c,h)
@@ -172,16 +196,17 @@ text(log10(25),0.4,["Unsymmetric-";"bilateral";"and unilateral"],'Rotation',40)
 text(log10(12),0.4,"Full and partial",'Rotation',40)
 text(log10(6),0.4,"Crack-like with aftershocks ",'Rotation',40)
 text(log10(3),0.4,["Pulse-like with";  "aftershocks"],'Rotation',40)
-plot([log10(0.5), log10(1000)],[0.3781,0.3781], "k--")
-plot([log10(0.5), log10(1000)],[0.57,0.57], "k--")
-%% output the model parameter file for seisic events
-fid  = fopen('../../whole_space_32.txt','wt');
-[u, v] = size(P_1);
-u
-for i =1:u
-      fprintf(fid, ['0.25,',num2str(res),',',num2str(P_1(i,5)),',0,0,1.0,0.0,4,',num2str(P_1(i,2)),',',num2str(P_1(i,3)),',',num2str(P_1(i,6)),'\n']);     
-end
-fclose(fid);
+plot([log10(2), log10(300)],[0.3781,0.3781], "k--")
+
+% plot([log10(0.5), log10(1000)],[0.57,0.57], "k--")
+% %% output the model parameter file for seisic events
+% fid  = fopen('../../whole_space_32.txt','wt');
+% [u, v] = size(P_1);
+% u
+% for i =1:u
+%       fprintf(fid, ['0.25,',num2str(res),',',num2str(P_1(i,5)),',0,0,1.0,0.0,4,',num2str(P_1(i,2)),',',num2str(P_1(i,3)),',',num2str(P_1(i,6)),'\n']);     
+% end
+% fclose(fid);
 
 %% output the model parameter file for SSES and Creep
 % fid  = fopen('../../SSE_Creep.txt','wt');
@@ -251,7 +276,7 @@ fclose(fid);
 %%  m = m+1;
 %                 P(m,:) = [log10(L(j)*1000), a_b(i), L(j),b(i)];
 % %             en
-export_fig -dpng -r300 Ru_b_Dc_Rubin_Ampuero_rupture_style
+export_fig -dpng -r300 separate_rupture_style_32
 
 %% output the bash script for sbatch in Great lakes
 
