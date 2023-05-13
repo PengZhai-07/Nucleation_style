@@ -207,9 +207,11 @@ for i = 1: length(P_1)
         fileID  = fopen(filename,'r');
         A = textscan(fileID, '%f', 4, 'HeaderLines',3);
         EEP = A{1}(1);
-        if EEP > 0    % constant weakening
+        if EEP > 0.05    % constant weakening: fracture
             scatter(P_1(i,1), P_1(i,2),'*','b' )
-        else       % fixed length patch
+        elseif (EEP <= 0.05) && (EEP >=-0.05)        % transition phase
+            scatter(P_1(i,1), P_1(i,2),'*','g' )
+        else         % large yielding
             scatter(P_1(i,1), P_1(i,2),'*','r' )
         end
         fclose(fileID);

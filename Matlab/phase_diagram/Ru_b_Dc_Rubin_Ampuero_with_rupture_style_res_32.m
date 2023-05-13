@@ -23,6 +23,7 @@ L = [2,2.5,3,4,5,6,8,10,12,16,20,25,30,40,50,63,80,100,125,160,200,250,300]*10^-
 %H = [250, 500, 1000, 1500, 2000];      % m  half-width of damage zone
 H = 0;    % half-width
 NS = zeros(length(r),length(L),length(H));
+res_constraint = zeros(length(r),length(L),length(H));
 W = 5000;    % unit:m
 m = 0; n=0; q=0;
 for i = 1:length(b)
@@ -56,39 +57,42 @@ for i = 1:length(b)
                 y = W/(2*1.3774*mu_D*L(j)/b(i)/sigma);                        % Rubin and Ampuero for a/b<0.3781
             end
             Ru(i,j,k) = y;
+            NS(i,j,k) = W/y;
             kk = mu/W*2/pi;     % for antiplane shear strain with constant slip
             C_1(i,j,k) = b(i)/a*(1-kk*L(j)/b(i)/sigma);     % with equation (17) and kk= G*neta/L
             Cohesive(i,j,k) = (9*pi/32)*mu_D*r*L(j)/b(i)./sigma;
-
-            if (y>=1.0) && (Cohesive(i,j,k) > 400/res*3)
-                if  a_b(i) < 0.79
+            res_constraint(i,j,k) = min(NS(i,j,k), Cohesive(i,j,k));
+                
+            if (y>=1.0) && (res_constraint(i,j,k) > 400/res*3) 
+                if a_b(i) < 0.79
                     if (y > 16) 
-                        nT = 400;
-                    elseif y > 10                     
-                        nT = 1000;
+                        nT = 300;
+                    elseif y > 12                     
+                        nT = 800;
+                    elseif y > 8                     
+                        nT = 1200;
                     elseif y>6 
-                        nT = 1600;
+                        nT = 1500;
                     elseif y>4 
-                        nT = 2200;
-                    elseif y>2
-                        nT = 3200;
+                        nT = 1800;
                     else
-                        nT = 3800;
+                        nT = 2100;
                     end
                 else 
                     if y>3              
-                        nT = 2000;
+                        nT = 1000;
                     elseif y>2
-                        nT = 3500;
+                        nT = 1500;
                     else
-                        nT = 5200;
+                        nT = 1800;
                     end
                 end
+
                 m = m+1;
                 P_1(m,:) = [log10(L(j)*1000), a_b(i), L(j),b(i), T(i), nT];     % resolution is enough
-            elseif (y>=0.5) && (Cohesive(i,j,k) <= 400/res*3)
+            elseif (y>=0.5) && (res_constraint(i,j,k) <= 400/res*3)
                 n = n+1;
-                P_2(n,:) = [log10(L(j)*1000), a_b(i), L(j),b(i), T(i)];
+                P_2(n,:) = [log10(L(j)*1000), a_b(i), L(j),b(i), T(i), 400];
             elseif (y<1) && (y>0.5)
                 nT = 1800;
                 q = q+1;
@@ -176,7 +180,7 @@ scatter(P_1(:,1),P_1(:,2) ,'*','r' )    % resolution limit
 % % other cases
 scatter(P_2(:,1),P_2(:,2) ,'^','r' )    % resolution limit
 
-v = [0.1, 0.5, 1,2,4, 8, 16,32, 64];
+v = [1, 4, 8, 16, 32];
 [c,h]=contour(X,Y,Ru',v);
 clabel(c,h)
 set(h,"color","black")
@@ -194,21 +198,30 @@ text(log10(200),0.4,"SSE(<0.1m/s) and Creep(<1e-8m/s)",'Rotation',40)
 text(log10(80),0.4,"Symmetric-bilateral",'Rotation',40)
 text(log10(25),0.4,["Unsymmetric-";"bilateral";"and unilateral"],'Rotation',40)
 text(log10(12),0.4,"Full and partial",'Rotation',40)
-text(log10(6),0.4,"Crack-like with aftershocks ",'Rotation',40)
+text(log10(5),0.4,"Crack-like with aftershocks ",'Rotation',40)
 text(log10(3),0.4,["Pulse-like with";  "aftershocks"],'Rotation',40)
 plot([log10(2), log10(300)],[0.3781,0.3781], "k--")
-
+axis([log10(2) log10(300) 0.2 0.9])
 % plot([log10(0.5), log10(1000)],[0.57,0.57], "k--")
-% %% output the model parameter file for seisic events
-% fid  = fopen('../../whole_space_32.txt','wt');
-% [u, v] = size(P_1);
-% u
-% for i =1:u
-%       fprintf(fid, ['0.25,',num2str(res),',',num2str(P_1(i,5)),',0,0,1.0,0.0,4,',num2str(P_1(i,2)),',',num2str(P_1(i,3)),',',num2str(P_1(i,6)),'\n']);     
-% end
-% fclose(fid);
+
+%% output the model parameter file for seisic events
+fid  = fopen('../../whole_space_32.txt','wt');
+[u, v] = size(P_1);
+u
+for i =1:u
+      fprintf(fid, ['0.25,',num2str(res),',',num2str(P_1(i,5)),',0,0,1.0,0.0,4,',num2str(P_1(i,2)),',',num2str(P_1(i,3)),',',num2str(P_1(i,6)),'\n']);     
+end
+fclose(fid);
 
 %% output the model parameter file for SSES and Creep
+res = 48;
+fid  = fopen('../../high_res.txt','wt');
+[u, v] = size(P_2);
+u
+for i =1:u
+      fprintf(fid, ['0.25,',num2str(res),',300,0,0,1.0,0.0,4,',num2str(P_2(i,2)),',',num2str(P_2(i,3)),',',num2str(P_2(i,6)),'\n']);     
+end
+fclose(fid);
 % fid  = fopen('../../SSE_Creep.txt','wt');
 % [u, v] = size(P_3);
 % u
@@ -216,7 +229,7 @@ plot([log10(2), log10(300)],[0.3781,0.3781], "k--")
 %       fprintf(fid, ['0.25,',num2str(res),',',num2str(P_3(i,5)),',0,0,1.0,0.0,4,',num2str(P_3(i,2)),',',num2str(P_3(i,3)),',',num2str(P_3(i,6)),'\n']);     
 % end
 % fclose(fid);
-%%
+%
 % fid  = fopen('../../SSE_Creep_2.txt','wt');
 % [u, v] = size(P_4);
 % u
