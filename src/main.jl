@@ -419,13 +419,15 @@ function main(P, alphaa, cos_reduction, coseismic_b)
             # step6: Solve for a_new acceleration 
             a .= a./P[3].M
 
-            # step7: Correction
-            v .= v .+ half_dt*a
+            # step7: Correction 
+            v .= v .+ half_dt*a 
+            # here there is an unnecessary half plate motion rate in "a" !!
+            # get the velocity perturbation
+            v .= v .- 0.5*P[2].Vpl 
 
+            # reset the velocity and acceleration within creeping fault to be zero
             v[P[4].FltIglobBC] .= 0.
             a[P[4].FltIglobBC] .= 0.
-
-            #### Line 861: Omitting P_Ma
 
 
         end # of isolver if loop
