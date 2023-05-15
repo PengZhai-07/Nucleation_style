@@ -9,7 +9,7 @@ gamma = pi/4;  % empirical constant parameter about geometry
 mu = 3.20e10;  % Pa 
 sigma = 40e6;  % Pa
 a = 0.015;
-a_b = 0.2:0.05:0.9;
+a_b = 0.2:0.05:0.95;
 T = zeros(1,length(a_b));
 nT = zeros(1,length(a_b));
 b = a./a_b;
@@ -17,7 +17,7 @@ r = 1;   % the shear wave reduction=20%  1-0.2=0.8  r is the rigidity ratio
 % LL = linspace(log10(0.5),log10(125),25);  % m
 % L = 10.^(LL);
 % L = [0.5,0.6,0.8,1,1.3,1.5,2,2.5,3,4,5,6,8,10,12,16,20,25,30,40,50,63,80,100,125]*10^-3;
-L = [2,2.5,3,4,5,6,8,10,12,16,20,25,30,40,50,63,80,100,125,160,200,250,300]*10^-3;
+L = [0.001, 0.0013,0.0015,0.002,0.0025,0.003,0.004,0.005,0.006,0.008,0.01,0.013,0.015,0.02,0.025,0.03,0.04,0.05,0.06,0.08,0.1,0.13,0.15,0.2,0.25,0.3,0.4,0.5,0.6,0.8,1,1.3,1.5,2,2.5,3,4,5,6,8,10,12,16,20,25,30,40,50,63,80,100,125,160,200,250,300]*10^-3;
 
 %L = [0.5, 1.3, 4, 12, 40, 125]*10^-3;       % m
 %H = [250, 500, 1000, 1500, 2000];      % m  half-width of damage zone
@@ -64,7 +64,7 @@ for i = 1:length(b)
             res_constraint(i,j,k) = min(NS(i,j,k), Cohesive(i,j,k));
                 
             if (y>=1.0) && (res_constraint(i,j,k) > 400/res*3) 
-                if  a_b(i) < 0.79
+                if a_b(i) < 0.79
                     if (y > 16) 
                         nT = 300;
                     elseif y > 12                     
@@ -80,13 +80,14 @@ for i = 1:length(b)
                     end
                 else 
                     if y>3              
-                        nT = 2000;
+                        nT = 1000;
                     elseif y>2
-                        nT = 3500;
+                        nT = 1500;
                     else
-                        nT = 5200;
+                        nT = 1800;
                     end
                 end
+
                 m = m+1;
                 P_1(m,:) = [log10(L(j)*1000), a_b(i), L(j),b(i), T(i), nT];     % resolution is enough
             elseif (y>=0.5) && (res_constraint(i,j,k) <= 400/res*3)
@@ -114,7 +115,7 @@ end
 
 figure(1)
 set(0,'defaultfigurecolor','w')
-set(gcf,'Position',[20 20 1400 800]);%左下角位置，宽高
+set(gcf,'Position',[20 20 2000 1000]);%左下角位置，宽高
 
 
 % pcolor(X,Y,C_1')
@@ -184,9 +185,9 @@ v = [1, 4, 8, 16, 32];
 clabel(c,h)
 set(h,"color","black")
 xticks([log10(L*1000)])
-xticklabels([2,2.5,3,4,5,6,8,10,12,16,20,25,30,40,50,63,80,100,125,160,200,250,300])
-yticks([0.2:0.05:0.35,0.3781,0.4:0.05:0.55,0.57,0.6:0.05:0.95])
-yticklabels([0.2:0.05:0.35,0.3781,0.4:0.05:0.55,0.57,0.6:0.05:0.95])
+xticklabels([0.001, 0.0013,0.0015,0.002,0.0025,0.003,0.004,0.005,0.006,0.008,0.01,0.013,0.015,0.02,0.025,0.03,0.04,0.05,0.06,0.08,0.1,0.13,0.15,0.2,0.3,0.4,0.5,0.6,0.8,1,1.3,1.5,2,2.5,3,4,5,6,8,10,12,16,20,25,30,40,50,63,80,100,125,160,200,250,300])
+yticks([0.2:0.05:0.35,0.3781,0.4:0.05:0.95])
+yticklabels([0.2:0.05:0.35,0.3781,0.4:0.05:0.95])
 set(gca,'XDir','reverse');        %将x轴方向设置为反向(从右到左递增)。
 %set(gca,'YDir','reverse');        %将x轴方向设置为反向(从右到左递增)。
 xlabel('D_{c}(mm)')
@@ -197,11 +198,17 @@ text(log10(200),0.4,"SSE(<0.1m/s) and Creep(<1e-8m/s)",'Rotation',40)
 text(log10(80),0.4,"Symmetric-bilateral",'Rotation',40)
 text(log10(25),0.4,["Unsymmetric-";"bilateral";"and unilateral"],'Rotation',40)
 text(log10(12),0.4,"Full and partial",'Rotation',40)
-text(log10(6),0.4,"Crack-like with aftershocks ",'Rotation',40)
+text(log10(5),0.4,"Crack-like with aftershocks ",'Rotation',40)
 text(log10(3),0.4,["Pulse-like with";  "aftershocks"],'Rotation',40)
-plot([log10(2), log10(300)],[0.3781,0.3781], "k--")
-axis([log10(2) log10(300) 0.2 0.9])
-% plot([log10(0.5), log10(1000)],[0.57,0.57], "k--")
+plot([log10(0.0), log10(300)],[0.3781,0.3781], "k--")
+% laboratory experiment
+plot([log10(0.01), log10(0.001)],[0.75,0.75], "g:")
+
+% geometric considerations
+plot([log10(10), log10(1)],[0.75,0.75], "g:")
+
+
+plot([log10(0.5), log10(1000)],[0.75,0.75], "g:")
 
 %% output the model parameter file for seisic events
 fid  = fopen('../../whole_space_32.txt','wt');
