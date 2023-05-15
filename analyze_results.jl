@@ -107,4 +107,5 @@ open(string(path,"Scaled energy info.out"), "w") do io
                 write(io, join(hcat(Mw[i], del_sigma[i], fault_slip[i], rupture_len[i]/1e3, 
                 scaled_energy[i], radiation_eff[i]), " "), "\n") 
         end
+        println("average scaled energy of all recorded events:", mean(scaled_energy[end-4:end]))
 end

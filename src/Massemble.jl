@@ -32,7 +32,7 @@ function Massemble!(NGLL, NelX, NelY, dxe, dye, ThickX,
             #     print(ig)
             # end
             # Properties of heterogeneous medium: long narrow fault damage zone
-            if (Domain_X*Domain-ThickX) > ex*dxe > ThickX && (dye <= ey*dye <= ThickY)  s #range of damage zone: shallow near fault LVZ
+            if (Domain_X*Domain-ThickX) > ex*dxe > ThickX && (dye <= ey*dye <= ThickY)   #range of damage zone: shallow near fault LVZ
                 #  damage_idx[eo] = eo
                 rho[:,:] .= rho2
                 mu[:,:] .= rho2*vs2^2

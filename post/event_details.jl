@@ -28,10 +28,11 @@ function moment_magnitude_new(mu, FltX, delfafter, stressdrops, delfsec, index_d
     # calculate the nearest grid size
     dx = diff(FltX).*1e3        # Fltx: real depth(km) of all nodes on the fault 
 
-    for i = 1:iter    # for each recorded event
+    # for i = 1:iter   # for each recorded event
+    for i = 1:iter   # for each recorded event
         
         # slip threshold = 1% of maximum final slip
-        slip_thres = 0.01*maximum(delfafter[:,i])
+        slip_thres = 0.1*maximum(delfafter[:,i])
 
         # area = slip*(rupture dimension along depth)
         # zdim = rupture along z dimension = depth rupture dimension

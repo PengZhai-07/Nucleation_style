@@ -90,7 +90,7 @@ function VfmaxPlot(Vfmax, N, t, Vthres)
     # show()
     
     ax = fig.add_subplot(212)
-    Vfmax_ex = Vfmax[4000:6000]
+    Vfmax_ex = Vfmax[1:2000]
     ax.plot(Vfmax_ex, lw = 2.0)
     ax.plot([0, length(Vfmax_ex)],[1e-1, 1e-1] , "k", linestyle="-", label="Regular earthquake threshold")
     ax.plot([0, length(Vfmax_ex)],[Vthres, Vthres] , "k", linestyle="--", label="Inertial iterm threshold")
@@ -251,8 +251,8 @@ function stressdrop_2(taubefore, tauafter, FltX, tStart, Fault_length, multiple_
     N = length(tStart)
     plot_params()
     fig = PyPlot.figure(figsize=(15, 30));
-    n = 2
-    for i = 2:2+n-1 
+    n = 6
+    for i = 9:2+n-1 
     ax = fig.add_subplot(n/2,2,i-1)
       ax.plot(taubefore[i,:], FltX, lw = 2.0, color="tab:orange", 
               label="Shear stress before the earthquake", alpha=1.0);
@@ -261,7 +261,7 @@ function stressdrop_2(taubefore, tauafter, FltX, tStart, Fault_length, multiple_
       ax.set_xlabel("Stress drop (MPa)");
       ax.set_ylabel("Depth (km)");
       ax.set_ylim([0,Fault_length]);
-      ax.set_xlim([0.55*multiple_asp*10, 0.65*multiple_asp*10]);
+      ax.set_xlim([0.55*multiple_asp*10, 0.70*multiple_asp*10]);
       ax.invert_yaxis();
       plt.legend();
     end

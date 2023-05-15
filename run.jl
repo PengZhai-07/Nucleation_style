@@ -16,8 +16,7 @@ using Base.Threads
 
 global Domain_X = 40e3
 global Domain_Y = 32e3
-# output_frequency for slipralslste, stress and weakening rate
-global output_freq::Int = 1  
+
 
 include("$(@__DIR__)/par.jl")	    #	Set Parameters
 
@@ -32,7 +31,7 @@ input_parameter = readdlm("$(@__DIR__)/$(para_file)", ',',  header=false)
 Domain::Float64 = input_parameter[index,1]   # amplify factor of the domain size, the current domain size is 30km*24km for 0.75 domain size
 res::Int =  input_parameter[index,2]   # resolution of mesh: should be an integer
 T::Float64 = input_parameter[index,3]   # total simulation time   unit:year
-println("Doamin size factor: ",Domain)   # default is 40km*32km
+println("Domain size factor: ",Domain)   # default is 40km*32km
 println("Resolution: ",res)
 println("Total simulation time(year): ",T)
 
@@ -59,12 +58,29 @@ asperity_number::Int = input_parameter[index,12]
 matrix_a::Float64 = input_parameter[index,13]
 Vthres::Float64 = input_parameter[index,14]
 
-N::Int = asperity_number*(matrix_asp_ratio+1) + matrix_asp_ratio       # number of cells in RSF fault
-G::Float64 = 3e10   # shear modulus of model material   unit: Pa
-cell_size::Float64 = (Domain_X*Domain/2)/N
-Lc::Float64 = cell_size/asp_criticalness      # nucleation size using Rice and Ruina's equation     unit:m
-Dc::Float64 = pi/2*Lc/G/asp_b*(asp_b-asp_a)^2*multiple_asp*10e6     # inferred Dc value
+# output_frequency for slipralslste, stress and weakening rate
+if  Vthres > 5e-6 
+    global output_freq::Int = 1
+elseif Vthres > 5e-8
+    global output_freq::Int = 100
+else
+    global output_freq::Int = 1000
+end
 
+N::Int = asperity_number*(matrix_asp_ratio+1) + matrix_asp_ratio       # number of cells in RSF fault
+G::Float64 = 3e10*alpha   # fault zone shear modulus or the minumum shear modulus of model material   unit: Pa
+cell_size::Float64 = (Domain_X*Domain/2)/N
+Lc::Float64 = cell_size/asp_criticalness      # nucleation size     unit:m
+
+if alpha == 1.0      # no fault damage zone
+    println("Without fault damage zone!")
+    Dc::Float64 = pi/2*Lc/G/asp_b*(asp_b-asp_a)^2*multiple_asp*10e6     # inferred Dc value 
+else
+    println("With fault damage zone!")
+    γ::Float64 = pi/4
+    Lc_uniform::Float64 = Lc*tanh(2*γ*halfwidth/Lc + atanh(alpha))
+    Dc::Float64 = pi/2*Lc_uniform/3e10/asp_b*(asp_b-asp_a)^2*multiple_asp*10e6     # inferred Dc value
+end
 
 println("Total number of cells: ", N)
 println("Cell size(m): ", cell_size)
@@ -73,6 +89,7 @@ println("b in asperity: ", asp_b)
 println("The nucleation size of homogeneous host medium(m):", Lc)
 println("characteristic slip distance(m): ", Dc)
 println("Cohesive zone size(m): ", 9*pi/32*G*Dc/asp_b/(multiple_asp*10e6))
+println("average node space(m): ", 400/res)
 
 # output path
 turbo = "/nfs/turbo/lsa-yiheh/yiheh-mistorage/pengz/data"

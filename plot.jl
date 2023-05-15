@@ -11,8 +11,7 @@ project = "wholespace/tremor"
 # the dimension of input parameters
 input_parameter = readdlm("$(@__DIR__)/tremor_end_number.txt", ',', header=false)
 a = size(input_parameter)[1]
-# output_frequency for sliprate, stress and weakening rate
-global output_freq::Int = 1   
+
 global Domain_X::Int = 40e3
 
 # calculate the nucleation size and plot the nucleation process
@@ -20,34 +19,42 @@ N_timestep = 600      # maximum time steps to use in sliprate to calculate nucle
 criteria = 1e-1    # seismic threshold to measure the nucleation size
 measure_threshold = 1e-3    # where measure the width of nucleation zone: 1e-7m/s for 
                             # contant weakening(expanding crack) and 1e-3m/s for fixed length patch
-for index = 78
+for index = 95:96
     
     # domain parameters
-    Domain = input_parameter[index,1]   # amplify factor of the domain size, the current domain size is 30km*24km for 0.75 domain size
+    Domain::Float64 = input_parameter[index,1]   # amplify factor of the domain size, the current domain size is 30km*24km for 0.75 domain size
     res::Int =  input_parameter[index,2]   # resolution of mesh: should be an integer
     T::Float64= input_parameter[index,3]   # total simulation time   unit:year
     # fault zone parameter
-    FZlength = input_parameter[index,4]    # length of fault zone: m
-    FZdepth = (Domain_X*Domain+FZlength)/2   # depth of lower boundary of damage zone  unit: m    
-    halfwidth =  input_parameter[index,5]   # half width of damage zone   unit:m
-    alpha = input_parameter[index,6]   # initial(background) rigidity ratio: fault zone/host rock
-    cos_reduction = input_parameter[index,7]    # coseismic rigidity reduction 
+    FZlength::Float64 = input_parameter[index,4]    # length of fault zone: m
+    FZdepth::Float64 = (Domain_X*Domain+FZlength)/2   # depth of lower boundary of damage zone  unit: m    
+    halfwidth::Float64 =  input_parameter[index,5]   # half width of damage zone   unit:m
+    alpha::Float64 = input_parameter[index,6]   # initial(background) rigidity ratio: fault zone/host rock
+    cos_reduction::Float64 = input_parameter[index,7]    # coseismic rigidity reduction 
     # friction parameter on fault surface
     multiple_asp::Float64 = input_parameter[index,8]  # effective normal stress on fault: 10MPa*multiple
-    multiple_matrix = 0.1
-    a_over_b = input_parameter[index,9] 
-    asp_a = 0.005
-    asp_b =  asp_a/a_over_b            # coseismic b increase 
-    Lc= input_parameter[index,10]     # characteristic slip distance      unit:m
+    multiple_matrix::Float64 = 0.1
+    a_over_b::Float64 = input_parameter[index,9] 
+    asp_a::Float64 = 0.005
+    asp_b::Float64 =  asp_a/a_over_b            # coseismic b increase 
+    Lc::Float64= input_parameter[index,10]     # characteristic slip distance      unit:m
     matrix_asp_ratio::Int= input_parameter[index,11]     # characteristic slip distance      unit:m
     asperity_number::Int = input_parameter[index,12]  
     matrix_a::Float64 =  input_parameter[index,13]  
     # matrix_a::Float64 = 0.015
     Vthres::Float64 = input_parameter[index,14]
 
-    Fault_length = Domain*Domain_X/1000
+    # output_frequency for slipralslste, stress and weakening rate
+    if  Vthres > 5e-6 
+        global output_freq::Int = 1
+    elseif Vthres > 5e-7 
+        global output_freq::Int = 100
+    else
+        global output_freq::Int = 1000
+    end
 
-    
+    Fault_length = Domain*Domain_X/1000       # unit: km
+
     FILE = "$(Domain)_$(res)_$(T)_$(FZlength)_$(halfwidth)_$(alpha)_$(cos_reduction)_$(multiple_asp)_$(a_over_b)_$(Lc)_$(matrix_asp_ratio)_$(asperity_number)_$(matrix_a)_$(Vthres)"
     # FILE = "$(Domain)_$(res)_$(T)_$(FZlength)_$(halfwidth)_$(alpha)_$(cos_reduction)_$(multiple_asp)_$(a_over_b)_$(Lc)_$(matrix_asp_ratio)_$(asperity_number)"
     # global FILE = "$(FZdepth)_$(halfwidth)_$(res)_$(alpha)_$(cos_reduction)_$(multiple)_$(Domain)_$(coseismic_b)_$(Lc)"
@@ -73,7 +80,7 @@ for index = 78
     icsPlot(a_b, Seff, tauo, FltX,Fault_length)
 
     # culmulative slip
-    cumSlipPlot(delfsec_et[1:50:end,:], delfyr[1:1:end, :], FltX, hypo, d_hypo, 1.2*T,Fault_length);
+    cumSlipPlot(delfsec_et[1:1:end,:], delfyr[1:1:end, :], FltX, hypo, d_hypo, 1.2*T,Fault_length);
     # cumSlipPlot_no_hypocenter(delfsec[1:4:end,:], delfyr[1:end, :], FltX, 1.2*T);
 
     # slip rate vs timesteps
