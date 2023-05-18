@@ -57,6 +57,7 @@ matrix_asp_ratio::Int = input_parameter[index,11]
 asperity_number::Int = input_parameter[index,12]
 matrix_a::Float64 = input_parameter[index,13]
 Vthres::Float64 = input_parameter[index,14]
+bs_ratio::Float64 = input_parameter[index,15]
 
 # output_frequency for slipralslste, stress and weakening rate
 if  Vthres > 5e-6 
@@ -78,8 +79,10 @@ if alpha == 1.0      # no fault damage zone
 else
     println("With fault damage zone!")
     γ::Float64 = pi/4
-    Lc_uniform::Float64 = Lc*tanh(2*γ*halfwidth/Lc + atanh(alpha))
-    Dc::Float64 = pi/2*Lc_uniform/3e10/asp_b*(asp_b-asp_a)^2*multiple_asp*10e6     # inferred Dc value
+    Lc_uniform::Float64 = Lc*tanh(2*γ*halfwidth/Lc + atanh(0.5))    # nucleation size of low rigidity model!!!
+    println(Lc)
+    println(Lc_uniform)
+    Dc::Float64 = pi/2*Lc_uniform/G/asp_b*(asp_b-asp_a)^2*multiple_asp*10e6     # inferred Dc value
 end
 
 println("Total number of cells: ", N)
@@ -95,7 +98,7 @@ println("average node space(m): ", 400/res)
 turbo = "/nfs/turbo/lsa-yiheh/yiheh-mistorage/pengz/data"
 project = "wholespace/tremor"
 # Output directory to save data
-out_dir = "$(turbo)/$(project)/$(Domain)_$(res)_$(T)_$(FZlength)_$(halfwidth)_$(alpha)_$(cos_reduction)_$(multiple_asp)_$(a_over_b)_$(asp_criticalness)_$(matrix_asp_ratio)_$(asperity_number)_$(matrix_a)_$(Vthres)/"    
+out_dir = "$(turbo)/$(project)/$(Domain)_$(res)_$(T)_$(FZlength)_$(halfwidth)_$(alpha)_$(cos_reduction)_$(multiple_asp)_$(a_over_b)_$(asp_criticalness)_$(matrix_asp_ratio)_$(asperity_number)_$(matrix_a)_$(Vthres)_$(bs_ratio)/"    
 print("Output directory: ", out_dir)
 # clean old files 
 if isdir(out_dir)
@@ -103,7 +106,7 @@ if isdir(out_dir)
 end
 mkpath(out_dir)
 
-P = setParameters(FZdepth::Float64, halfwidth::Float64, res::Int, T::Float64, alpha::Float64, multiple_matrix::Float64,multiple_asp::Float64, Dc::Float64, Domain::Float64, asp_a::Float64, asp_b::Float64, matrix_a::Float64,matrix_asp_ratio::Int,G::Float64,N::Int,asperity_number::Int,Vthres::Float64)    # usually includes constant parameters for each simulation 
+P = setParameters(FZdepth::Float64, halfwidth::Float64, res::Int, T::Float64, alpha::Float64, multiple_matrix::Float64,multiple_asp::Float64, Dc::Float64, Domain::Float64, asp_a::Float64, asp_b::Float64, matrix_a::Float64,matrix_asp_ratio::Int,G::Float64,N::Int,asperity_number::Int,Vthres::Float64, bs_ratio::Float64)    # usually includes constant parameters for each simulation 
 # println(size(P[4].FltNI))   # total number of off-fault GLL nodes
 
 # include("$(@__DIR__)/NucleationSize.jl") 

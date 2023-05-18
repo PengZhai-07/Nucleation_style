@@ -12,7 +12,7 @@ include("$(@__DIR__)/src/damageEvol.jl")   #    Stiffness index of damaged mediu
 include("$(@__DIR__)/src/BoundaryMatrix.jl")    #	Boundary matrices
 include("$(@__DIR__)/src/initialConditions/defaultInitialConditions.jl")
 
-function setParameters(FZdepth::Float64, halfwidth::Float64, res::Int, T::Float64, alpha::Float64, multiple_matrix::Float64,multiple_asp::Float64, Dc::Float64, Domain::Float64, asp_a::Float64, asp_b::Float64, matrix_a::Float64,matrix_asp_ratio::Int, G::Float64,N::Int,asperity_number::Int,Vthres::Float64)
+function setParameters(FZdepth::Float64, halfwidth::Float64, res::Int, T::Float64, alpha::Float64, multiple_matrix::Float64,multiple_asp::Float64, Dc::Float64, Domain::Float64, asp_a::Float64, asp_b::Float64, matrix_a::Float64,matrix_asp_ratio::Int, G::Float64,N::Int,asperity_number::Int,Vthres::Float64, bs_ratio::Float64)
 
     LX::Int = Domain*Domain_X  # depth dimension of rectangular domain
     LY::Int = Domain*Domain_Y # off fault dimenstion of rectangular domain
@@ -237,7 +237,7 @@ function setParameters(FZdepth::Float64, halfwidth::Float64, res::Int, T::Float6
     #......................
     # Initial Conditions
     #......................
-    cca::Vector{Float64}, ccb::Vector{Float64}, a_b, Seff::Vector{Float64}, tauo::Vector{Float64}  = fricDepth(FltX, asp_a, asp_b, matrix_a, Domain, multiple_matrix, multiple_asp,matrix_asp_ratio,N,asperity_number)   # rate-state friction parameters
+    cca::Vector{Float64}, ccb::Vector{Float64}, a_b, Seff::Vector{Float64}, tauo::Vector{Float64}  = fricDepth(FltX, asp_a, asp_b, matrix_a, Domain, multiple_matrix, multiple_asp,matrix_asp_ratio,N,asperity_number, bs_ratio)   # rate-state friction parameters
     # fric_depth = findall(abs(2e3) .< abs.(FltX) .<= abs(12e3))
     # # println(fric_depth)
     # ccb[fric_depth] .= 0.025

@@ -19,8 +19,8 @@ N_timestep = 600      # maximum time steps to use in sliprate to calculate nucle
 criteria = 1e-1    # seismic threshold to measure the nucleation size
 measure_threshold = 1e-3    # where measure the width of nucleation zone: 1e-7m/s for 
                             # contant weakening(expanding crack) and 1e-3m/s for fixed length patch
-for index = 95:96
-    
+for index = 172
+
     # domain parameters
     Domain::Float64 = input_parameter[index,1]   # amplify factor of the domain size, the current domain size is 30km*24km for 0.75 domain size
     res::Int =  input_parameter[index,2]   # resolution of mesh: should be an integer
@@ -41,9 +41,10 @@ for index = 95:96
     matrix_asp_ratio::Int= input_parameter[index,11]     # characteristic slip distance      unit:m
     asperity_number::Int = input_parameter[index,12]  
     matrix_a::Float64 =  input_parameter[index,13]  
-    # matrix_a::Float64 = 0.015
     Vthres::Float64 = input_parameter[index,14]
+    bs_ratio::Float64 = input_parameter[index,15]
 
+    # Vthres = 0.001
     # output_frequency for slipralslste, stress and weakening rate
     if  Vthres > 5e-6 
         global output_freq::Int = 1
@@ -55,7 +56,9 @@ for index = 95:96
 
     Fault_length = Domain*Domain_X/1000       # unit: km
 
-    FILE = "$(Domain)_$(res)_$(T)_$(FZlength)_$(halfwidth)_$(alpha)_$(cos_reduction)_$(multiple_asp)_$(a_over_b)_$(Lc)_$(matrix_asp_ratio)_$(asperity_number)_$(matrix_a)_$(Vthres)"
+    FILE = "$(Domain)_$(res)_$(T)_$(FZlength)_$(halfwidth)_$(alpha)_$(cos_reduction)_$(multiple_asp)_$(a_over_b)_$(Lc)_$(matrix_asp_ratio)_$(asperity_number)_$(matrix_a)_$(Vthres)_$(bs_ratio)"
+    # FILE = "$(Domain)_$(res)_$(T)_$(FZlength)_$(halfwidth)_$(alpha)_$(cos_reduction)_$(multiple_asp)_$(a_over_b)_$(Lc)_$(matrix_asp_ratio)_$(asperity_number)_$(matrix_a)_$(Vthres)"
+    # FILE = "$(Domain)_$(res)_1_$(FZlength)_$(halfwidth)_$(alpha)_$(cos_reduction)_$(multiple_asp)_$(a_over_b)_$(Lc)_$(matrix_asp_ratio)_$(asperity_number)_$(matrix_a)"
     # FILE = "$(Domain)_$(res)_$(T)_$(FZlength)_$(halfwidth)_$(alpha)_$(cos_reduction)_$(multiple_asp)_$(a_over_b)_$(Lc)_$(matrix_asp_ratio)_$(asperity_number)"
     # global FILE = "$(FZdepth)_$(halfwidth)_$(res)_$(alpha)_$(cos_reduction)_$(multiple)_$(Domain)_$(coseismic_b)_$(Lc)"
     println(FILE)                                                                                                                                                                                                                                                                                                                             
@@ -66,22 +69,26 @@ for index = 95:96
     global out_path = "$(turbo)/$(project)/$(FILE)/"
     # global out_path = "$(@__DIR__)/data/$(project)/$(FILE)/"
 
-    include("analyze_results.jl")     
+    include("analyze_results.jl")    
+    
+    # # event time vs. location
+    # hopo_variation(tStart[11:15], hypo[11:15], yr2sec)
 
     # # moment_release_example(sliprate', FltX, tStart, t, N_timestep, criteria, measure_threshold)       
 
     # max slip rate versus timestep
     VfmaxPlot(Vfmax, T, t, Vthres)
 
-    # healing analysis: Vfmax and regidity ratio vs. time
-    healing_analysis(Vfmax, alphaa, t, yr2sec, Vthres)
+    # # healing analysis: Vfmax and regidity ratio vs. time
+    # healing_analysis(Vfmax, alphaa, t, yr2sec, Vthres, tStart[11], tEnd[15])
 
     # Plot friction parameters
     icsPlot(a_b, Seff, tauo, FltX,Fault_length)
 
     # culmulative slip
-    cumSlipPlot(delfsec_et[1:1:end,:], delfyr[1:1:end, :], FltX, hypo, d_hypo, 1.2*T,Fault_length);
+    cumSlipPlot(delfsec[1:10:end,:], delfyr[1:1:end, :], FltX, hypo, d_hypo, 0.5*T,Fault_length);    # 0.1 s and 0.1 year
     # cumSlipPlot_no_hypocenter(delfsec[1:4:end,:], delfyr[1:end, :], FltX, 1.2*T);
+
 
     # slip rate vs timesteps
     # how many years to plot

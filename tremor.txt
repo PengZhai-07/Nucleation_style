@@ -1,5 +1,17 @@
-0.15,132,1,0,0,1.0,0.0,2,0.9,0.00008333,0
-0.15,132,1,0,0,1.0,0.0,2,0.9,0.00008333,1
-0.15,132,1,0,0,1.0,0.0,2,0.9,0.00008333,2
-0.15,132,1,0,0,1.0,0.0,2,0.9,0.00008333,3
-0.15,132,1,0,0,1.0,0.0,2,0.9,0.00008333,4
+case166  with larger transition zone
+
+case167  works
+case169  with larger resolution 48 and larger transition zone
+
+increase normal stress
+case170 with fault zone
+case171 without fault zone
+
+
+case172  decrease criticalness(increase resolution)  0.3  and decrease tolerance(1e-10)   fail
+case173  decrease criticalness(increase resolution)  0.3  
+when fault zone exists, more difficult to converge: increase resolution or decrease tolerance
+
+case174  tol = 1e-6 
+
+case176   correct the equation for nucleation size estimation!!

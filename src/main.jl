@@ -73,7 +73,7 @@ function main(P, alphaa, cos_reduction, coseismic_b)
     # Initialize kinematic field: global arrays
     d::Vector{Float64} = zeros(P[1].nglob)   # initial displacement
     v::Vector{Float64} = zeros(P[1].nglob)
-    v .= 0.5e-3         #  half intial velocity on whole model: the real velocity is 1e-3 m/s
+    v .= 0.5e-3       #  half intial velocity on whole model: the real velocity is 1e-3 m/s
     # this initial velocity is only good for 50 Mpa and less, for higher normal stress, need larger initial velocity
     a::Vector{Float64} = zeros(P[1].nglob)   # relation between fault stress and acceleration?
 
@@ -549,7 +549,7 @@ function main(P, alphaa, cos_reduction, coseismic_b)
             #  write(stress, join((tau + P[3].tauo)./1e6, " "), "\n")
             write(dfyr, join(2*d[P[4].iFlt] .+ P[2].Vpl*t, " "), "\n")
 
-            tvsx = tvsx + tvsxinc     # output frequency: 2 years
+            tvsx = tvsx + tvsxinc     # output frequency: 0.1 years
         end
 
         if Vfmax > 1.01*P[2].Vevne

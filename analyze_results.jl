@@ -50,7 +50,7 @@ println("Total number of all seismic events:", N_events)
 println("Total number of all on-fault GLL nodes:",size(delfafter,2))    
 
 # displacement on fault line for different time 
-# delfsec = readdlm(string(out_path, "delfsec.out"))   # every 0.1 second, but if timestep is large enough, it should be every timestep!!
+delfsec = readdlm(string(out_path, "delfsec.out"))   # every 0.1 second, but if timestep is large enough, it should be every timestep!!
 delfyr = readdlm(string(out_path, "delfyr.out"))
 # print(size(delfyr))
 
@@ -91,21 +91,21 @@ vs2 = sqrt(alphaa[1])*vs1   # initial shear wave velocity
 mu = rho2*vs2^2    # to calculate seismic moment
 println("Shear modulus of damage zone:",mu)
 
-Mw, del_sigma, fault_slip, rupture_len, scaled_energy, radiation_eff =
-        moment_magnitude_new(mu/1e6, FltX, delfafter', stressdrops', delfsec_et,index_ds_start, index_ds_end, stress,index_start, index_end);   # Time*L
+# Mw, del_sigma, fault_slip, rupture_len, scaled_energy, radiation_eff =
+#         moment_magnitude_new(mu/1e6, FltX, delfafter', stressdrops', delfsec_et,index_ds_start, index_ds_end, stress,index_start, index_end);   # Time*L
 
-println("Moment magnitudes of all seismic events:", Mw)
-println("Average stress drops of all seismic events(MPa):", del_sigma)
-println("Average fault slips of all seismic events(m):", fault_slip)
-println("Rupture lengths along depth of all seismic events(km):", rupture_len./1e3)
+# println("Moment magnitudes of all seismic events:", Mw)
+# println("Average stress drops of all seismic events(MPa):", del_sigma)
+# println("Average fault slips of all seismic events(m):", fault_slip)
+# println("Rupture lengths along depth of all seismic events(km):", rupture_len./1e3)
 
-println("Saled energy of all seismic events:", scaled_energy)
-println("Radiation efficiency of all seismic events:", radiation_eff)
+# println("Saled energy of all seismic events:", scaled_energy)
+# println("Radiation efficiency of all seismic events:", radiation_eff)
 
-open(string(path,"Scaled energy info.out"), "w") do io
-        for i in eachindex(Mw)
-                write(io, join(hcat(Mw[i], del_sigma[i], fault_slip[i], rupture_len[i]/1e3, 
-                scaled_energy[i], radiation_eff[i]), " "), "\n") 
-        end
-        println("average scaled energy of all recorded events:", mean(scaled_energy[end-4:end]))
-end
+# open(string(path,"Scaled energy info.out"), "w") do io
+#         for i in eachindex(Mw)
+#                 write(io, join(hcat(Mw[i], del_sigma[i], fault_slip[i], rupture_len[i]/1e3, 
+#                 scaled_energy[i], radiation_eff[i]), " "), "\n") 
+#         end
+#         # println("average scaled energy of all recorded events:", mean(scaled_energy[end-4:end]))
+# end

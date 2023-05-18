@@ -45,13 +45,13 @@ function icsPlot(a_b, Seff, tauo, FltX,Fault_length)
     ax.plot(tauo, FltX, "orange",linestyle="-", label="Shear Stress")
     ax.set_xlabel("Stresses (MPa)")
     ax.set_ylabel("Depth (km)")
-    ax.legend(loc="lower right") 
+    ax.legend(loc="lower right")
     
     col="tab:green"
     ax2 = ax.twiny()
     ax2.plot(a_b, FltX, "g",label="(a-b)")
     #println(FltX)
-    # seismogenic_depth = findall(abs(10) .< abs.(FltX) .<= abs(20))   # note: unit of FltX here is km
+    # seismogenic_depth = findall(abs(10) .< abs.(FltX) .<= abs(20))    # note: unit of FltX here is km
     # a_b[seismogenic_depth] .= a_b[seismogenic_depth] .- 0.006
     # #println(a_b)
     # ax2.plot(a_b, FltX, "r",label="coseismic (a-b)", linestyle=":")
@@ -72,7 +72,7 @@ end
 # Plot Vfmax
 function VfmaxPlot(Vfmax, N, t, Vthres)
     plot_params()
-    fig = PyPlot.figure(figsize=(15, 5))
+    fig = PyPlot.figure(figsize=(10, 5))
     ax = fig.add_subplot(211)
 
     t_seconds = (N) * 365 * 24 * 60 * 60 
@@ -88,14 +88,14 @@ function VfmaxPlot(Vfmax, N, t, Vthres)
     ax.set_yscale("log")
     ax.set_ylim([1e-10,1e2])
     # show()
-    
+
     ax = fig.add_subplot(212)
-    Vfmax_ex = Vfmax[1:2000]
+    Vfmax_ex = Vfmax[1:1000]
     ax.plot(Vfmax_ex, lw = 2.0)
     ax.plot([0, length(Vfmax_ex)],[1e-1, 1e-1] , "k", linestyle="-", label="Regular earthquake threshold")
     ax.plot([0, length(Vfmax_ex)],[Vthres, Vthres] , "k", linestyle="--", label="Inertial iterm threshold")
     ax.plot([0, length(Vfmax_ex)],[1e-7, 1e-7] , "g", linestyle=":", label="Tremor threshold")
-    ax.legend(loc="upper right") 
+    ax.legend(loc="upper right")
     ax.set_xlabel("Time steps")
     ax.set_ylabel("Max. Slip rate (m/s)")
     ax.set_yscale("log")
@@ -106,10 +106,10 @@ function VfmaxPlot(Vfmax, N, t, Vthres)
 end
 
 # Plot alpha and Vfmax on the same plot
-function healing_analysis(Vf, alphaa, t, yr2sec, Vthres)
+function healing_analysis(Vf, alphaa, t, yr2sec, Vthres, tStart, tEnd,)
     plot_params()
-    fig = PyPlot.figure(figsize=(7.2, 4.45))
-    ax = fig.add_subplot(111)
+    fig = PyPlot.figure(figsize=(8, 10))
+    ax = fig.add_subplot(211)
     x = t./yr2sec
     indx_last = x[end]
 
@@ -117,6 +117,7 @@ function healing_analysis(Vf, alphaa, t, yr2sec, Vthres)
     ax.plot([0, indx_last],[1e-1, 1e-1] , "k", linestyle="-", label="Regular earthquake threshold")
     ax.plot([0, indx_last],[Vthres, Vthres], "k", linestyle="--", label="Inertial iterm threshold")
     ax.plot([0, indx_last],[1e-7, 1e-7], "g", linestyle=":", label="Tremor threshold")
+
     ax.legend(loc="upper right") 
     ax.set_xlabel("Time (years)")
     ax.set_ylabel("Max. Slip rate (m/s)")
@@ -133,10 +134,44 @@ function healing_analysis(Vf, alphaa, t, yr2sec, Vthres)
     ax2.get_xaxis().set_tick_params(color=col)
     ax2.tick_params(axis="x", labelcolor=col)
 
+    ax = fig.add_subplot(212)
+    x = t./yr2sec*12*30
+    indx_1 = findall(t .<= tStart)[end]
+    indx_2 = findall(t .<= tEnd)[end]
+    indx_first = x[indx_1:indx_2][1]
+    indx_last = x[indx_1:indx_2][end]
+
+    ax.plot(x[indx_1:indx_2], Vf[indx_1:indx_2], lw = 2.0)
+    ax.plot([indx_first, indx_last],[1e-1, 1e-1] , "k", linestyle="-", label="Regular earthquake threshold")
+    ax.plot([indx_first, indx_last],[Vthres, Vthres], "k", linestyle="--", label="Inertial iterm threshold")
+    ax.plot([indx_first, indx_last],[1e-7, 1e-7], "g", linestyle=":", label="Tremor threshold")
+    ax.legend(loc="upper right") 
+    ax.set_xlabel("Time (day)")
+    ax.set_ylabel("Max. Slip rate (m/s)")
+    ax.set_yscale("log")
+    #ax.set_xlim([0, 600])
+    ax.set_ylim([1e-10, 1e2])
+    ax.set_title("STF of the 4th group of events")
+
     #  ax.legend([lab1, lab2], loc=0)
     # show()
     
     figname = string(path, "healing_analysis.png")
+    fig.savefig(figname, dpi = 300)
+end
+
+# plot hypocenter vs time
+function hopo_variation(t_Start, hypo, yr2sec)
+    plot_params()
+    fig = PyPlot.figure(figsize=(7.2, 4.45))
+    ax = fig.add_subplot(111)
+    t = t_Start./yr2sec*12*30
+    hypo = hypo./1000     # unit: km
+    ax.scatter(t, hypo, s=100,c="r", marker="*", )
+    ax.set_xlabel("Time (day)")
+    ax.set_ylabel("Depth (km)")
+    ax.invert_yaxis()
+    figname = string(path, "dhypo_time.png")
     fig.savefig(figname, dpi = 300)
 end
 
@@ -251,8 +286,8 @@ function stressdrop_2(taubefore, tauafter, FltX, tStart, Fault_length, multiple_
     N = length(tStart)
     plot_params()
     fig = PyPlot.figure(figsize=(15, 30));
-    n = 6
-    for i = 9:2+n-1 
+    n = 2
+    for i = 2:2+n-1 
     ax = fig.add_subplot(n/2,2,i-1)
       ax.plot(taubefore[i,:], FltX, lw = 2.0, color="tab:orange", 
               label="Shear stress before the earthquake", alpha=1.0);
