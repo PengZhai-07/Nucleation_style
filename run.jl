@@ -60,13 +60,14 @@ Vthres::Float64 = input_parameter[index,14]
 bs_ratio::Float64 = input_parameter[index,15]
 
 # output_frequency for slipralslste, stress and weakening rate
-if  Vthres > 5e-6 
-    global output_freq::Int = 1
-elseif Vthres > 5e-8
-    global output_freq::Int = 100
-else
-    global output_freq::Int = 1000
-end
+# if  Vthres > 5e-6 
+#     global output_freq::Int = 1
+# elseif Vthres > 5e-8
+#     global output_freq::Int = 100
+# else
+#     global output_freq::Int = 1000
+# end
+global output_freq::Int = 20
 
 N::Int = asperity_number*(matrix_asp_ratio+1) + matrix_asp_ratio       # number of cells in RSF fault
 G::Float64 = 3e10*alpha   # fault zone shear modulus or the minumum shear modulus of model material   unit: Pa
@@ -126,7 +127,7 @@ include("$(@__DIR__)/src/otherFunctions.jl")
 include("$(@__DIR__)/src/main.jl")
 
 
-simulation_time = @elapsed @time main(P, alpha, cos_reduction, asp_b)     # usually includes variable parameters for each simulation 
+simulation_time = @elapsed @time main(P, alpha, cos_reduction, asp_b, Vthres)     # usually includes variable parameters for each simulation 
 
 println("\n")
 

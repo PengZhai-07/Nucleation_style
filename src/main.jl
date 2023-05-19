@@ -36,7 +36,7 @@ function healing2(t,tStart,dam, cos_reduction)
     hmax*(1 .- exp.(-r*(t .- tStart)/P[1].yr2sec)) .+ dam     # hmax*(1 .- exp.(-r*(t .- tStart)/P[1].yr2sec)) > 0, when time is about 10 years, alphaa = dam + 0.05, healing completely!
 end
 
-function main(P, alphaa, cos_reduction, coseismic_b)
+function main(P, alphaa, cos_reduction, coseismic_b, Vthres)
 
     # please refer to par.jl to see the specific meaning of P
     # P[1] = integer  Nel, FltNglob, yr2sec, IDstate, nglob
@@ -73,7 +73,7 @@ function main(P, alphaa, cos_reduction, coseismic_b)
     # Initialize kinematic field: global arrays
     d::Vector{Float64} = zeros(P[1].nglob)   # initial displacement
     v::Vector{Float64} = zeros(P[1].nglob)
-    v .= 0.5e-3       #  half intial velocity on whole model: the real velocity is 1e-3 m/s
+    v .= Vthres/10         #  half intial velocity on whole model
     # this initial velocity is only good for 50 Mpa and less, for higher normal stress, need larger initial velocity
     a::Vector{Float64} = zeros(P[1].nglob)   # relation between fault stress and acceleration?
 

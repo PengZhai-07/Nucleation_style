@@ -106,7 +106,7 @@ function VfmaxPlot(Vfmax, N, t, Vthres)
 end
 
 # Plot alpha and Vfmax on the same plot
-function healing_analysis(Vf, alphaa, t, yr2sec, Vthres, tStart, tEnd,)
+function healing_analysis_STF(Vf, alphaa, t, yr2sec, Vthres, tStart, tEnd,)
     plot_params()
     fig = PyPlot.figure(figsize=(8, 10))
     ax = fig.add_subplot(211)
@@ -155,6 +155,38 @@ function healing_analysis(Vf, alphaa, t, yr2sec, Vthres, tStart, tEnd,)
 
     #  ax.legend([lab1, lab2], loc=0)
     # show()
+    
+    figname = string(path, "healing_analysis_STF.png")
+    fig.savefig(figname, dpi = 300)
+end
+
+function healing_analysis(Vf, alphaa, t, yr2sec, Vthres)
+    plot_params()
+    fig = PyPlot.figure(figsize=(8, 5))
+    ax = fig.add_subplot(111)
+    x = t./yr2sec
+    indx_last = x[end]
+
+    ax.plot(x, Vf, lw = 2.0)
+    ax.plot([0, indx_last],[1e-1, 1e-1] , "k", linestyle="-", label="Regular earthquake threshold")
+    ax.plot([0, indx_last],[Vthres, Vthres], "k", linestyle="--", label="Inertial iterm threshold")
+    ax.plot([0, indx_last],[1e-7, 1e-7], "g", linestyle=":", label="Tremor threshold")
+
+    ax.legend(loc="upper right") 
+    ax.set_xlabel("Time (years)")
+    ax.set_ylabel("Max. Slip rate (m/s)")
+    ax.set_yscale("log")
+    #ax.set_xlim([0, 600])
+    ax.set_ylim([1e-10, 1e2])
+    
+    col="tab:red"
+    ax2 = ax.twinx()
+    
+    ax2.plot(t./yr2sec, alphaa.*100, c=col, lw=2.0, label="Shear modulus ratio")   
+    ax2.set_ylabel("Shear Modulus (% of host rock)")
+    ax2.set_ylim([20, 110])
+    ax2.get_xaxis().set_tick_params(color=col)
+    ax2.tick_params(axis="x", labelcolor=col)
     
     figname = string(path, "healing_analysis.png")
     fig.savefig(figname, dpi = 300)
@@ -219,7 +251,7 @@ function eqCyclePlot(sliprate, FltX, N, t,Fault_length)
     indx_last = findall(t .<= t_seconds)[end]   # last event!
     indx_last_int::Int = floor(indx_last/output_freq)
 
-    indx = findall(abs.(FltX) .<= 30)[1]
+    indx = findall(abs.(FltX) .<= 10)[1]
     value = sliprate[indx:end,1:indx_last_int]
     
     # print(findall(abs.(sliprate) .<= 1e-12))
@@ -286,7 +318,7 @@ function stressdrop_2(taubefore, tauafter, FltX, tStart, Fault_length, multiple_
     N = length(tStart)
     plot_params()
     fig = PyPlot.figure(figsize=(15, 30));
-    n = 2
+    n = 6
     for i = 2:2+n-1 
     ax = fig.add_subplot(n/2,2,i-1)
       ax.plot(taubefore[i,:], FltX, lw = 2.0, color="tab:orange", 

@@ -19,7 +19,7 @@ N_timestep = 600      # maximum time steps to use in sliprate to calculate nucle
 criteria = 1e-1    # seismic threshold to measure the nucleation size
 measure_threshold = 1e-3    # where measure the width of nucleation zone: 1e-7m/s for 
                             # contant weakening(expanding crack) and 1e-3m/s for fixed length patch
-for index = 172
+for index = 193
 
     # domain parameters
     Domain::Float64 = input_parameter[index,1]   # amplify factor of the domain size, the current domain size is 30km*24km for 0.75 domain size
@@ -45,14 +45,8 @@ for index = 172
     bs_ratio::Float64 = input_parameter[index,15]
 
     # Vthres = 0.001
-    # output_frequency for slipralslste, stress and weakening rate
-    if  Vthres > 5e-6 
-        global output_freq::Int = 1
-    elseif Vthres > 5e-7 
-        global output_freq::Int = 100
-    else
-        global output_freq::Int = 1000
-    end
+    # output_frequency for sliprate, stress and weakening rate
+    global output_freq::Int = 10
 
     Fault_length = Domain*Domain_X/1000       # unit: km
 
@@ -79,14 +73,15 @@ for index = 172
     # max slip rate versus timestep
     VfmaxPlot(Vfmax, T, t, Vthres)
 
-    # # healing analysis: Vfmax and regidity ratio vs. time
-    # healing_analysis(Vfmax, alphaa, t, yr2sec, Vthres, tStart[11], tEnd[15])
+    # healing analysis: Vfmax and regidity ratio vs. time
+    # healing_analysis_STF(Vfmax, alphaa, t, yr2sec, Vthres, tStart[4], tEnd[4])
+    healing_analysis(Vfmax, alphaa, t, yr2sec, Vthres,)
 
     # Plot friction parameters
     icsPlot(a_b, Seff, tauo, FltX,Fault_length)
 
     # culmulative slip
-    cumSlipPlot(delfsec[1:10:end,:], delfyr[1:1:end, :], FltX, hypo, d_hypo, 0.5*T,Fault_length);    # 0.1 s and 0.1 year
+    cumSlipPlot(delfsec[1:10:end,:], delfyr[1:1:end, :], FltX, hypo, d_hypo, 1.2*T,Fault_length);    # 0.1 s and 0.1 year
     # cumSlipPlot_no_hypocenter(delfsec[1:4:end,:], delfyr[1:end, :], FltX, 1.2*T);
 
 

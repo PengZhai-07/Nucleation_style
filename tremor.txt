@@ -14,4 +14,5 @@ when fault zone exists, more difficult to converge: increase resolution or decre
 
 case174  tol = 1e-6 
 
-case176   correct the equation for nucleation size estimation!!
+case176   correct the equation for nucleation size estimation!!  works now!!
+case177   failed!!S
