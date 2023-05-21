@@ -73,7 +73,8 @@ function main(P, alphaa, cos_reduction, coseismic_b, Vthres)
     # Initialize kinematic field: global arrays
     d::Vector{Float64} = zeros(P[1].nglob)   # initial displacement
     v::Vector{Float64} = zeros(P[1].nglob)
-    v .= Vthres/10         #  half intial velocity on whole model
+    # v .= Vthres/10         #  half intial velocity on whole model
+    v .= 0.5e-2         #  half intial velocity on whole model: this number need to be large enough!
     # this initial velocity is only good for 50 Mpa and less, for higher normal stress, need larger initial velocity
     a::Vector{Float64} = zeros(P[1].nglob)   # relation between fault stress and acceleration?
 

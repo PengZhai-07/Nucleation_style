@@ -48,7 +48,7 @@ println("Coseismic reduction of rigidity ratio: ", cos_reduction)
 
 # friction parameter on fault surface
 multiple_asp::Float64 = input_parameter[index,8]  # effective normal stress on fault: 10MPa*multiple
-multiple_matrix::Float64 = 0.1              # 0.1*10MPa
+multiple_matrix::Float64 = 0.1             # 0.1*10MPa   the normal stress in the barrier matrix
 a_over_b::Float64 = input_parameter[index,9] 
 asp_a::Float64 = 0.005
 asp_b::Float64 =  asp_a/a_over_b      # coseismic b increase 

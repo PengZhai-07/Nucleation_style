@@ -19,8 +19,9 @@ function fricDepth(FltX, asp_a, asp_b, matrix_a, Domain, multiple_matrix, multip
 
     # setup the transiton for kinematic fault and RSF fault
     # [a-b, depth]   key points of friction coefficient change
+    # The transition of (a-b) can not be too sharp!
     fP1 = [0.047, 0e3]       # creeping part
-    fP2 = [0.047, -Domain_X*Domain/4+Domain_X*Domain/8]
+    fP2 = [0.047, -Domain_X*Domain/4+Domain_X*Domain/8]      
     fP3 = [matrix_ab, -Domain_X*Domain/4]
     fP4 = [matrix_ab, -Domain_X*Domain*3/4]
     fP5 = [0.047, -Domain_X*Domain*3/4-Domain_X*Domain/8]
@@ -73,13 +74,15 @@ function fricDepth(FltX, asp_a, asp_b, matrix_a, Domain, multiple_matrix, multip
         Seff[index_depth] .= multiple_asp*10e6
         
     end
+    as_ratio = 0.59
 
-    tauo::Array{Float64} = Seff.*0.6
+    tauo::Array{Float64} = Seff.*as_ratio
+  # the strong constraint(low shear stress) in the boundary is necessary!
 
     tP1 = [bs_ratio*NS, 0e3]       # creeping part
     tP2 = [bs_ratio*NS, -Domain_X*Domain/4+Domain_X*Domain/8]
-    tP3 = [0.6*NS, -Domain_X*Domain/4]
-    tP4 = [0.6*NS, -Domain_X*Domain*3/4]
+    tP3 = [as_ratio*NS, -Domain_X*Domain/4]
+    tP4 = [as_ratio*NS, -Domain_X*Domain*3/4]
     tP5 = [bs_ratio*NS, -Domain_X*Domain*3/4-Domain_X*Domain/8]
     tP6 = [bs_ratio*NS, -Domain_X*Domain]    # creeping part
 

@@ -101,7 +101,7 @@ function setParameters(FZdepth::Float64, halfwidth::Float64, res::Int, T::Float6
     Vo::Vector{Float64} = repeat([1e-6], FltNglob)		#	Reference velocity 'Vo'  unit: m/s
     xLf::Vector{Float64} = repeat([Dc], FltNglob)    #	Dc (Lc)
 
-    Vevne::Float64 = 1e-7    # redefine the velocity threshold to record coseimsic phase
+    Vevne::Float64 = 1e-8    # redefine the velocity threshold to record coseimsic phase
 
     #-----------#
     #-----------#
@@ -268,6 +268,9 @@ function setParameters(FZdepth::Float64, halfwidth::Float64, res::Int, T::Float6
 
     idx_1 = findall(fbc .== findall(x .>= -Domain_X*Domain*7/8)[1])[1]     # lower boundary of frictional parameters: over 20km are all creeping fault
     idx_2 = findall(fbc .== findall(x .>= -Domain_X*Domain/8)[1])[1] 
+
+    # idx_1 = findall(fbc .== findall(x .>= -Domain_X*Domain*31/32)[1])[1]     # lower boundary of frictional parameters: over 20km are all creeping fault
+    # idx_2 = findall(fbc .== findall(x .>= -Domain_X*Domain/32)[1])[1]  
 
     println("idx_1=", idx_1)
     println("idx_2=", idx_2)

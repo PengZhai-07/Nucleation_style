@@ -229,10 +229,11 @@ function cumSlipPlot(delfsec, delfyr, FltX, hypo, d_hypo, N,Fault_length)
     ax.plot(d_hypo, hypo./1000, "*", color="saddlebrown", markersize=10)
     ax.set_xlabel("Cumulative Slip (m)")
     ax.set_ylabel("Depth (km)")
-    ax.set_ylim([0,Fault_length])
+    ax.set_ylim([0.635, 4.375])
 
     L = (N) * 365 * 24 * 60 * 60 * 1e-9
-    ax.set_xlim([0,L])
+    # ax.set_xlim([0.015,0.028])
+    ax.set_xlim([0, L])
     #ax.set_xlim([0,9.0])
     ax.invert_yaxis()
 

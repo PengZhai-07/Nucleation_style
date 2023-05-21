@@ -43,7 +43,7 @@ include("$(@__DIR__)/post/plotting_script.jl")
 # data storage path
 turbo = "/nfs/turbo/lsa-yiheh/yiheh-mistorage/pengz/data"
 project = "wholespace/tremor"
-FILE = ["0.125_32_1_0.0_0.0_1.0_0.0_0.3_0.5_0.4_2_10_0.015","0.125_32_1.0_5000.0_500.0_0.7225_0.0_0.25_0.5_0.4_2_10_0.015_0.001"]
+FILE = ["0.125_32_1.0_5000.0_500.0_0.7225_0.0_0.25_0.5_0.4_2_10_0.015_1.0e-5_0.25"]
 println(FILE)
 # Global variables
 yr2sec = 365*24*60*60
@@ -88,8 +88,8 @@ for i = 1:length(FILE)
   println("Depth of all seismic events:",hypo)
 
   x = t./yr2sec*12*30
-  indx_S = 11
-  indx_E = 15
+  indx_S = 5
+  indx_E = 11
   indx_1::Int64 = findall(t .<= tStart[indx_S])[end]
   indx_2::Int64 = findall(t .<= tEnd[indx_E])[end]
   # indx_first = x[indx_1:indx_2][1]

@@ -16,3 +16,9 @@ case174  tol = 1e-6
 
 case176   correct the equation for nucleation size estimation!!  works now!!
 case177   failed!!S
+
+
+case193: large intial slip rate
+case194: slow transition boundary
+
+from 195: fixed disconvergence problem
