@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #SBATCH --job-name=tremor_test
-#SBATCH --array=213-222
+#SBATCH --array=223-227
 
 ##SBATCH --mail-user=pengzhai@umich.edu
 ##SBATCH --mail-type=FAIL,ARRAY_TASKS

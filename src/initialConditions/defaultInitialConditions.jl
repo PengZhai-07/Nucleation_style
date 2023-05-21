@@ -74,7 +74,7 @@ function fricDepth(FltX, asp_a, asp_b, matrix_a, Domain, multiple_matrix, multip
         Seff[index_depth] .= multiple_asp*10e6
         
     end
-    as_ratio = 0.59
+    as_ratio = 0.58
 
     tauo::Array{Float64} = Seff.*as_ratio
   # the strong constraint(low shear stress) in the boundary is necessary!
