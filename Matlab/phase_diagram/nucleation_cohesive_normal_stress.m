@@ -6,7 +6,7 @@ set(0,'defaultfigurecolor','w')
 set(gcf,'Position',[20 20 1000 400]);%左下角位置，宽高
 subplot(1,2,1)
 gamma = pi/4;  % empirical constant parameter 
-r = 0.8;   % the shear wave reduction=20%  1-0.2=0.8  r is the rigidity ratio
+r = 0.36;   % the shear wave reduction=20%  1-0.2=0.8  r is the rigidity ratio
 mu = 3.2e10;  % Pa 
 mu_D = r*mu;  % Pa
 H = 500;      % m  half-width of damage zone   

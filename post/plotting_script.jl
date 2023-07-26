@@ -100,24 +100,24 @@ function healing_analysis(Vf, alphaa, t, yr2sec)
     ax = fig.add_subplot(111)
     
     ax.plot(t./yr2sec, Vf, lw = 2.0, label="Max. Slip rate")
-    ax.plot([0, maximum(t./yr2sec)],[1e-3, 1e-3] , "k", linestyle=":", label="Inertial threshold")
-    ax.plot([0, maximum(t./yr2sec)],[1e-1, 1e-1] , "k", linestyle="--", label="Seismic threshold")
-    lab1 = "Max. slip rate"
+    # ax.plot([0, maximum(t./yr2sec)],[1e-3, 1e-3] , "k", linestyle=":", label="Inertial threshold")
+    ax.plot([0, maximum(t./yr2sec)],[1.3e-1, 1.3e-1] , "k", linestyle="--", label="Nucleation threshold")
     ax.set_ylabel("Max. Slip rate (m/s)")
     ax.set_yscale("log")
     #ax.set_xlim([0, 600])
     ax.set_ylim([1e-10, 1e2])
+    ax.legend(loc="upper right") 
+
+    # col="tab:red"
+    # ax2 = ax.twinx()
     
-    col="tab:red"
-    ax2 = ax.twinx()
-    
-    ax2.plot(t./yr2sec, alphaa.*100, c=col, lw=2.0, label="Shear modulus ratio")
-    # lab2 = "Shear modulus ratio"
-    ax.set_xlabel("Time (years)")
-    ax2.set_ylabel("Shear Modulus (% of host rock)")
-    ax2.set_ylim([20, 110])
-    ax2.get_xaxis().set_tick_params(color=col)
-    ax2.tick_params(axis="x", labelcolor=col)
+    # ax2.plot(t./yr2sec, alphaa.*100, c=col, lw=2.0, label="Shear modulus ratio")
+    # # lab2 = "Shear modulus ratio"
+    # ax.set_xlabel("Time (years)")
+    # ax2.set_ylabel("Shear Modulus (% of host rock)")
+    # ax2.set_ylim([20, 110])
+    # ax2.get_xaxis().set_tick_params(color=col)
+    # ax2.tick_params(axis="x", labelcolor=col)
 
     #  ax.legend([lab1, lab2], loc=0)
     # show()
@@ -130,6 +130,69 @@ function healing_analysis(Vf, alphaa, t, yr2sec)
     return V_max
 
  
+end
+
+function sliprate_analysis(Vf, alphaa, t, yr2sec, sliprate, FltX, N, Domain)
+
+    plot_params()
+    fig = PyPlot.figure(figsize=(15, 15))
+
+    ax = fig.add_subplot(211)
+    ax.plot(t./yr2sec, Vf, lw = 2.0)
+    # ax.plot([0, maximum(t./yr2sec)],[1e-3, 1e-3] , "k", linestyle=":", label="Inertial threshold")
+    ax.plot([0, maximum(t./yr2sec)],[1e-1, 1e-1] , "k", linestyle="--", label="Nucleation threshold")
+    ax.set_xlabel("Year")
+    ax.set_ylabel("Max. Slip Velocity (m/s)")
+    ax.set_yscale("log")
+    #ax.set_xlim([0, 600])
+    ax.set_ylim([1e-10, 1e2])
+    ax.set_xlim([0, N])
+    ax.legend(loc="upper right") 
+    ax.set_title("(a)", loc="left")
+
+    t_seconds = N * 365 * 24 * 60 * 60 
+    indx_last = findall(t .<= t_seconds)[end]   # last event!
+    indx_last_int::Int = floor(indx_last/output_freq)
+
+    indx = findall(abs.(FltX) .<= Domain_X*Domain)[1]
+    value = sliprate[indx:end,1:indx_last_int]
+    
+    # print(findall(abs.(sliprate) .<= 1e-12))
+    value[findall(abs.(value) .<= 1e-14)] .= 1e-14 
+    
+    # D = size(value)
+    # y = FltX .* ones(D[2])'
+    # println(size(y))
+    # x = t[1:output_freq:end][1:D[2]]' .* ones(D[1]) # N
+    # println(size(x))
+
+    # depth = FltX[indx:end]
+
+    ax1 = fig.add_subplot(212)
+
+    # c = ax1.pcolormesh(x, y, value, cmap="turbo",
+    #             norm=matplotlib.colors.LogNorm(vmin=1e-9, vmax=1e-1),
+    #             shading="gouraud",)
+
+    c = ax1.imshow(value, cmap="turbo", aspect="auto",
+                  norm=matplotlib.colors.LogNorm(vmin=1e-9, vmax=1e-1),
+                  interpolation="bicubic",    # the interpolation method decide the final slip rate distrbution!!
+                  extent=[0,length(value[1,:]), 0, Domain*Domain_X])
+    
+    ax1.set_xlabel("Timestep")
+    ax1.set_ylabel("X (km)")
+    ax1.set_yticks([0, 2, 4, 6, 8, 10])
+    ax1.set_yticklabels([-5, -3, -1, 1, 3, 5])
+    ax1.set_title("(b)", loc="left")
+    ax1.invert_yaxis()
+    
+    fig.colorbar(c, ax=ax1, orientation = "horizontal", label="Slip Vlocity(m/s)")
+    # fig.colorbar(c, ax=ax1, label="Slip rate(m/s)")
+    
+    # show()
+    figname = string(path, "sliprate_analysis.png")
+    fig.savefig(figname, dpi = 600)
+
 end
 
 # Plot cumulative slip
@@ -168,7 +231,6 @@ function cumSlipPlot(delfsec, delfyr, FltX, hypo, d_hypo, N, Domain)
 
 end
 
-
 # sliprate versus time plot
 # N is the number of years to plot
 function eqCyclePlot(sliprate, FltX, N, t, Domain)
@@ -181,7 +243,7 @@ function eqCyclePlot(sliprate, FltX, N, t, Domain)
     value = sliprate[indx:end,1:indx_last_int]
     
     # print(findall(abs.(sliprate) .<= 1e-12))
-    value[findall(abs.(value) .<= 1e-12)] .= 1e-12 
+    value[findall(abs.(value) .<= 1e-14)] .= 1e-14 
 
     # depth = FltX[indx:end]
 
@@ -203,7 +265,6 @@ function eqCyclePlot(sliprate, FltX, N, t, Domain)
     ax.set_xlabel("Variable Timesteps")
     ax.set_ylabel("Depth (km)")
 
-    
     ax.invert_yaxis()
     cbar = fig.colorbar(c, label = "Slip rate(m/s)")
     #   cbar.set_ticks(cbar.get_ticks()[1:2:end])
@@ -347,16 +408,17 @@ function Nucleation(sliprate, weakeningrate, FltX, tStart, t, N, criteria, measu
     n_before = 50             # n_before*10 time steps before seismic threshold 
     n = length(tStart)         # how many seimsic events
     n_plot = 3      # number of plots of nucleation process
-    NS_width = zeros(n-2,4)
-    min_Ω = zeros(n-2)
     nn = 0
     mm = 0
+    aa = 1
+    NS_width = zeros(n-aa-2,4)
+    min_Ω = zeros(n-aa-2)
     plot_params()
     fig = PyPlot.figure(figsize=(10, 30))
-    for i = 1: n-2     # neglect the last one event!     
+    for i = 1: n-aa-2     # neglect the last one event!  For some cases. this number could change to like n-10   
         
         #println("Time of the last seismic event(s):",tStart[end])
-        indx_last = findall(t[:] .<= tStart[i+1])[end]   
+        indx_last = findall(t[:] .<= tStart[i+2])[end]   
         indx_last_int::Int = floor(indx_last/output_freq)
         # indx_last_int::Int = floor(indx_last)
         #println("Index of timestep in sliprate(output every 10) at the beginning of last seismic event:", indx_last_int)
@@ -367,12 +429,32 @@ function Nucleation(sliprate, weakeningrate, FltX, tStart, t, N, criteria, measu
         value_1 = exp.(weakeningrate[indx:end,indx_last_int-n_before:indx_last_int+N]).*value./1e-6 
         depth = FltX[indx:end]
 
-        for j = 2:N     # time step after the seismic threshold 1e-1m/s
-            if maximum(value[:,n_before+j]) >= criteria
-                nn = j
-                break
+        # for j = 2:N     # time step after the seismic threshold 1e-1m/s
+        #     if maximum(value[:,n_before+j]) >= criteria
+        #         nn = j
+        #         break
+        #     end
+        # end
+
+        nnn::Vector{Int64} = zeros(2)             # timestep when the maximum sliprate is over 1e-1m/s
+        p = 1
+        for j = 2:N
+            if  (maximum(value[:,n_before+j]) >= criteria) && (maximum(value[:,n_before+j-1]) < criteria)
+                nnn[p] = j
+                p = p+1
+                if p > 2
+                    break     # only record 2 values
+                end
             end
         end
+        if nnn[2] != 0
+            nn = nnn[1]        # only equals nnn[2] if a/b=0.9
+        else
+            nn = nnn[1]
+        end
+        println("Maximum sliprate is over 1e-1 m/s in these timesteps:", nnn)
+
+
         # find the index of maximum speed is over 1e-7m/s
         for j = 1: n_before     
             if maximum(value[:,j]) >= 1e-7
@@ -400,35 +482,16 @@ function Nucleation(sliprate, weakeningrate, FltX, tStart, t, N, criteria, measu
         # find the minimal Ω in the nucleation zone
         min_Ω[i] = minimum(value_1[indx_nucleation[:], mm:n_before+nn])
 
-        plot_params()   
-        if i in n-n_plot-1:n-2
-            # plot slip rate profile
-            ax = fig.add_subplot(n_plot, 1, i-n+n_plot+2)
-            # println(size(t[indx_last_int:indx_last_int + N]))
-            # println(size(value))
-
-            ax.plot(value[:,mm:5:n_before+nn], depth, color="red")        # plot every five steps
-            # ax.plot(value[:,2], depth, color="red")        # only plot the slip rate over seismicthreshold
-            ax.set_xscale("log")
-            ax.set_ylim([Domain*Domain_X/8,Domain*Domain_X*7/8])    
-            ax.set_ylabel("Depth(km)")
-            ax.set_xlim([1e-6, 1e-0])
-            ax.set_xlabel("Slip Velocity(m/s)")
-            ax.invert_yaxis()
-
-            title = string(NS_width[i,2]," km")
-            ax.set_title(title)
-        end
     end
-    # println("Location and Full length of all seismic events' nucleation zone(km):", NS_width)
-    # show()
-    figname = string(path, "sliprate_time_nucleation_alone.png")
-    fig.savefig(figname, dpi = 600)
+    # # println("Location and Full length of all seismic events' nucleation zone(km):", NS_width)
+    # # show()
+    # figname = string(path, "sliprate_time_nucleation_alone.png")
+    # fig.savefig(figname, dpi = 600)
     return NS_width, min_Ω       # must be in the end
 end
 
 function Nucleation_example(sliprate, weakeningrate, FltX, tStart, t, N, criteria, measure_threshold, Domain)
-    n_before = 150             # 200 time steps before seismic threshold 
+    n_before = 100             # 200 time steps before seismic threshold 
     n = length(tStart)         # how many seimsic events
     # n = 5
     NS_width = zeros(n-1,4)
@@ -451,12 +514,30 @@ function Nucleation_example(sliprate, weakeningrate, FltX, tStart, t, N, criteri
         depth = FltX[indx:end]
 
         # find the timestep when sliprate first exceeds 1e-1 m/s
+        # for j = 2:N
+        #     if  maximum(value[:,n_before+j]) >= criteria
+        #         nn = j
+        #         break
+        #     end
+        # end
+        nnn::Vector{Int64} = zeros(2)             # timestep when the maximum sliprate is over 1e-1m/s
+        p = 1
         for j = 2:N
-            if  maximum(value[:,n_before+j]) >= criteria
-                nn = j
-                break
+            if  (maximum(value[indx_around_hypocenter,j]) >= criteria/(10^(n_e-k))) && (maximum(value[indx_around_hypocenter,j-1]) < criteria/(10^(n_e-k)))
+                nnn[p] = j
+                p = p+1
+                if p > 2
+                    break     # only record 2 values
+                end
             end
         end
+        if nnn[2] != 0
+            nn = nnn[2]
+        else
+            nn = nnn[1]
+        end
+        println("Maximum sliprate is over 1e-1 m/s in these timesteps:", nnn)
+
         println("The number of the timestep when maximum sliprate is over 0.1m/s is:", nn)
 
         # find the index of maximum speed is over 1e-7m/s
@@ -524,44 +605,52 @@ function Nucleation_example(sliprate, weakeningrate, FltX, tStart, t, N, criteri
     
 end
 
-
-function Nucleation_example_evolution(sliprate, weakeningrate, FltX, tStart, t, N, criteria, measure_threshold, Domain, TNS, hypo)
+# only the characteristic events are plotted!!
+function Nucleation_example_evolution(sliprate, weakeningrate, FltX, tStart, t, N, criteria, measure_threshold, Domain, TNS, hypo, characteristic_index)
     
     # time steps before seismic threshold 
-    
-    if 0.5 <= 5/TNS < 2  
-        n_before = 250
+
+    if  0.5 <= 5/TNS < 1  
+        n_before = 300                    # 350, 450
+    elseif 1 <= 5/TNS < 2  
+        n_before = 300 
+    # only works for a/b=0.9
     elseif 2 <= 5/TNS < 4  
-        n_before = 200 
+        n_before = 200    #     200 for case29,30,31,32,40     700 for case33,  900 for case34 and 35 in high_res_2
     elseif 4 <= 5/TNS < 8 
-        n_before = 125
-    elseif 8 <= 5/TNS < 10
-        n_before = 75
-    elseif 10 <= 5/TNS < 18
+        n_before = 120
+    elseif 8 <= 5/TNS < 16
+        n_before = 60
+    elseif 16 <= 5/TNS <= 32
         n_before = 50
-    elseif 18 <= 5/TNS <= 32
-        n_before = 30
     else
-        n_before = 20
+        n_before = 30
     end
 
     n = length(tStart)         # how many seimsic events
     # n = 5
     # NS_width = zeros(n-1,4)
-    nn = 0             # timestep when the maximum sliprate is over 1e-1m/s
+
+    nn = 0
     mm = 0
     plot_params()
     fig = PyPlot.figure(figsize=(20, 30))
     # for i = 1: n-1 
-    group = 5   # plot total 5 group of sliprate and weakenign rate
+
+    group = length(characteristic_index)     # how many events will be displayed
+    println("group: ", group)
+
     n_e = 7    # number of measurements of nulceation size
     NS_width = zeros(group, n_e, 4)
     EEP = zeros(group, n_e-1)
     EEPP = zeros(group, 1)
-    
-    for i = 1:group     # plot the i_th normal earthquake: choose by yourself    if i=n-1, then plot the last one!!
+
+      # plot the i_th normal earthquake: choose by yourself    if i=n-1, then plot the last one!!
+    for j = eachindex(characteristic_index)  
         #println("Time of the last seismic event(s):",tStart[end])
-        indx_last = findall(t[:].<= tStart[i+3])[end]    # here i+2 is used: from the second normal event(or 3rd normal event)
+        i = characteristic_index[j] #
+    # for i = 3:7
+        indx_last = findall(t[:].<= tStart[i])[end]    # here i+2 is used: from the second normal event(or 3rd normal event)
         indx_last_int::Int = floor(indx_last/output_freq)
         # indx_last_int::Int = floor(indx_last)
         #println("Index of timestep in sliprate(output every 10) at the beginning of last seismic event:", indx_last_int)
@@ -571,7 +660,7 @@ function Nucleation_example_evolution(sliprate, weakeningrate, FltX, tStart, t, 
         value_1 = exp.(weakeningrate[indx:end,indx_last_int-n_before:indx_last_int+N]).*value./1e-6    # weakening rate
         depth = FltX[indx:end]
 
-        indx_around_hypocenter = findall((hypo[i+2] .- TNS) .<= abs.(depth) .<= (hypo[i+2] .+ TNS))  # get the indx around nucleation location
+        indx_around_hypocenter = findall((hypo[i] .- TNS) .<= abs.(depth) .<= (hypo[i] .+ TNS))  # get the indx around nucleation location
 
         # println("Index around hypocenter: ", indx_around_hypocenter)
         # find the index of maximum speed is over 1e-8m/s
@@ -586,11 +675,32 @@ function Nucleation_example_evolution(sliprate, weakeningrate, FltX, tStart, t, 
         for k = 1:n_e
 
             # find the timestep when sliprate first exceeds 1e-1 m/s, numbered from 1e-8 m/s
+            # for j = 2:N
+            #     if  maximum(value[indx_around_hypocenter,j]) >= criteria/(10^(n_e-k))
+            #         nn = j
+            #         break
+            #     end
+            # end
+
+            # only for a/b = 0.9  
+            nnn::Vector{Int64} = zeros(2)             # timestep when the maximum sliprate is over 1e-1m/s
+            p = 1
             for j = 2:N
-                if  maximum(value[indx_around_hypocenter,j]) >= criteria/(10^(n_e-k))
-                    nn = j
-                    break
+                if  (maximum(value[indx_around_hypocenter,j]) >= criteria/(10^(n_e-k))) && (maximum(value[indx_around_hypocenter,j-1]) < criteria/(10^(n_e-k)))
+                    nnn[p] = j
+                    p = p+1
+                    if p > 2
+                        break     # only record 2 values
+                    end
                 end
+            end
+            if nnn[2] != 0
+                nn = nnn[1]    # here it should be nnn[2] for a/b=0.9
+            else
+                nn = nnn[1]
+            end
+            if k == n_e
+                println("Maximum sliprate is over 1e-1 m/s in these timesteps:", nnn)
             end
             println("The number of the timestep from 1e-8 m/s when maximum sliprate is over ",criteria/(10^(n_e-k)) ,"m/s is:", nn - mm)
 
@@ -598,32 +708,36 @@ function Nucleation_example_evolution(sliprate, weakeningrate, FltX, tStart, t, 
 
             indx_nucleation = findall(value[indx_around_hypocenter, nn] .>= criteria/(10^(n_e-k+1)))       # using the second line(n_before+2) to define the width of nucleation size
             # println(indx_nucleation)
-            new_depth = depth[indx_nucleation]
+            new_depth = new_depth = depth[indx_around_hypocenter][indx_nucleation]      # here the depth should be this!!
             downdip_depth = maximum(new_depth)
             updip_depth = minimum(new_depth)
 
-            NS_width[i,k, 1] = (downdip_depth + updip_depth)/2       # middle point 
-            NS_width[i,k, 2] = downdip_depth - updip_depth        # width of nucleation zone
-            NS_width[i,k, 3] = updip_depth                   # updip
-            NS_width[i,k, 4] = downdip_depth          # downdip
+            NS_width[j,k, 1] = (downdip_depth + updip_depth)/2       # middle point 
+            NS_width[j,k, 2] = downdip_depth - updip_depth        # width of nucleation zone
+            NS_width[j,k, 3] = updip_depth                   # updip
+            NS_width[j,k, 4] = downdip_depth          # downdip
 
+            
         end
         
+
         for k = 1:n_e-1
-            EEP[i,k] = (log10(NS_width[i,k+1,2]*1e3) - log10(NS_width[i,k,2]*1e3))/(log10(criteria/(10^(n_e-k-1)))-log10(criteria/(10^(n_e-k))))
+            EEP[j,k] = (log10(NS_width[j,k+1,2]*1e3) - log10(NS_width[j,k,2]*1e3))/(log10(criteria/(10^(n_e-k-1)))-log10(criteria/(10^(n_e-k))))
             # EEP[i,k] = (log10(NS_width[i,k+1,2]*1e3) - log10(NS_width[i,k,2]*1e3))/(log10(criteria/(10^(n_e-k-1)))-log10(criteria/(10^(n_e-k))))
 
         end
 
-        EEPP[i] = sum(EEP[i,:])
+        EEPP[j] = sum(EEP[j,:])
 
         # plot slip rate profile
         # ax = fig.add_subplot(n-1, 1, i)
-        ax = fig.add_subplot(group, 3, 1+(i-1)*3)
+        ax = fig.add_subplot(group, 3, 1+(j-1)*3)
         # println(size(t[indx_last_int:indx_last_int + N]))
         # println(size(value))
-        if 0.5 <= 5/TNS < 4  
-            n_inter = 20
+        if 0.5 <= 5/TNS < 1  
+            n_inter = 30
+        elseif 1 < 5/TNS < 4  
+            n_inter = 20 
         elseif 4< 5/TNS < 16  
             n_inter = 10 
         else
@@ -640,7 +754,7 @@ function Nucleation_example_evolution(sliprate, weakeningrate, FltX, tStart, t, 
         ax.set_ylim([1e-15, 1e1])
         ax.set_ylabel("Slip Velocity(m/s)")
         
-        ax2 = fig.add_subplot(group, 3, 2+(i-1)*3)
+        ax2 = fig.add_subplot(group, 3, 2+(j-1)*3)
         ax2.plot(depth, value_1[:,mm:n_inter:nn],color="blue", )        # plot every five steps
         ax2.plot([depth[1],depth[end]],[1, 1] , "k", linestyle=":", label="Ω=1")
         ax2.plot([depth[1],depth[end]],[2, 2] , "k", linestyle="--", label="Ω=2")
@@ -652,8 +766,8 @@ function Nucleation_example_evolution(sliprate, weakeningrate, FltX, tStart, t, 
         ax2.set_ylabel("weakeningrate")
         ax2.legend(loc="upper right")
 
-        ax3 = fig.add_subplot(group, 3, 3+(i-1)*3)
-        ax3.plot([1e-7,1e-6,1e-5,1e-4,1e-3,1e-2,1e-1], NS_width[i,:,2], color="limegreen", marker="o", label="Measured values")        # plot every five steps
+        ax3 = fig.add_subplot(group, 3, 3+(j-1)*3)
+        ax3.plot([1e-7,1e-6,1e-5,1e-4,1e-3,1e-2,1e-1], NS_width[j,:,2], color="limegreen", marker="o", label="Measured values")        # plot every five steps
         ax3.plot([1e-7,1e-6,1e-5,1e-4,1e-3,1e-2,1e-1], TNS.*ones(n_e,1), color="k", linestyle=":", label="Theoretical nucleation size")
         ax3.set_xlabel("Maximum velocity when make measurement(m/s)")
         ax3.set_xscale("log")
@@ -669,10 +783,10 @@ function Nucleation_example_evolution(sliprate, weakeningrate, FltX, tStart, t, 
         # ax.set_xlabel("Slip Velocity(m/s)")
         # ax.invert_yaxis()
 
-        title = string(NS_width[i,end,2]," km")
+        title = string(NS_width[j,end,2]," km")
         ax.set_title(title)
 
-        title = string("EEP=", EEPP[i])
+        title = string("EEP=", EEPP[j])
         ax3.set_title(title)
 
     end
@@ -1096,25 +1210,32 @@ end
 
 
 # sliprate versus time for last 3 events
-function eqCyclePlot_last_1(sliprate, FltX, tStart, t, N, n,Domain)
-        NS_width = zeros(n,1)
+function eqCyclePlot_last_1(sliprate, FltX, tStart, t, N, n, Domain, characteristic_index, TNS, vs2)
         plot_params()
         fig = PyPlot.figure(figsize=(12, 20))
-    for i = length(tStart)-n: length(tStart)-1
-        #println("Time of the last seismic event(s):",tStart[end])
-        indx_last = findall(t[:] .<= tStart[i])[end]   # last event!
-        indx_last_int::Int = floor(indx_last/output_freq)
-        #println("Index of timestep in sliprate(output every 10) at the beginning of last seismic event:", indx_last_int)
-    
-        
 
-        indx = findall(abs.(FltX) .<= Domain*Domain_X)[1]
-        value = sliprate[indx:end,indx_last_int:indx_last_int+N]       # depth, timestep
+    for j in eachindex(characteristic_index)   # how many selected characteristic events
+        #println("Time of the last seismic event(s):",tStart[end])
+        i = characteristic_index[j]      # real index of characteristic events
+        indx_last = findall(t[:] .<= tStart[i])[end]  
+        indx_last_int::Int = floor(indx_last/output_freq)
+        println("Index of timestep in sliprate(output every 10) at the beginning of last seismic event:", indx_last_int)
+
+        value = sliprate[:,indx_last_int:indx_last_int+N]       # depth, timestep
         
         # If the minimum sliprate is too small, the interpolation will fail, 
         # so we need to neglect the slip rate below 1e-12 as following
         # print(findall(abs.(sliprate) .<= 1e-12))
         value[findall(abs.(value) .<= 1e-14)] .= 1e-14 
+
+        D = size(value)
+        println("Maximum value of slip rate: ", maximum(value))
+        println("Minimum value of slip rate: ", minimum(value))
+        println(D)
+        y = FltX .* ones(D[2])'
+        println(size(y))
+        x = t[indx_last_int*output_freq:10:indx_last_int*output_freq + output_freq*N]' .* ones(D[1]) # N
+        println(size(x))
 
         # NS_t_indx = findall(t .<= (tStart[i]+5))[end]  # what time(+15s) to measure the nucleation size
         # NS_t_indx_int::Int = floor(NS_t_indx/10)    # inde for output slip rate data
@@ -1134,21 +1255,29 @@ function eqCyclePlot_last_1(sliprate, FltX, tStart, t, N, n,Domain)
         # depth = FltX[indx:end]
     
         # ax = fig.add_subplot(111)
-        ax = fig.add_subplot(n/2,2, i+n+1-length(tStart))
+        ax = fig.add_subplot(n/2,2, j)
+
+
+        # c = ax.imshow(value, cmap="jet", aspect="auto",
+        #              #vmin=0.0, vmax=2.0,
+        #               norm=matplotlib.colors.LogNorm(vmin=1e-9, vmax=1e1),
+        #               interpolation="bicubic",
+        #               extent=[0, t[indx_last_int*output_freq + output_freq*N]- t[indx_last_int*output_freq], 0, Domain*Domain_X])
         
-        c = ax.imshow(value, cmap="turbo", aspect="auto",
+        c = ax.pcolormesh(x, y, value, cmap="turbo",
         #c = ax.imshow(value, cmap="inferno", aspect="auto",
-                     #vmin=0.0, vmax=2.0,
-                      norm=matplotlib.colors.LogNorm(vmin=1e-9, vmax=1e1),
-                      interpolation="bicubic",
-                      extent=[0, t[indx_last_int*output_freq + output_freq*N]- t[indx_last_int*output_freq] , 0,Domain*Domain_X])
-        
+                    #vmin=0.0, vmax=2.0,
+                    # interpolation="bicubic",
+                    norm=matplotlib.colors.LogNorm(vmin=1e-9, vmax=1e1),
+                    shading="gouraud",)
+              
+
         # for stress
         #  c = ax.imshow(value, cmap="inferno", aspect="auto",
                       #  vmin=22.5, vmax=40,
                       #  interpolation="bicubic",
                       #  extent=[0,length(seismic_slipvel[1,:]), 0,16])
-        ax.set_xlim([0,20])    
+        # ax.set_xlim([0, 1e4])        # unit: seconds
         ax.set_xlabel("Time(s)")
         ax.set_ylim([0, Domain*Domain_X])
         ax.set_ylabel("Depth (km)")
@@ -1164,55 +1293,97 @@ function eqCyclePlot_last_1(sliprate, FltX, tStart, t, N, n,Domain)
 end
 
 # sliprate versus time for last 3 events
-function eqCyclePlot_last_2(sliprate, FltX, tStart, t, N, n, Domain)
+function eqCyclePlot_last_2(sliprate, FltX, tStart, t, N, n, Domain, characteristic_index, TNS, vs2)
     plot_params()
     fig = PyPlot.figure(figsize=(12, 20))
 
-    for i = length(tStart)-n: length(tStart)-1
+    for j in eachindex(characteristic_index)   # how many selected characteristic events
         #println("Time of the last seismic event(s):",tStart[end])
-        indx_last = findall(t[:] .<= tStart[i])[end]   # last event!
+        i = characteristic_index[j]      # real index of characteristic events
+        indx_last = findall(t[:] .<= tStart[i])[end]  
         indx_last_int::Int = floor(indx_last/output_freq)
-        #println("Index of timestep in sliprate(output every 10) at the beginning of last seismic event:", indx_last_int)
+        println("Index of timestep in sliprate(output every 10) at the beginning of last seismic event:", indx_last_int)
 
+        value = sliprate[:,indx_last_int:indx_last_int+N]       # depth, timestep
+        
+        # If the minimum sliprate is too small, the interpolation will fail, 
+        # so we need to neglect the slip rate below 1e-12 as following
+        # print(findall(abs.(sliprate) .<= 1e-12))
+        value[findall(abs.(value) .<= 1e-14)] .= 1e-14 
 
-        indx = findall(abs.(FltX) .<= 20)[1]
-        value = sliprate[indx:end,indx_last_int:indx_last_int+N]       # depth, timestep
+        D = size(value)
+        println("Maximum value of slip rate: ", maximum(value))
+        println("Minimum value of slip rate: ", minimum(value))
+        println(D)
+        y = FltX .* ones(D[2])'
+        println(size(y))
+        x = t[indx_last_int*output_freq:10:indx_last_int*output_freq + output_freq*N]' .* ones(D[1]) # N
+        println(size(x))
         
-        # depth = FltX[indx:end]
-
-        
-        # ax = fig.add_subplot(111)
-        ax = fig.add_subplot(n/2,2, i+n+1-length(tStart))
-        
-        #c = ax.imshow(value, cmap="magma", aspect="auto",
-        c = ax.imshow(value, cmap="turbo", aspect="auto",
-                    vmin=0.1, vmax=10,
-                    #norm=matplotlib.colors.LogNorm(vmin=1e-9, vmax=1e0),
-                    interpolation="none",
-                    extent=[0, t[indx_last_int*output_freq + output_freq*N]- t[indx_last_int*output_freq] , 0,Domain*Domain_X])
-        
-        # for stress
-        #  c = ax.imshow(value, cmap="inferno", aspect="auto",
-                    #  vmin=22.5, vmax=40,
-                    #  interpolation="bicubic",
-                    #  extent=[0,length(seismic_slipvel[1,:]), 0,16])
-            ax.set_xlim([0,20])    
-            ax.set_xlabel("Time(s)")
-            ax.set_ylim([0,Domain*Domain_X])
-            ax.set_ylabel("Depth (km)")
-
+        ax = fig.add_subplot(n/2,2, j)
+        c = ax.pcolormesh(x, y, value, cmap="seismic",
+            norm=matplotlib.colors.LogNorm(vmin=1e-3, vmax=1e1),
+            shading="gouraud",)
+        ax.set_xlabel("Time(s)")
+        ax.set_ylim([0, Domain*Domain_X])
+        ax.set_ylabel("Depth (km)")
         ax.invert_yaxis()
-        cbar = fig.colorbar(c, label = "Slip rate(m/s)")
-        #   cbar.set_ticks(cbar.get_ticks()[1:2:end])
-
+        cbar = fig.colorbar(c, label = "Slip rate(m/s)")   
+        
     end
-show()
+
 figname = string(path, "sliprate_time_2.png")
 # figname = string(path, "sliprate_time_",i,".png")
 fig.savefig(figname, dpi = 300)
 end
 
+# sliprate versus time for last 3 events
+function eqCyclePlot_last_3(sliprate, FltX, tStart, t, N, n, Domain, characteristic_index, TNS, vs2)
+    plot_params()
+    fig = PyPlot.figure(figsize=(12, 20))
 
+    for j in eachindex(characteristic_index)   # how many selected characteristic events
+        #println("Time of the last seismic event(s):",tStart[end])
+        i = characteristic_index[j]      # real index of characteristic events
+        indx_last = findall(t[:] .<= tStart[i])[end]  
+        indx_last_int::Int = floor(indx_last/output_freq)
+        println("Index of timestep in sliprate(output every 10) at the beginning of last seismic event:", indx_last_int)
+
+        value = sliprate[:,indx_last_int:indx_last_int+N]       # depth, timestep
+        
+        # If the minimum sliprate is too small, the interpolation will fail, 
+        # so we need to neglect the slip rate below 1e-12 as following
+        # print(findall(abs.(sliprate) .<= 1e-12))
+        value[findall(abs.(value) .<= 1e-14)] .= 1e-14 
+
+        D = size(value)
+        println("Maximum value of slip rate: ", maximum(value))
+        println("Minimum value of slip rate: ", minimum(value))
+        println(D)
+        # y = FltX .* ones(D[2])'
+        # println(size(y))
+        # x = t[indx_last_int*output_freq:10:indx_last_int*output_freq + output_freq*N]' .* ones(D[1]) # N
+        # println(size(x))
+        
+        ax = fig.add_subplot(n/2,2, j)
+
+        c = ax.imshow(value, cmap="seismic", aspect="auto",
+                norm=matplotlib.colors.LogNorm(vmin=1e-1, vmax=1e1),
+                interpolation="bicubic",    # the interpolation method decide the final slip rate distrbution!!
+                extent=[0,length(value[1,:]), 0, Domain*Domain_X])
+        
+        ax.set_xlabel("Time step")
+        ax.set_ylim([0, Domain*Domain_X])
+        ax.set_ylabel("Depth (km)")
+        ax.invert_yaxis()
+        cbar = fig.colorbar(c, label = "Slip rate(m/s)")   
+        
+    end
+
+figname = string(path, "sliprate_time_3.png")
+# figname = string(path, "sliprate_time_",i,".png")
+fig.savefig(figname, dpi = 300)
+end
 
 function velocity_dependence_b(x1 ,x2, y1, y2)
     plot_params()
@@ -1228,7 +1399,7 @@ function velocity_dependence_b(x1 ,x2, y1, y2)
     index_2 = findall(x2.< V )
     b_linear[index_1] .= y1 .+ (V[index_1] .- x1)* (y2-y1) /(x2 - x1)
     # b[index_1] .= y1 .+ (log10.(V[index_1]) .- log10(x1)) * (y2-y1) / (log10(x2) - log10(x1))
-    b[index_1] .= 0.019 .+ (0.025-0.019) .*  (1 .+sin.((V[index_1] .- 1e-5)./(1e-3 - 1e-5).*pi.-pi/2))./2
+    b[index_1] .= 0.019 .+ (0.025 - 0.019) .* (1 .+sin.((V[index_1] .- 1e-5)./(1e-3 - 1e-5).*pi.-pi/2))./2
     b[index_2] .= y2
     ax.plot(V, b , "r", label="Evolution effect in R&S friction")
     ax.plot(V, b_linear , "r", linestyle=":", label="Evolution effect in R&S friction(linear)")

@@ -29,7 +29,7 @@ function moment_magnitude_new(mu, FltX, delfafter, stressdrops, delfsec, index_d
     # calculate the nearest grid size
     dx = diff(FltX).*1e3        # Fltx: real depth(km) of all nodes on the fault 
 
-    for i = 1:iter    # for each recorded event(including the first artificial event)
+    for i = 1:iter-1    # for each recorded event(including the first artificial event)
         
         # slip threshold = 1% of maximum final slip
         slip_thres = 0.01*maximum(delfafter[:,i])
@@ -53,6 +53,7 @@ function moment_magnitude_new(mu, FltX, delfafter, stressdrops, delfsec, index_d
                 temp_E_T0 = temp_E_T0 + stressdrops[j,i]*delfafter[j,i]*(-dx[j-1])    # stress(MPa) * slip(m)
 
                 n = index_ds_end[i] - index_ds_start[i]
+                # println("n")
                 temp_E_R = temp_E_R + sum((stress[index_start[i]:index_start[i]+n-1,j].-stress[index_start[i]+n,j]).*(delfsec[index_ds_start[i]+1:index_ds_end[i],j].- delfsec[index_ds_start[i]:index_ds_end[i]-1,j]))*(-dx[j-1])
                 # temp_E_R = temp_E_R + sum((stress[index_start[i]:index_end[i]-1,j].-stress[index_end[i],j]).*(delfsec[index_ds_start[i]+1:index_ds_end[i],j].- delfsec[index_ds_start[i]:index_ds_end[i]-1,j]))*(-dx[j-1])
             end

@@ -5,6 +5,7 @@
 using Plots
 using PyPlot
 
+
 # Default plot params
 function plot_params()
     plt.rc("xtick", labelsize=16)
@@ -38,5 +39,6 @@ function plot_params()
   ax.set_ylabel("Depth(km)")
   ax.set_xlabel("Event Number")
   ax.set_ylim([0,16])
+  ax.set_title("(a)", position="upperleft")
   ax.invert_yaxis()
   show()
