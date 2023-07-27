@@ -124,9 +124,13 @@ function healing_analysis(Vf, alphaa, t, yr2sec)
     
     figname = string(path, "healing_analysis.png")
     fig.savefig(figname, dpi = 300)
-
+    for i in eachindex(Vf)
+        if isnan(Vf[i]) == 1
+            Vf[i] = 0
+        end
+    end
     n = findall(t .<= 10*yr2sec)[end]
-    V_max = maximum(Vf[n:end])
+    V_max = maximum(Vf[n: end])
     return V_max
 
  

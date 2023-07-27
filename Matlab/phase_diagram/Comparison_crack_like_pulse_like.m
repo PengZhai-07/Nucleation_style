@@ -1,7 +1,7 @@
 clc;clear;
 close all
 %% zoom in of pulse-like characteristics
-figure(2)
+figure(1)
 set(0,'defaultfigurecolor','w')
 set(gcf,'Position',[0 0 1000 900]);%左下角位置，宽高
 

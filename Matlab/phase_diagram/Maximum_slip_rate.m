@@ -152,6 +152,38 @@ c.Ticks = [-9:3:2];
 c.TickLabels = ["10^{-9}","10^{-6}","10^{-3}","1"];
 clim([-9,2])
 
+%% transition zone
+plot([log10(0.5), log10(300)],[0.4,0.4], "k--")
+plot([log10(0.5), log10(300)],[0.35,0.35], "k--")
+
+%% no data region
+n_xxx = [log10(1.6),log10(1.6),log10(1.2), log10(1.0), log10(0.8), log10(0.8), log10(0.8),log10(0.6),log10(0.6), log10(0.5), log10(0.5), log10(0.5),log10(0.4), log10(0.4)];
+n_yyy = [0.2,0.25,0.3,0.35,0.4,0.45,0.5,0.55,0.6,0.65,0.7,0.75,0.8,0.2];
+fill(n_xxx, n_yyy, [0.8,0.8,0.8],"LineStyle","-")
+text(log10(1),0.3, 'No data','Rotation',0,'FontSize',12)
+%%
+% different rupture style
+%  aseismic slip
+j = [11:12,16:18,19:22,24:28, 29:35, 36:43, 45:53, 55:64, 66:77, 78:91, 93:108, 110:128, 130:151];
+scatter(P_2(j,1), P_2(j,2),'o', 'filled','MarkerFaceColor','w', 'MarkerEdgeColor', 'k')
+%  bilateral
+i = [20:21,39:41,59:61,79:81,99:104,119:125,140:145,160:165,180:183,196:201,213:217,227:232,240:245,250:255,257:262];
+scatter(P_1(i,1), P_1(i,2),'h','filled','MarkerFaceColor','w', 'MarkerEdgeColor', 'k')
+j = [1:10, 13:15, 23, 54, 65, 92, 109, 129];
+scatter(P_2(j,1), P_2(j,2),'h','filled','MarkerFaceColor','w', 'MarkerEdgeColor', 'k')
+%  unilateral
+i = [13:19,33:38,53:58,72:78, 93:98, 116:118, 136:139, 157:159, 177:179, 194:195, 209:212, 223:226, 236:239, 247, 249, 256];
+scatter(P_1(i,1), P_1(i,2),'square','filled','MarkerFaceColor','w', 'MarkerEdgeColor', 'k')
+%  full and partial
+i = [10:12,31:32,51:52, 92, 115, 134:135,154:156,173:176,189:193,205:208,219:222,233:235,246, 248];
+scatter(P_1(i,1), P_1(i,2),'v','filled','MarkerFaceColor','w', 'MarkerEdgeColor', 'k')
+%   crack-like
+i = [8:9,29:30,50,70:71,90:91,112:114, 132:133, 152:153,170:172, 186:188, 203:204,218];
+scatter(P_1(i,1), P_1(i,2),'p','filled','MarkerFaceColor','w', 'MarkerEdgeColor', 'k')
+%   pulse-like
+i = [1:7, 22:28, 42:49, 62:69, 82:89, 105:111,126:131, 146:151,166:169,184:185,202];
+scatter(P_1(i,1), P_1(i,2),'d','filled','MarkerFaceColor','w', 'MarkerEdgeColor', 'k')
+box on
 %%
 v = [1, 4, 8, 16, 32];
 [c,h]=contour(X(:,5:end),Y(:,5:end),Ru(5:end,:)',v);
@@ -166,45 +198,13 @@ v = [0.5 , 2, 8, 12, 18];
 clabel(c,h)
 set(h,"color","black")
 
-%% transition zone
-plot([log10(0.5), log10(300)],[0.4,0.4], "k--")
-plot([log10(0.5), log10(300)],[0.35,0.35], "k--")
-
-%% no data region
-n_xxx = [log10(1.6),log10(1.6),log10(1.2), log10(1.0), log10(0.8), log10(0.8), log10(0.8),log10(0.6),log10(0.6), log10(0.5), log10(0.5), log10(0.5),log10(0.4), log10(0.4)];
-n_yyy = [0.2,0.25,0.3,0.35,0.4,0.45,0.5,0.55,0.6,0.65,0.7,0.75,0.8,0.2];
-fill(n_xxx, n_yyy, [0.8,0.8,0.8],"LineStyle","-")
-text(log10(1),0.3, 'No data','Rotation',0,'FontSize',12)
-% %%
-% % different rupture style
-% %  aseismic slip
-% j = [11:12,16:18,19:22,24:28, 29:35, 36:43, 45:53, 55:64, 66:77, 78:91, 93:108, 110:128, 130:151];
-% scatter(P_2(j,1), P_2(j,2),'o', 'filled','MarkerFaceColor','w', 'MarkerEdgeColor', 'k')
-% %  bilateral
-% i = [20:21,39:41,59:61,79:81,99:104,119:125,140:145,160:165,180:183,196:201,213:217,227:232,239:244,248:253,254:259];
-% scatter(P_1(i,1), P_1(i,2),'h','filled','MarkerFaceColor','w', 'MarkerEdgeColor', 'k')
-% j = [1:10, 13:15, 23, 54, 65, 92, 109, 129];
-% scatter(P_2(j,1), P_2(j,2),'h','filled','MarkerFaceColor','w', 'MarkerEdgeColor', 'k')
-% %  unilateral
-% i = [13:19,33:38,53:58,72:78, 93:98, 116:118, 136:139,157:159,177:179,194:195,209:212,223:226,235:238,245,247];
-% scatter(P_1(i,1), P_1(i,2),'square','filled','MarkerFaceColor','w', 'MarkerEdgeColor', 'k')
-% %  full and partial
-% i = [10:12,31:32,51:52, 92, 115, 134:135,154:156,173:176,189:193,205:208,219:222,233:234,246];
-% scatter(P_1(i,1), P_1(i,2),'v','filled','MarkerFaceColor','w', 'MarkerEdgeColor', 'k')
-% %   crack-like
-% i = [8:9,29:30,50,70:71,90:91,112:114, 132:133, 152:153,170:172, 186:188, 203:204,218];
-% scatter(P_1(i,1), P_1(i,2),'p','filled','MarkerFaceColor','w', 'MarkerEdgeColor', 'k')
-% %   pulse-like
-% i = [1:7, 22:28, 42:49, 62:69, 82:89, 105:111,126:131, 146:151,166:169,184:185,202];
-% scatter(P_1(i,1), P_1(i,2),'d','filled','MarkerFaceColor','w', 'MarkerEdgeColor', 'k')
-box on
 %% representative cases
-scatter(log10(63), 0.55, 80, 'o', 'filled','MarkerFaceColor','w', 'MarkerEdgeColor', 'k')
-scatter(log10(25), 0.55,80,'h','filled','MarkerFaceColor','w', 'MarkerEdgeColor', 'k')
-scatter(log10(8), 0.55,80,'square','filled','MarkerFaceColor','w', 'MarkerEdgeColor', 'k')
-scatter(log10(4), 0.55,80,'v','filled','MarkerFaceColor','w', 'MarkerEdgeColor', 'k')
-scatter(log10(2.5), 0.55,80,'p','filled','MarkerFaceColor','w', 'MarkerEdgeColor', 'k')
-scatter(log10(1), 0.55,80,'d','filled','MarkerFaceColor','w', 'MarkerEdgeColor', 'k')
+scatter(log10(63), 0.55, 100, 'o', 'filled','MarkerFaceColor','w', 'MarkerEdgeColor', 'k')
+scatter(log10(25), 0.55,100,'h','filled','MarkerFaceColor','w', 'MarkerEdgeColor', 'k')
+scatter(log10(8), 0.55,100,'square','filled','MarkerFaceColor','w', 'MarkerEdgeColor', 'k')
+scatter(log10(4), 0.55,100,'v','filled','MarkerFaceColor','w', 'MarkerEdgeColor', 'k')
+scatter(log10(2.5), 0.55,100,'p','filled','MarkerFaceColor','w', 'MarkerEdgeColor', 'k')
+scatter(log10(1), 0.55,100,'d','filled','MarkerFaceColor','w', 'MarkerEdgeColor', 'k')
 %% rupture style for a/b>=0.4
 text(log10(200),0.45,"Aseismic slip",'Color','k','Rotation',40)
 text(log10(60),0.45,"Symmetric-bilateral",'Rotation',40)
@@ -241,173 +241,173 @@ set(gca,'TickDir', 'out')
 % print(gcf, 'Maximum_sliprate.png','-dpng','-r600')
 % saveas(gcf, 'Maximum_sliprate.png')
 
-% %% slip velocity distribution
-% % aseismic slip
-% nexttile(7)
-% filename = '/nfs/turbo/lsa-yiheh/yiheh-mistorage/pengz/data/wholespace/phase_diagram_L_b/0.25_32_600_0_0_1.0_0.0_4_0.55_0.063/sliprate.out';
-% if exist(filename, "file") == 0
-%          disp(filename)
-% end     
-% sliprate = readmatrix(filename, "FileType","text");
-% ll = 6000; rr = 9000;
-% pcolor(log10(sliprate(ll:rr,101:701)))
-% colormap('turbo')
-% shading interp
-% clim([-9,2])
-% xlabel('Distance (km)')
-% xticks([101 501])
-% xticklabels([-2.5 2.5])
-% % set(gca,'XTickLabel', [])
-% ylabel('Time Steps(Integer)')
-% set(gca,'YTickLabel', [])
-% set(gca,'TickDir', 'out')
-% hold on
-% plot([101, 101],[0,rr-ll], 'k--')
-% plot([501, 501],[0,rr-ll], 'k--')
-% scatter(301, (rr-ll)*9/10, 80, 'o', 'filled','MarkerFaceColor','w', 'MarkerEdgeColor', 'k')
-% text(201,(rr-ll)*4/5,"Aseismic slip",'Color','w')
-% title("(b)")
-% ax = gca;
-% ax.TitleHorizontalAlignment = 'left';
-% clear sliprate
-% % bilateral
-% nexttile(8)
-% filename = '/nfs/turbo/lsa-yiheh/yiheh-mistorage/pengz/data/wholespace/phase_diagram_L_b/0.25_32_600_0_0_1.0_0.0_4_0.55_0.025/sliprate.out';
-% if exist(filename, "file") == 0
-%          disp(filename)
-% end     
-% sliprate = readmatrix(filename, "FileType","text");
-% ll = 5000; rr = 15500;
-% pcolor(log10(sliprate(ll:rr,101:701)))
-% colormap('turbo')
-% shading interp
-% clim([-9,2])
-% xlabel('Distance (km)')
-% xticks([101 501])
-% xticklabels([-2.5 2.5])
-% % set(gca,'XTickLabel', [])
-% ylabel('Time Steps(Integer)')
-% set(gca,'YTickLabel', [])
-% 
-% set(gca,'TickDir', 'out')
-% hold on
-% plot([101, 101],[0,rr-ll], 'k--')
-% plot([501, 501],[0,rr-ll], 'k--')
-% scatter(301, (rr-ll)*9/10, 80, 'h', 'filled','MarkerFaceColor','w', 'MarkerEdgeColor', 'k')
-% text(151,(rr-ll)*4/5,"Symmetric-bilateral",'Color','w')
-% title("(c)")
-% ax = gca;
-% ax.TitleHorizontalAlignment = 'left';
-% clear sliprate
-% % unilateral
-% nexttile(9)
-% filename = '/nfs/turbo/lsa-yiheh/yiheh-mistorage/pengz/data/wholespace/phase_diagram_L_b/0.25_32_600_0_0_1.0_0.0_4_0.55_0.008/sliprate.out';
-% if exist(filename, "file") == 0
-%          disp(filename)
-% end     
-% sliprate = readmatrix(filename, "FileType","text", "OutputType","double");
-% ll = 5500; rr = 12500;
-% pcolor(log10(abs(sliprate(ll:rr,101:701))))
-% colormap('turbo')
-% shading interp
-% clim([-9,1])
-% xlabel('Distance (km)')
-% xticks([101 501])
-% xticklabels([-2.5 2.5])
-% % set(gca,'XTickLabel', [])
-% ylabel('Time Steps(Integer)')
-% set(gca,'YTickLabel', [])
-% set(gca,'TickDir', 'out')
-% hold on
-% plot([101, 101],[0,rr-ll], 'k--')
-% plot([501, 501],[0,rr-ll], 'k--')
-% scatter(301, (rr-ll)*9/10, 80, 'square', 'filled','MarkerFaceColor','w', 'MarkerEdgeColor', 'k')
-% text(151,(rr-ll)*4/5,["Unsymmetric-bilateral";"and unilateral"],'Color','w')
-% title("(d)")
-% ax = gca;
-% ax.TitleHorizontalAlignment = 'left';
-% clear sliprate
-% % full and partial
-% nexttile(10)
-% filename = '/nfs/turbo/lsa-yiheh/yiheh-mistorage/pengz/data/wholespace/phase_diagram_L_b/0.25_32_600_0_0_1.0_0.0_4_0.55_0.004/sliprate.out';
-% if exist(filename, "file") == 0
-%          disp(filename)
-% end     
-% sliprate = readmatrix(filename, "FileType","text", "OutputType","double");
-% ll = 4100; rr = 7500;
-% pcolor(log10(abs(sliprate(ll:rr,101:701))))
-% colormap('turbo')
-% shading interp
-% clim([-9,2])
-% xlabel('Distance (km)')
-% ylabel('Time Steps(Integer)')
-% set(gca,'YTickLabel', [])
-% xticks([101 501])
-% xticklabels([-2.5 2.5])
-% set(gca,'TickDir', 'out')
-% hold on
-% plot([101, 101],[0,rr-ll], 'k--')
-% plot([501, 501],[0,rr-ll], 'k--')
-% scatter(301, (rr-ll)*9/10, 80, 'v', 'filled','MarkerFaceColor','w', 'MarkerEdgeColor', 'k')
-% text(201,(rr-ll)*4/5,"Full and Partial",'Color','w')
-% title("(e)")
-% ax = gca;
-% ax.TitleHorizontalAlignment = 'left';
-% clear sliprate
-% % crack-like with aftershocks
-% nexttile(11)
-% filename = '/nfs/turbo/lsa-yiheh/yiheh-mistorage/pengz/data/wholespace/phase_diagram_L_b/0.25_32_600_0_0_1.0_0.0_4_0.55_0.0025/sliprate.out';
-% if exist(filename, "file") == 0
-%          disp(filename)
-% end     
-% sliprate = readmatrix(filename, "FileType","text", "OutputType","double");
-% ll = 5200; rr = 12500;
-% pcolor(log10(abs(sliprate(ll:rr,101:701))))
-% colormap('turbo')
-% shading interp
-% clim([-9,2])
-% xlabel('Distance (km)')
-% ylabel('Time Steps(Integer)')
-% set(gca,'YTickLabel', [])
-% xticks([101 501])
-% xticklabels([-2.5 2.5])
-% set(gca,'TickDir', 'out')
-% hold on
-% plot([101, 101],[0,rr-ll], 'k--')
-% plot([501, 501],[0,rr-ll], 'k--')
-% scatter(301, (rr-ll)*9/10, 80, 'p', 'filled','MarkerFaceColor','w', 'MarkerEdgeColor', 'k')
-% text(151,(rr-ll)*4/5,"Crack-like with aftershocks",'Color','w')
-% title("(f)")
-% ax = gca;
-% ax.TitleHorizontalAlignment = 'left';
-% clear sliprate
-% % pulse-like with afteshocks
-% nexttile(12)
-% filename = '/nfs/turbo/lsa-yiheh/yiheh-mistorage/pengz/data/wholespace/phase_diagram_L_b/0.25_48_300_0_0_1.0_0.0_4_0.55_0.001/sliprate.out';
-% if exist(filename, "file") == 0
-%          disp(filename)
-% end     
-% sliprate = readmatrix(filename, "FileType","text", "OutputType","double");
-% ll = 9500; rr = 18000;
-% pcolor(log10(abs(sliprate(ll:rr,151:1051))))
-% colormap('turbo')
-% shading interp
-% clim([-9,2])
-% xlabel('Distance (km)')
-% ylabel('Time Steps(Integer)')
-% set(gca,'YTickLabel', [])
-% xticks([151 751])
-% xticklabels([-2.5 2.5])
-% set(gca,'TickDir', 'out')
-% hold on
-% plot([151, 151],[0,rr-ll], 'k--')
-% plot([751, 751],[0,rr-ll], 'k--')
-% scatter(451, (rr-ll)*9/10, 80, 'd', 'filled','MarkerFaceColor','w', 'MarkerEdgeColor', 'k')
-% text(251,(rr-ll)*4/5,"Pulse-like with aftershocks",'Color','w')
-% title("(g)")
-% ax = gca;
-% ax.TitleHorizontalAlignment = 'left';
-% clear sliprate
-% %%
-% exportgraphics(gcf,'maximum_sliprate.png','Resolution',600)
-% 
+%% slip velocity distribution
+% aseismic slip
+nexttile(7)
+filename = '/nfs/turbo/lsa-yiheh/yiheh-mistorage/pengz/data/wholespace/phase_diagram_L_b/0.25_32_600_0_0_1.0_0.0_4_0.55_0.063/sliprate.out';
+if exist(filename, "file") == 0
+         disp(filename)
+end     
+sliprate = readmatrix(filename, "FileType","text");
+ll = 6000; rr = 9000;
+pcolor(log10(sliprate(ll:rr,101:701)))
+colormap('turbo')
+shading interp
+clim([-9,2])
+xlabel('Distance (km)')
+xticks([101 501])
+xticklabels([-2.5 2.5])
+% set(gca,'XTickLabel', [])
+ylabel('Time Steps(Integer)')
+set(gca,'YTickLabel', [])
+set(gca,'TickDir', 'out')
+hold on
+plot([101, 101],[0,rr-ll], 'k--')
+plot([501, 501],[0,rr-ll], 'k--')
+scatter(301, (rr-ll)*9/10, 80, 'o', 'filled','MarkerFaceColor','w', 'MarkerEdgeColor', 'k')
+text(201,(rr-ll)*4/5,"Aseismic slip",'Color','w')
+title("(b)")
+ax = gca;
+ax.TitleHorizontalAlignment = 'left';
+clear sliprate
+% bilateral
+nexttile(8)
+filename = '/nfs/turbo/lsa-yiheh/yiheh-mistorage/pengz/data/wholespace/phase_diagram_L_b/0.25_32_600_0_0_1.0_0.0_4_0.55_0.025/sliprate.out';
+if exist(filename, "file") == 0
+         disp(filename)
+end     
+sliprate = readmatrix(filename, "FileType","text");
+ll = 5000; rr = 15500;
+pcolor(log10(sliprate(ll:rr,101:701)))
+colormap('turbo')
+shading interp
+clim([-9,2])
+xlabel('Distance (km)')
+xticks([101 501])
+xticklabels([-2.5 2.5])
+% set(gca,'XTickLabel', [])
+ylabel('Time Steps(Integer)')
+set(gca,'YTickLabel', [])
+
+set(gca,'TickDir', 'out')
+hold on
+plot([101, 101],[0,rr-ll], 'k--')
+plot([501, 501],[0,rr-ll], 'k--')
+scatter(301, (rr-ll)*9/10, 80, 'h', 'filled','MarkerFaceColor','w', 'MarkerEdgeColor', 'k')
+text(151,(rr-ll)*4/5,"Symmetric-bilateral",'Color','w')
+title("(c)")
+ax = gca;
+ax.TitleHorizontalAlignment = 'left';
+clear sliprate
+% unilateral
+nexttile(9)
+filename = '/nfs/turbo/lsa-yiheh/yiheh-mistorage/pengz/data/wholespace/phase_diagram_L_b/0.25_32_600_0_0_1.0_0.0_4_0.55_0.008/sliprate.out';
+if exist(filename, "file") == 0
+         disp(filename)
+end     
+sliprate = readmatrix(filename, "FileType","text", "OutputType","double");
+ll = 5500; rr = 12500;
+pcolor(log10(abs(sliprate(ll:rr,101:701))))
+colormap('turbo')
+shading interp
+clim([-9,1])
+xlabel('Distance (km)')
+xticks([101 501])
+xticklabels([-2.5 2.5])
+% set(gca,'XTickLabel', [])
+ylabel('Time Steps(Integer)')
+set(gca,'YTickLabel', [])
+set(gca,'TickDir', 'out')
+hold on
+plot([101, 101],[0,rr-ll], 'k--')
+plot([501, 501],[0,rr-ll], 'k--')
+scatter(301, (rr-ll)*9/10, 80, 'square', 'filled','MarkerFaceColor','w', 'MarkerEdgeColor', 'k')
+text(151,(rr-ll)*4/5,["Unsymmetric-bilateral";"and unilateral"],'Color','w')
+title("(d)")
+ax = gca;
+ax.TitleHorizontalAlignment = 'left';
+clear sliprate
+% full and partial
+nexttile(10)
+filename = '/nfs/turbo/lsa-yiheh/yiheh-mistorage/pengz/data/wholespace/phase_diagram_L_b/0.25_32_600_0_0_1.0_0.0_4_0.55_0.004/sliprate.out';
+if exist(filename, "file") == 0
+         disp(filename)
+end     
+sliprate = readmatrix(filename, "FileType","text", "OutputType","double");
+ll = 4100; rr = 7500;
+pcolor(log10(abs(sliprate(ll:rr,101:701))))
+colormap('turbo')
+shading interp
+clim([-9,2])
+xlabel('Distance (km)')
+ylabel('Time Steps(Integer)')
+set(gca,'YTickLabel', [])
+xticks([101 501])
+xticklabels([-2.5 2.5])
+set(gca,'TickDir', 'out')
+hold on
+plot([101, 101],[0,rr-ll], 'k--')
+plot([501, 501],[0,rr-ll], 'k--')
+scatter(301, (rr-ll)*9/10, 80, 'v', 'filled','MarkerFaceColor','w', 'MarkerEdgeColor', 'k')
+text(201,(rr-ll)*4/5,"Full and Partial",'Color','w')
+title("(e)")
+ax = gca;
+ax.TitleHorizontalAlignment = 'left';
+clear sliprate
+% crack-like with aftershocks
+nexttile(11)
+filename = '/nfs/turbo/lsa-yiheh/yiheh-mistorage/pengz/data/wholespace/phase_diagram_L_b/0.25_32_600_0_0_1.0_0.0_4_0.55_0.0025/sliprate.out';
+if exist(filename, "file") == 0
+         disp(filename)
+end     
+sliprate = readmatrix(filename, "FileType","text", "OutputType","double");
+ll = 5200; rr = 12500;
+pcolor(log10(abs(sliprate(ll:rr,101:701))))
+colormap('turbo')
+shading interp
+clim([-9,2])
+xlabel('Distance (km)')
+ylabel('Time Steps(Integer)')
+set(gca,'YTickLabel', [])
+xticks([101 501])
+xticklabels([-2.5 2.5])
+set(gca,'TickDir', 'out')
+hold on
+plot([101, 101],[0,rr-ll], 'k--')
+plot([501, 501],[0,rr-ll], 'k--')
+scatter(301, (rr-ll)*9/10, 80, 'p', 'filled','MarkerFaceColor','w', 'MarkerEdgeColor', 'k')
+text(151,(rr-ll)*4/5,"Crack-like with aftershocks",'Color','w')
+title("(f)")
+ax = gca;
+ax.TitleHorizontalAlignment = 'left';
+clear sliprate
+% pulse-like with afteshocks
+nexttile(12)
+filename = '/nfs/turbo/lsa-yiheh/yiheh-mistorage/pengz/data/wholespace/phase_diagram_L_b/0.25_48_300_0_0_1.0_0.0_4_0.55_0.001/sliprate.out';
+if exist(filename, "file") == 0
+         disp(filename)
+end     
+sliprate = readmatrix(filename, "FileType","text", "OutputType","double");
+ll = 9500; rr = 18000;
+pcolor(log10(abs(sliprate(ll:rr,151:1051))))
+colormap('turbo')
+shading interp
+clim([-9,2])
+xlabel('Distance (km)')
+ylabel('Time Steps(Integer)')
+set(gca,'YTickLabel', [])
+xticks([151 751])
+xticklabels([-2.5 2.5])
+set(gca,'TickDir', 'out')
+hold on
+plot([151, 151],[0,rr-ll], 'k--')
+plot([751, 751],[0,rr-ll], 'k--')
+scatter(451, (rr-ll)*9/10, 80, 'd', 'filled','MarkerFaceColor','w', 'MarkerEdgeColor', 'k')
+text(251,(rr-ll)*4/5,"Pulse-like with aftershocks",'Color','w')
+title("(g)")
+ax = gca;
+ax.TitleHorizontalAlignment = 'left';
+clear sliprate
+%%
+exportgraphics(gcf,'maximum_sliprate.png','Resolution',600)
+
