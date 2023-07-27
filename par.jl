@@ -12,18 +12,18 @@ include("$(@__DIR__)/src/damageEvol.jl")   #    Stiffness index of damaged mediu
 include("$(@__DIR__)/src/BoundaryMatrix.jl")    #	Boundary matrices
 include("$(@__DIR__)/src/initialConditions/defaultInitialConditions.jl")
 
-function setParameters(FZdepth::Int, halfwidth::Int, res::Int, T::Int, alpha::Float64, multiple::Int, Lc::Float64, Domain)
+function setParameters(FZdepth::Int, halfwidth::Int, res::Int, T::Int, multiple::Int, Lc::Float64, Domain)
 
-    LX::Int = Domain*40e3  # depth dimension of rectangular domain
-    LY::Int = Domain*32e3 # off fault dimenstion of rectangular domain
+    LX::Int = Domain*48e3  # depth dimension of rectangular domain
+    LY::Int = Domain*30e3 # off fault dimenstion of rectangular domain
 
-    NelX::Int = 25*res*Domain # no. of elements in x
+    NelX::Int = 30*res*Domain # no. of elements in x
     NelY::Int = 20*res*Domain # no. of elements in y
 
     dxe::Float64 = LX/NelX   #	Size of one element along X
-    # println(dxe)
+    println(dxe)
     dye::Float64 = LY/NelY   #	Size of one element along Y
-    # println(dye)
+    println(dye)
     Nel::Int = NelX*NelY     # Total no. of elements
 
     P::Int = 4		#	Lagrange polynomial degree
@@ -61,23 +61,6 @@ function setParameters(FZdepth::Int, halfwidth::Int, res::Int, T::Int, alpha::Fl
     #...................
     # MEDIUM PROPERTIES
     #...................
-
-    # default: host rock!!
-    rho1::Float64 = 2670
-    vs1::Float64 = 3462
-    
-    # # The entire medium has low rigidity
-    # rho1::Float64 = 2500
-    # vs1::Float64 = 0.6*3462
-    # the initial property of fualt damage zone: fault zone evolution!!!
-    rho2::Float64 = 2670
-    #vs2::Float64 = 1.00*vs1       # for healing test: define the variation of regidity in main.jl
-
-    vs2::Float64 = sqrt(alpha)*vs1   # define the rigidity now(a constant during whole simulation)
-
-    # note: it is not necessary to define the damage zone here with healing
-    # But if with healing, we need to define the rigidity ratio here!!
-
     mu = rho1*vs1^2
     println("The shear modulus of hostrock is: ",mu)     # the default value is about 32GPa(3.2038e10)
 
@@ -93,7 +76,7 @@ function setParameters(FZdepth::Int, halfwidth::Int, res::Int, T::Int, alpha::Fl
     # EARTHQUAKE PARAMETERS
     #.......................
 
-    Vpl::Float64 = 35e-3/yr2sec	#	Plate loading rate   unit: m/seconds
+    Vpl::Float64 = 1.11e-9	#	Plate loading rate   unit: m/seconds
     # frictional parameters along the fault line (X direction)
     fo::Vector{Float64} = repeat([0.6], FltNglob)       #	Reference friction coefficient
     Vo::Vector{Float64} = repeat([1e-6], FltNglob)		#	Reference velocity 'Vo'  unit: m/s
@@ -267,7 +250,7 @@ function setParameters(FZdepth::Int, halfwidth::Int, res::Int, T::Int, alpha::Fl
     fbc = reshape(iglob[:,1,:], length(iglob[:,1,:]))   #convert the index of all left(fault) boundary GLL nodes in all elements into 1-D vector
     # println("fbc=", fbc[1:10])
     # println(findall(x .== -24e3)[1])    # the point on the fault at the depth of 24km
-    idx = findall(fbc .== findall(x .>= -20e3)[1] - 1)[1]     # lower boundary of frictional parameters: over 20km are all creeping fault
+    idx = findall(fbc .== findall(x .>= -24e3)[1] - 1)[1]     # lower boundary of frictional parameters: over 20km are all creeping fault
     #println("idx=", idx)
     FltIglobBC::Vector{Int} = fbc[1:idx]     # GLL nodes within creeping fault (>20 km)  with repeated nodes
     

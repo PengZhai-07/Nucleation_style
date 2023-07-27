@@ -140,7 +140,7 @@ function main(P, alphaa, cos_reduction, coseismic_b)
     # Here v is not zero!!!  0.5e-3 m/s
     v = v[:] .- 0.5*P[2].Vpl   # initial slip rate on the whole model    ???
     Vf = 2*v[P[4].iFlt]      # about 1e-3
-    iFBC::Vector{Int64} = findall(abs.(P[3].FltX) .> 20e3)   # index for points below the damage zone
+    iFBC::Vector{Int64} = findall(abs.(P[3].FltX) .> 24e3)   # index for points below the damage zone
     NFBC::Int64 = length(iFBC) + 1
     Vf[iFBC] .= 0.             # set the initial fault slip rate (within creeping fault) to be zero
     v[P[4].FltIglobBC] .= 0.   # set the initial fault slip rate (within creeping fault) to be zero
@@ -397,6 +397,7 @@ function main(P, alphaa, cos_reduction, coseismic_b)
 
             # step7: Correction
             v .= v .+ half_dt*a
+            v .= v .- 0.5*P[2].Vpl       # get the velocity perturbation
 
             v[P[4].FltIglobBC] .= 0.
             a[P[4].FltIglobBC] .= 0.

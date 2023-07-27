@@ -16,10 +16,10 @@ function FBC!(IDstate, P::params_farray, NFBC, FltNglob, psi1, Vf1, tau1, psi2, 
         Vf1[j], tau1[j] = NRsearch!(P.fo[j], P.Vo[j], P.cca[j], P.ccb[j], P.Seff[j],
                                     tauNR, P.tauo[j], psi1[j], P.FltZ[j], FltVfree[j])
     
-        if Vf[j] > 1e10 || isnan(Vf[j]) == 1 || isnan(tau1[j]) == 1
+        if Vf1[j] > 1e10 || isnan(Vf1[j]) == 1 || isnan(tau1[j]) == 1
             
             println("Fault Location = ", j)
-            println(" Vf = ", Vf[j])
+            println(" Vf1 = ", Vf1[j])
             println(" tau1 = ", tau1[j])
 
             println("psi =", psi[j])
@@ -31,7 +31,7 @@ function FBC!(IDstate, P::params_farray, NFBC, FltNglob, psi1, Vf1, tau1, psi2, 
             return
         end
         
-        psi2[j] = IDS2!(P.xLf[j], P.Vo[j], psi[j], psi1[j], dt, Vf[j], Vf1[j], IDstate)
+        psi2[j] = IDS2!(P.xLf[j], P.Vo[j], psi[j], psi1[j], dt, Vf[j], Vf1[j], 1e-5, IDstate)
         
         # NRsearch 2nd loop
         Vf2[j], tau2[j] = NRsearch!(P.fo[j], P.Vo[j], P.cca[j], P.ccb[j], P.Seff[j],

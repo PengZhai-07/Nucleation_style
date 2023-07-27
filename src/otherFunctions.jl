@@ -32,7 +32,7 @@ function IDS!(xLf, Vo, psi, dt, Vf, cnd, IDstate = 2)   # default value is 2, ag
 end
 
 # On fault slip rates
-function IDS2!(xLf, Vo, psi, psi1, dt, Vf, Vf1, IDstate = 2)
+function IDS2!(xLf, Vo, psi, psi1, dt, Vf, Vf1, cnd, IDstate = 2)
             
     if IDstate == 1
         psi2 = psi + 0.5*dt*( (Vo/xLf)*exp1(-psi) - abs(Vf)/xLf 
@@ -41,7 +41,7 @@ function IDS2!(xLf, Vo, psi, psi1, dt, Vf, Vf1, IDstate = 2)
     elseif IDstate == 2
         VdtL = 0.5*abs(Vf1 + Vf)*dt/xLf
 
-        if VdtL < 1e-6
+        if VdtL < cnd
             psi2 = log1( exp1(psi-VdtL) + Vo*dt/xLf -
                             0.5*Vo*0.5*abs(Vf1 + Vf)*dt*dt/(xLf^2))
         else
@@ -68,7 +68,7 @@ function slrFunc!(P::params_farray, NFBC, FltNglob, psi, psi1, Vf, Vf1, IDstate,
     for j = NFBC:FltNglob
 
         #  temp = 0.
-        psi1[j] = IDS!(P.xLf[j], P.Vo[j], psi[j], dt, Vf[j], 1e-6, IDstate)
+        psi1[j] = IDS!(P.xLf[j], P.Vo[j], psi[j], dt, Vf[j], 1e-5, IDstate)
 
         tauAB[j] = tau1[j] + P.tauo[j]
         fa = tauAB[j]/(P.Seff[j]*P.cca[j])

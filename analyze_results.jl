@@ -5,7 +5,7 @@ include("$(@__DIR__)/post/plotting_script.jl")
 
 #project = "immature_fully_healing"             # normal stress
 # project = "velocity_dependence_b"
-project = "domain_size_test"
+project = "benchmark_project"
 
 # path to save files
 global path = "$(@__DIR__)/plots/$(project)/$(FILE)/"

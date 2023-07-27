@@ -20,7 +20,7 @@ function fricDepth(FltX)
     fP2 = [-0.004, -2e3]
     fP3 = [-0.004, -12e3]
     fP4 = [0.015, -17e3]
-    fP5 = [0.024, -20e3]
+    fP5 = [0.024, -24e3]
 
     # Return a vector I of the indices or keys of A
     fric_depth1 = findall(abs.(FltX) .<= abs(fP2[2]))
@@ -33,7 +33,7 @@ function fricDepth(FltX)
     a_b[fric_depth2] .= Int1D(fP2, fP3, FltX[fric_depth2])
     a_b[fric_depth3] .= Int1D(fP3, fP4, FltX[fric_depth3])
     a_b[fric_depth4] .= Int1D(fP4, fP5, FltX[fric_depth4])
-    a_b[fric_depth5] .= 0.0047   # depth >=FZdepth km
+    a_b[fric_depth5] .= 0.0024   # depth >=FZdepth km
 
     #  cca[fric_depth4] .= Int1D(fP4, fP5, FltX[fric_depth4]) .+ 0.0001
     cca .= ccb .+ a_b      # so a is variable and b is a constant in all depth
@@ -42,8 +42,6 @@ function fricDepth(FltX)
     return cca, ccb, a_b
 
 end
-
-
 
 
 # Effective normal stress
@@ -67,13 +65,14 @@ function tauDepth(FltX, multiple)
     FltNglob = length(FltX)
     NS = multiple*10e6
     tauo::Array{Float64} = repeat([0.45*NS], FltNglob)
-    tP1 = [2e-4*NS 0]      
+    # tP1 = [2e-4*NS 0]      
     #tP1 = [0.01e6 0]    
+    tP1 = [0 0]  
     tP2 = [0.6*NS -2e3]
     #  tP2 = [30e6 -0.5e3]
     tP3 = [0.6*NS -12e3]
     tP4 = [0.45*NS -17e3]
-    tP5 = [0.45*NS -20e3]
+    tP5 = [0.45*NS -48e3]
 
     tau_depth1 = findall(abs.(FltX).<=  abs(tP2[2]))
     tau_depth2 = findall(abs(tP2[2]) .< abs.(FltX) .<= abs(tP3[2]))

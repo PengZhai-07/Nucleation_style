@@ -10,7 +10,7 @@
 # FILE = "20000.0_1500.0_8_0.85_0.05_4.0"   # normal stress testing
 #FILE = "20000.0_500.0_20_0.85_0.05_5.0"   # resolution testing
 
-FILE = "20000_500_12_0.8_0.0_4_2_0.019"
+FILE = "1.0_10_500_12000_150_0.008_5"
 #FILE = "20000_500_8_0.8_0.0_4_1.0_0.023"     # Ru number testing: no healing
 #FILE = "20000_500_12_0.5_0.0_5_1.0_smooth_0.23"
 include("analyze_results.jl")   
