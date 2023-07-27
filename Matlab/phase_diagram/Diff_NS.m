@@ -1,7 +1,7 @@
 
 
 %%
-clear
+clear all
 clc
 close all
 %%
@@ -209,5 +209,4 @@ scatter(P_1(:,1),P_1(:,2) ,'*','g')    % resolution limit
 
 %%
 set(gca,'TickDir', 'out')
-ax = gca;
-exportgraphics(ax,'separate_nucleation_style_diff_NS.png','Resolution',600)
+exportgraphics(gca,'diff_NS.png','Resolution',600)
