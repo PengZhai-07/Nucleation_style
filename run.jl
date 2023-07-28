@@ -111,7 +111,7 @@ include("$(@__DIR__)/src/otherFunctions.jl")
 
 include("$(@__DIR__)/src/main.jl")
 
-simulation_time = @elapsed @time main(P, alpha, cos_reduction, coseismic_b)    # all parameters, rigidity ratio 
+simulation_time = @elapsed @time main_test(P, alpha, cos_reduction, coseismic_b)    # all parameters, rigidity ratio 
 
 println("\n")
 
