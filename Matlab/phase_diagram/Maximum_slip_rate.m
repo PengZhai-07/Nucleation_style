@@ -409,5 +409,5 @@ ax = gca;
 ax.TitleHorizontalAlignment = 'left';
 clear sliprate
 %%
-exportgraphics(gcf,'maximum_sliprate.png','Resolution',600)
-
+exportgraphics(gcf,'maximum_sliprate.png','Resolution',200)
+% print -djpeg maximum_sliprate -r600
