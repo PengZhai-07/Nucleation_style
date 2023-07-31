@@ -51,7 +51,6 @@ function MeshBox!(NGLL, Nel, NelX, NelY, FltNglob, dxe, dye)
 	et = 0
 	last_iglob = 0
 
-
 	# collect: Return an Array of all items in a collection or iterator
 	# reashape(iterator,row,column)
 	ig = reshape(collect(1:NGLL*NGLL), NGLL, NGLL)        # all GLL in one element 

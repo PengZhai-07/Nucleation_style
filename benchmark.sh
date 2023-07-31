@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #SBATCH --job-name=benchmark
-#SBATCH --array=7-10
+#SBATCH --array=11-12
 
 ##SBATCH --mail-user=pengzhai@umich.edu
 ##SBATCH --mail-type=FAIL,ARRAY_TASKS

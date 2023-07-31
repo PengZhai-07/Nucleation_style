@@ -1,0 +1,61 @@
+%
+% Control file that exercises available 2D features
+%
+
+\begin{MODEL}
+   \begin{OUTER_BOUNDARY}
+      \begin{END_POINTS_LINE}
+         name = B1
+         xStart = [0.0, 48000, 0.0]
+         xEnd = [0.0, 0.0, 0.0]
+      \end{END_POINTS_LINE}
+      \begin{END_POINTS_LINE}
+         name = B2
+         xStart = [0.0, 0.0, 0.0]
+         xEnd = [32000,0.0, 0.0]
+      \end{END_POINTS_LINE}
+      \begin{END_POINTS_LINE}
+         name = B3
+         xStart = [32000,0.0, 0.0]
+         xEnd = [32000,48000.0, 0.0]
+      \end{END_POINTS_LINE}
+      \begin{END_POINTS_LINE}
+         name = B4
+         xStart = [32000,48000.0, 0.0]
+         xEnd = [0.0, 48000.0,0.0]
+      \end{END_POINTS_LINE}
+   \end{OUTER_BOUNDARY}
+\end{MODEL}
+
+\begin{CONTROL_INPUT}
+   \begin{REFINEMENT_REGIONS}
+      \begin{REFINEMENT_LINE}
+         name = line
+         w = 10000
+         x0 = [0.0, 0.0, 0.0]
+         x1 = [0.0, 48000.0, 0.0]
+         type = smooth
+         h = 80
+      \end{REFINEMENT_LINE}
+   \end{REFINEMENT_REGIONS}
+   \begin{SPRING_SMOOTHER}
+      smoothing type = LinearAndCrossbarSpring
+      smoothing = ON
+      number of iterations = 50
+   \end{SPRING_SMOOTHER}
+   \begin{BACKGROUND_GRID}
+      x0 = [0.0, 0.0, 0.0]
+      background grid size = [800, 800, 0.0]
+      N = [40, 60, 0]
+   \end{BACKGROUND_GRID}
+   \begin{RUN_PARAMETERS}
+      mesh file name = examples/cycle.mesh
+      plot file format = skeleton
+      plot file name = examples/cycle.tec
+      stats file name = none
+      mesh file format = ISM-V2
+      polynomial order = 4
+   \end{RUN_PARAMETERS}
+\end{CONTROL_INPUT}
+\end{FILE}
+
