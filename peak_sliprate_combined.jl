@@ -124,11 +124,12 @@ for i = 1:4                   # normal stress
         ax2.plot(t./yr2sec, alphaa.*100, c=col, lw=2.0, label="Shear modulus ratio")
         # lab2 = "Shear modulus ratio"
 
-        # ax2.set_ylabel("Shear Modulus (% of host rock)")
+        ax2.set_ylabel("Shear Modulus (% of host rock)")
         ax2.set_ylim([20, 110])
         # ax2.get_xaxis().set_tick_params(color=col)
         # ax2.tick_params(axis="x", labelcolor=col)
         ax2.legend()
+        plt.tight_layout()   # adjust the spacing between subplots to minimize the overlaps
         
 end
 
