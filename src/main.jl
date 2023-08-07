@@ -455,8 +455,15 @@ function main(P, alphaa, cos_reduction, coseismic_b)
             taubefore = (tau +P[3].tauo)./1e6     # once switch into dynamic solution, record the shear stress before earthquake
             # hypocenter: fault location where slip rate exceed threshold value firstly!!
             vhypo, indx = findmax(2*v[P[4].iFlt] .+ P[2].Vpl)
-            hypo = P[3].FltX[indx]
+            # hypo = P[3].FltX[indx]
+
             d_hypo = delfref[indx]
+            
+            indx_nucleation = findall((2*v[P[4].iFlt] .+ P[2].Vpl) .>= 1e-3)
+            new_depth = P[3].FltX[indx_nucleation]
+            downdip_depth = maximum(new_depth)
+            updip_depth = minimum(new_depth)
+            hypo = (downdip_depth + updip_depth)/2
 
         end
 
