@@ -16,13 +16,6 @@ Line(3) = {3, 4};
 //+
 Line(4) = {4, 1};
 
-//+
-Curve Loop(1) = {1, 2, 3, 4};
-//+
-Plane Surface(1) = {1};
-
-Physical Surface('mat1') = {1};
-
 Physical Curve('bc1') = {1};
 //+
 Physical Curve('bc2') = {2};
@@ -30,6 +23,13 @@ Physical Curve('bc2') = {2};
 Physical Curve('bc3') = {3};
 //+
 Physical Curve('bc4') = {4};
+
+//+
+Curve Loop(1) = {1, 2, 3, 4};
+//+
+Plane Surface(1) = {1};
+
+Physical Surface('mat1') = {1};
 
 // Transfinite Curve {1:4} = 3;
 // Transfinite Curve {5,6,7} = 3;

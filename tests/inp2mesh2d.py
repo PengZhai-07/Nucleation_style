@@ -279,25 +279,27 @@ def read_inp(filename, pairs):
     bnds       = []
     bnds_lines = []
     sort_keys  = np.sort(list(mesh.cell_sets_dict.keys()))
+    print(sort_keys)
     cnt        = 0
     for k in sort_keys:
-        if 'line' in mesh.cell_sets_dict[k]:
-            cnt = cnt + 1
-            bc_i  = 'bc%d'%(cnt)
-            line_idx   = mesh.cell_sets_dict[k]['line']
-            bnds_lines = lines[:, line_idx]
-            nline      = len(line_idx)
-            bnd_i      = np.zeros((2, nline), dtype=np.int64)
+        if k[0:4] != 'Line':
+            if 'line' in mesh.cell_sets_dict[k]:
+                cnt = cnt + 1
+                bc_i  = 'bc%d'%(cnt)
+                line_idx   = mesh.cell_sets_dict[k]['line']
+                bnds_lines = lines[:, line_idx]
+                nline      = len(line_idx)
+                bnd_i      = np.zeros((2, nline), dtype=np.int64)
 
-            #find the element numbers and edge numbers for a list of lines
-            elem_idx, edge_idx = find_edge(bnds_lines, enod, coord)
-            #
-            if np.any(elem_idx[1,:] != -1) or np.any(edge_idx[1,:] != -1):
-                sys.exit('any least one line in boundary %s has two neighboring elements'%(k))
-            bnd_i[0,:] = elem_idx[0,:] # use 0-based number
-            bnd_i[1,:] = edge_idx[0,:]
-            bnds.append(bnd_i)
-    
+                #find the element numbers and edge numbers for a list of lines
+                elem_idx, edge_idx = find_edge(bnds_lines, enod, coord)
+                #
+                if np.any(elem_idx[1,:] != -1) or np.any(edge_idx[1,:] != -1):
+                    sys.exit('any least one line in boundary %s has two neighboring elements'%(k))
+                bnd_i[0,:] = elem_idx[0,:] # use 0-based number
+                bnd_i[1,:] = edge_idx[0,:]
+                bnds.append(bnd_i)
+    print(cnt)
     # so far enods and bnds are still 0-based numbering
     # rcm reordering to reduce bandwidth, reverse_cuthill_mckee
     r = rcm_reorder(enod, etag, bnds, coord, pairs)
@@ -311,22 +313,23 @@ def read_inp(filename, pairs):
     sort_keys  = np.sort(list(mesh.cell_sets_dict.keys()))
     cnt        = 0
     for k in sort_keys:
-        if 'line' in mesh.cell_sets_dict[k]:
-            cnt = cnt + 1
-            bc_i  = 'bc%d'%(cnt)
-            line_idx   = mesh.cell_sets_dict[k]['line']
-            bnds_lines = lines[:, line_idx]
-            nline      = len(line_idx)
-            bnd_i      = np.zeros((2, nline), dtype=np.int64)
+        if k[0:4] != 'Line':
+            if 'line' in mesh.cell_sets_dict[k]:
+                cnt = cnt + 1
+                bc_i  = 'bc%d'%(cnt)
+                line_idx   = mesh.cell_sets_dict[k]['line']
+                bnds_lines = lines[:, line_idx]
+                nline      = len(line_idx)
+                bnd_i      = np.zeros((2, nline), dtype=np.int64)
 
-            #find the element numbers and edge numbers for a list of lines
-            elem_idx, edge_idx = find_edge(bnds_lines, enod, coord)
-            #
-            if np.any(elem_idx[1,:] != -1) or np.any(edge_idx[1,:] != -1):
-                sys.exit('any least one line in boundary %s has two neighboring elements'%(k))
-            bnd_i[0,:] = elem_idx[0,:] # use 0-based number
-            bnd_i[1,:] = edge_idx[0,:]
-            bnds.append(bnd_i)
+                #find the element numbers and edge numbers for a list of lines
+                elem_idx, edge_idx = find_edge(bnds_lines, enod, coord)
+                #
+                if np.any(elem_idx[1,:] != -1) or np.any(edge_idx[1,:] != -1):
+                    sys.exit('any least one line in boundary %s has two neighboring elements'%(k))
+                bnd_i[0,:] = elem_idx[0,:] # use 0-based number
+                bnd_i[1,:] = edge_idx[0,:]
+                bnds.append(bnd_i)
     ################# DONE redo the boundaries  ###################
     
     # switch to 1 based numbering for both enod and bnds
@@ -369,9 +372,6 @@ def write_mesh2d(filename, coord, enod, bnds, etag):
     ###  
 
     plt.show()
-
-
-
 
 # write element connectivity 
     for i in range(nel):
@@ -602,7 +602,6 @@ def main():
     print('Converting %s to %s'%(inpfile, mesh2dfile))
     # converting inp mesh file to mesh2d
     inp2mesh2d(inpfile, mesh2dfile, pairs)
-    plot_mesh_nodes_quickly()
 
     return 
 
