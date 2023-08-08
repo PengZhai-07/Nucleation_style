@@ -82,7 +82,7 @@ def order_enod(enod, coord):
         enod_order[:, i] = order_nodes_single_element(ei, coord[0,:], coord[1,:])
     return enod_order
 
-def  order_nodes_single_element (elem_nodes, x_nodes, z_nodes):
+def order_nodes_single_element (elem_nodes, x_nodes, z_nodes):
     """
     This is a subroutine borrowed from Elif, 
     it seems the code is reordering the nodes within each element in a counter-clockwise direction
@@ -249,6 +249,7 @@ def read_inp(filename, pairs):
     # get the element tag
     nelem = enod.shape[1]
     etag  = np.ones(nelem, dtype=np.int32)
+    print(etag)
     
     # get all the physical surfaces/domains
     for k in mesh.cell_sets_dict:
@@ -257,7 +258,9 @@ def read_inp(filename, pairs):
     quad_key_list = []
     for k in mesh.cell_sets_dict:
         if 'quad' in mesh.cell_sets_dict[k]:
-            quad_key_list.append(k)
+            if k[0:7] != 'Surface':
+                quad_key_list.append(k)
+                
     quad_key_list.sort()
     print(quad_key_list)
     nmat = len(quad_key_list)
@@ -352,6 +355,24 @@ def write_mesh2d(filename, coord, enod, bnds, etag):
     for i in range(nnod):
         f.write('%u %f %f\n'%(i+1, coord[0,i], coord[1,i]))
     f.write('EID NODES TAG\n')
+
+    import matplotlib.pyplot as plt
+    print ('Number of nodes:', nnod)
+    # PLOT
+    fig = plt.figure(figsize=(10,6)); #set_style(whitegrid=True, scale=0.75)
+    ax = fig.add_subplot(111)
+    ax.set_xlabel('Length (m)')
+    ax.set_ylabel('Depth (m)')
+    # ax.set_title('Elements tagged with Material #'+ str(tags_mat[0]))
+
+    ax.scatter(coord[0,:], coord[1,:], c='k', alpha=1.0, s=1)    
+    ###  
+
+    plt.show()
+
+
+
+
 # write element connectivity 
     for i in range(nel):
         line   = [str(i+1)]
@@ -515,6 +536,11 @@ def rcm_reorder(enod, etag, bnds, coord, pairs):
     
     return r
 
+
+
+
+
+
 def main():
     """
     run this function when module is executed as a script
@@ -576,8 +602,12 @@ def main():
     print('Converting %s to %s'%(inpfile, mesh2dfile))
     # converting inp mesh file to mesh2d
     inp2mesh2d(inpfile, mesh2dfile, pairs)
+    plot_mesh_nodes_quickly()
+
     return 
 
 if __name__=="__main__":
     main()
+
+
 

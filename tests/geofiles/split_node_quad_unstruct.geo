@@ -50,21 +50,3 @@ Curve Loop(1) = {1, 2, 3, 4};
 Plane Surface(1) = {1};
 //+
 Curve Loop(2) = {5, 6, 7, 8};
-//+
-Plane Surface(2) = {2};
-
-Physical Curve("bc1") = {2,5};
-Physical Curve("bc2") = {6};
-Physical Curve("bc3") = {4,7};
-Physical Curve("bc4") = {1};
-Physical Curve("bc5") = {3};
-Physical Curve("bc6") = {8};
-
-Physical Surface('mat1') = {1};
-Physical Surface('mat2') = {2};
-
-Recombine Surface{1, 2};
-Mesh.Algorithm = 8;
-Mesh.RecombinationAlgorithm = 2; // or 3
-// RefineMesh;
-

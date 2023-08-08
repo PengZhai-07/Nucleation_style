@@ -1,13 +1,13 @@
 // a geofile to generate structured transfinite quad mesh
 //+
-h=0.1;
-h2=0.01;
-Point(1) = {0, 0, 0, h};
-Point(2) = {1, 0, 0, h2};
-Point(3) = {1, 1, 0, h2};
-Point(4) = {0, 1, 0, h};
-Point(5) = {2, 0, 0, h};
-Point(6) = {2, 1, 0, h};
+h1=80;
+h2=800;
+Point(1) = {0, 0, 0, h1};
+Point(2) = {8000, 0, 0, h1};
+Point(3) = {8000, 48000, 0, h1};
+Point(4) = {0, 48000, 0, h1};
+Point(5) = {32000, 0, 0, h2};
+Point(6) = {32000, 48000, 0, h2};
 
 //+
 Line(1) = {1, 2};
@@ -46,6 +46,6 @@ Physical Curve('bc4') = {4};
 Recombine Surface{1,2};
 Mesh.Algorithm = 8;
 Mesh.RecombinationAlgorithm = 2; // or 3
-RefineMesh;
+// RefineMesh;
 //+
 
