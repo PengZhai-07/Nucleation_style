@@ -6,7 +6,7 @@ include("$(@__DIR__)/post/plotting_script.jl")
 
 Faultzone_depth::Vector{Int64} = [6000, 8000, 10000, 12000]
 title = ["(a)", "(b)", "(c)", "(d)"]
-
+simulation_time = 500
 output_freq = 10
 
 # Global variables
@@ -18,10 +18,10 @@ fig = PyPlot.figure(figsize=(25, 10));
 mpl = pyimport("matplotlib")
 
 
-for i = 1:2                  # normal stress
+for i = 1:4                  # normal stress
     # for j = 1:4              # cos_reduction 
 
-        FILE = "1.0_10_1000_$(Faultzone_depth[i])_150_0.008_5"   # normal stress testing
+        FILE = "1.0_10_$(simulation_time)_$(Faultzone_depth[i])_150_0.008_5"   # normal stress testing
         println(FILE)
         out_path = "$(@__DIR__)/data/benchmark_project/$(FILE)/"
 
@@ -133,7 +133,7 @@ for i = 1:2                  # normal stress
         
 end
 path = "$(@__DIR__)/plots/benchmark_project/"        
-figname = string(path, "cumulative_slip_combined.png")
+figname = string(path, "$(simulation_time)_cumulative_slip_combined.png")
 fig.savefig(figname, dpi = 600, bbox_inches="tight", pad_inches=0)
 # fig.savefig(figname, dpi = 600)
 #show()
