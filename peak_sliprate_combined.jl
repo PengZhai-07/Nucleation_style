@@ -15,13 +15,12 @@ yr2sec = 365*24*60*60
 fig = PyPlot.figure(figsize=(15, 10));
 # fig.patch.set_facecolor("#fff8e5")
 
-for i = 1:4                   # normal stress
+for i = 1:2                   # normal stress
     # for j = 1:4              # cos_reduction 
 
-        FILE = "1.0_10_500_$(Faultzone_depth[i])_150_0.008_5"   # normal stress testing
+        FILE = "1.0_10_1000_$(Faultzone_depth[i])_150_0.008_5"   # normal stress testing
         println(FILE)
         out_path = "$(@__DIR__)/data/benchmark_project/$(FILE)/"
-
 
                 # Order of storage: Seff, tauo, FltX, cca, ccb, xLf
                 params = readdlm(string(out_path, "params.out"), header=false)

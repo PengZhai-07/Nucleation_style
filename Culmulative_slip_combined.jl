@@ -18,7 +18,7 @@ fig = PyPlot.figure(figsize=(25, 10));
 mpl = pyimport("matplotlib")
 
 
-for i = 2                  # normal stress
+for i = 1:2                  # normal stress
     # for j = 1:4              # cos_reduction 
 
         FILE = "1.0_10_1000_$(Faultzone_depth[i])_150_0.008_5"   # normal stress testing
