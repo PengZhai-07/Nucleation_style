@@ -10,7 +10,8 @@ include("$(@__DIR__)/src/MaterialProperties.jl")		 # 	Build 2D mesh
 #  include("$(@__DIR__)/trapezoidFZ/Assemble.jl") #   Gaussian fault zone assemble
 include("$(@__DIR__)/src/damageEvol.jl")   #    Stiffness index of damaged medium
 include("$(@__DIR__)/src/BoundaryMatrix.jl")    #	Boundary matrices
-include("$(@__DIR__)/src/initialConditions/defaultInitialConditions.jl")
+# include("$(@__DIR__)/src/initialConditions/defaultInitialConditions.jl")
+include("$(@__DIR__)/src/initialConditions/defaultInitialConditions_domain.jl")
 
 function setParameters(FZdepth::Int, halfwidth::Int, res::Int, T::Int, alpha::Float64, multiple::Int, Lc::Float64, Domain)
 

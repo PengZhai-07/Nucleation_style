@@ -49,7 +49,7 @@ module spec_grid
   type sem_grid_type
     integer :: ngll=0,nelem=0,npoin=0
     type(fem_grid_type) :: fem
-    double precision :: fmax=0d0, W = huge(1d0)
+    double precision :: fmax=0d0, W = huge(1d0)       !  # the largest number that is not an infinity 
     double precision, pointer :: coord(:,:)      =>null(), &
                                  hprime(:,:)     =>null(), &
                                  hTprime(:,:)    =>null(), &

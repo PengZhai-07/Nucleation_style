@@ -1,3 +1,6 @@
-include("$(@__DIR__)/myprogram.jl")
+include("$(@__DIR__)/compute_dot.jl")
 
-myprogram()
+x::Vector{Float64} = [1,2,3,4,5]
+y::Vector{Float64} = [1,2,3,4,5]
+
+compute_dot(x,y)
