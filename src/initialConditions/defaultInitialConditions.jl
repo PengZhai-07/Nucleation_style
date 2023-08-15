@@ -4,40 +4,79 @@ function Int1D(P1, P2, val)
 	return Line
 end
 
+# # define the rate and state friction parameter in all 48km long fault 
+# # Compute rate-state friciton with depth
+# function fricDepth(FltX)
+    
+#     FltNglob = length(FltX)    # number of GLL nodes on fault
+    
+#     # Friction with depth
+#     cca::Array{Float64} = repeat([0.015], FltNglob)
+#     ccb::Array{Float64} = repeat([0.019], FltNglob)    # b is always a constant
+
+#     a_b = cca - ccb     # -0.004 is the initial value of a-B
+#     # [a-b, depth]   key points of friction coefficient change
+#     fP1 = [0.012, 0e3]   # fP1 = [-0.003, 0e3]
+#     fP2 = [-0.004, -2e3]
+#     fP3 = [-0.004, -12e3]
+#     fP4 = [0.015, -17e3]
+#     fP5 = [0.024, -24e3]
+
+#     # Return a vector I of the indices or keys of A
+#     fric_depth1 = findall(abs.(FltX) .<= abs(fP2[2]))
+#     fric_depth2 = findall(abs(fP2[2]) .< abs.(FltX) .<= abs(fP3[2]))
+#     fric_depth3 = findall(abs(fP3[2]) .< abs.(FltX) .<= abs(fP4[2]))
+#     fric_depth4 = findall(abs(fP4[2]) .< abs.(FltX) .<= abs(fP5[2]))
+#     fric_depth5 = findall(abs.(FltX) .> abs(fP5[2]))
+
+#     a_b[fric_depth1] .= Int1D(fP1, fP2, FltX[fric_depth1])
+#     a_b[fric_depth2] .= Int1D(fP2, fP3, FltX[fric_depth2])
+#     a_b[fric_depth3] .= Int1D(fP3, fP4, FltX[fric_depth3])
+#     a_b[fric_depth4] .= Int1D(fP4, fP5, FltX[fric_depth4])
+#     a_b[fric_depth5] .= 0.0024   # depth >=FZdepth km
+
+#     #  cca[fric_depth4] .= Int1D(fP4, fP5, FltX[fric_depth4]) .+ 0.0001
+#     cca .= ccb .+ a_b      # so a is variable and b is a constant in all depth
+#     #  ccb .= cca .- a_b
+
+#     return cca, ccb, a_b
+
+# end
+
 # define the rate and state friction parameter in all 48km long fault 
 # Compute rate-state friciton with depth
 function fricDepth(FltX)
     
     FltNglob = length(FltX)    # number of GLL nodes on fault
     
-    # Friction with depth
+        # Friction with depth
     cca::Array{Float64} = repeat([0.015], FltNglob)
     ccb::Array{Float64} = repeat([0.019], FltNglob)    # b is always a constant
-
-    a_b = cca - ccb     # -0.004 is the initial value of a-B
-    # [a-b, depth]   key points of friction coefficient change
-    fP1 = [0.012, 0e3]   # fP1 = [-0.003, 0e3]
-    fP2 = [-0.004, -2e3]
-    fP3 = [-0.004, -12e3]
-    fP4 = [0.015, -17e3]
-    fP5 = [0.024, -24e3]
+   
+    fP1_a = [0.015, 0e3]   # fP1 = [-0.003, 0e3]
+    fP2_a = [0.015, -17e3]
+    fP3_a = [0.048, -24e3]
+    fP4_a = [0.048, -48e3]
+    # fP3_a = [0.048, -24e3]
+    # fP4_a = [0.048, -48e3]
 
     # Return a vector I of the indices or keys of A
-    fric_depth1 = findall(abs.(FltX) .<= abs(fP2[2]))
-    fric_depth2 = findall(abs(fP2[2]) .< abs.(FltX) .<= abs(fP3[2]))
-    fric_depth3 = findall(abs(fP3[2]) .< abs.(FltX) .<= abs(fP4[2]))
-    fric_depth4 = findall(abs(fP4[2]) .< abs.(FltX) .<= abs(fP5[2]))
-    fric_depth5 = findall(abs.(FltX) .> abs(fP5[2]))
+    fric_depth1 = findall(abs(fP2_a[2]) .< abs.(FltX) .<= abs(fP3_a[2]))
+    fric_depth2 = findall(abs(fP3_a[2]) .< abs.(FltX) .<= abs(fP4_a[2]))
 
-    a_b[fric_depth1] .= Int1D(fP1, fP2, FltX[fric_depth1])
-    a_b[fric_depth2] .= Int1D(fP2, fP3, FltX[fric_depth2])
-    a_b[fric_depth3] .= Int1D(fP3, fP4, FltX[fric_depth3])
-    a_b[fric_depth4] .= Int1D(fP4, fP5, FltX[fric_depth4])
-    a_b[fric_depth5] .= 0.0024   # depth >=FZdepth km
+    cca[fric_depth1] .= Int1D(fP2_a, fP3_a, FltX[fric_depth1])
+    cca[fric_depth2] .= Int1D(fP3_a, fP4_a, FltX[fric_depth2])
+
+    fP1_b = [0.003, 0e3]   # fP1 = [-0.003, 0e3]
+    fP2_b = [0.019, -2e3]
+
+    # Return a vector I of the indices or keys of A
+    fric_depth3 = findall(abs(fP1_b[2]) .< abs.(FltX) .<= abs(fP2_b[2]))
+
+    ccb[fric_depth3] .= Int1D(fP1_b, fP2_b, FltX[fric_depth3])
 
     #  cca[fric_depth4] .= Int1D(fP4, fP5, FltX[fric_depth4]) .+ 0.0001
-    cca .= ccb .+ a_b      # so a is variable and b is a constant in all depth
-    #  ccb .= cca .- a_b
+    a_b = cca .- ccb      # so a is variable and b is a constant in all depth
 
     return cca, ccb, a_b
 

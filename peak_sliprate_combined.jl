@@ -6,7 +6,7 @@ include("$(@__DIR__)/post/plotting_script.jl")
 
 Faultzone_depth::Vector{Int64} = [6000, 8000, 10000, 12000]
 title = ["(a)", "(b)", "(c)", "(d)"]
-simulation_time = 500
+simulation_time = 1000
 output_freq = 10
 
 # Global variables

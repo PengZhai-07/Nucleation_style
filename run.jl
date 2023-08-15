@@ -53,7 +53,7 @@ global vs1::Float64 = 3380.6
 # vs1::Float64 = 0.6*3462
 # the initial property of fualt damage zone: fault zone evolution!!!
 
-global rho2::Float64 = 2430.6
+global rho2::Float64 = 2800
 global vs2::Float64 = 2028.36       # for healing test: define the variation of regidity in main.jl
 alpha = (rho2*vs2^2)/(rho1*vs1^2)
 

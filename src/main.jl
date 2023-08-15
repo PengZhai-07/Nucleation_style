@@ -411,34 +411,34 @@ function main(P, alphaa, cos_reduction, coseismic_b)
 
 # velocity dependent b (evolution effect)
 
-        if t > 10*P[1].yr2sec
+        # if t > 10*P[1].yr2sec
 
-            if  Vfmax <= 1e-5          
-                P[3].ccb[seismogenic_depth] .= 0.019
+        #     if  Vfmax <= 1e-5          
+        #         P[3].ccb[seismogenic_depth] .= 0.019
 
-            elseif 1e-5 < Vfmax < 1e-3  
-                # linear increase in Cartesian velocity
-                # K_b = (0.025-0.019)/(1e-3-1e-5)
-                # P[3].ccb[seismogenic_depth] .= 0.019 .+ (Vfmax - 1e-5)* K_b
+        #     elseif 1e-5 < Vfmax < 1e-3  
+        #         # linear increase in Cartesian velocity
+        #         # K_b = (0.025-0.019)/(1e-3-1e-5)
+        #         # P[3].ccb[seismogenic_depth] .= 0.019 .+ (Vfmax - 1e-5)* K_b
 
-                # sin increase in Cartesian velocity
-                # normalization
-                K_b = (1+sin((Vfmax - 1e-5)/(1e-3 - 1e-5)*pi-pi/2))/2
-                P[3].ccb[seismogenic_depth] .= 0.019 + (coseismic_b -0.019) * K_b
+        #         # sin increase in Cartesian velocity
+        #         # normalization
+        #         K_b = (1+sin((Vfmax - 1e-5)/(1e-3 - 1e-5)*pi-pi/2))/2
+        #         P[3].ccb[seismogenic_depth] .= 0.019 + (coseismic_b -0.019) * K_b
 
-                # linear increase in log scale velocity
-                # K_b = (0.025-0.019)/(log10(1e-3) - log10(1e-5))
-                # P[3].ccb[seismogenic_depth] .= 0.019 .+ (log10(Vfmax) - log(1e-5))* K_b  
+        #         # linear increase in log scale velocity
+        #         # K_b = (0.025-0.019)/(log10(1e-3) - log10(1e-5))
+        #         # P[3].ccb[seismogenic_depth] .= 0.019 .+ (log10(Vfmax) - log(1e-5))* K_b  
 
-                # if  SSS == 0
-                #     println(P[3].ccb)
-                # end
-                # SSS = SSS + 1
+        #         # if  SSS == 0
+        #         #     println(P[3].ccb)
+        #         # end
+        #         # SSS = SSS + 1
 
-            elseif Vfmax >= 1e-3
-                P[3].ccb[seismogenic_depth] .= coseismic_b
-            end    
-        end
+        #     elseif Vfmax >= 1e-3
+        #         P[3].ccb[seismogenic_depth] .= coseismic_b
+        #     end    
+        # end
 
         #-----
         # Output the variables before and after events

@@ -236,7 +236,7 @@ function cumSlipPlot(delfsec, delfyr, FltX, hypo, d_hypo, N)
     ax.plot(d_hypo, hypo./1000 , "*", color="saddlebrown", markersize=25)
     ax.set_xlabel("Cumulative Slip (m)")
     ax.set_ylabel("Depth (km)")
-    ax.set_ylim([0,20])
+    ax.set_ylim([0,24])
 
     L = N * 365 * 24 * 60 * 60 * 1e-9
     ax.set_xlim([0,L])
@@ -646,7 +646,7 @@ end
 
 
 # Plot friction parameters
-function icsPlot(a_b, Seff, tauo, FltX )
+function icsPlot(a_b, a, b, Seff, tauo, FltX )
     plot_params()
     fig = PyPlot.figure(figsize=(5, 5))
     ax = fig.add_subplot(111)            
@@ -660,6 +660,8 @@ function icsPlot(a_b, Seff, tauo, FltX )
     col="tab:green"
     ax2 = ax.twiny()
     ax2.plot(a_b, FltX, "g",label="(a-b)")
+    ax2.plot(a, FltX, "g:",label="a")
+    ax2.plot(b, FltX, "g--",label="b")
     #println(FltX)
     seismogenic_depth = findall(abs(2) .< abs.(FltX) .<= abs(12))   # note: unit of FltX here is km
     a_b[seismogenic_depth] .= a_b[seismogenic_depth] .- 0.006
@@ -668,10 +670,10 @@ function icsPlot(a_b, Seff, tauo, FltX )
     ax2.set_xlabel("Rate-state friction value (a-b)", color=col)
     ax2.get_xaxis().set_tick_params(color=col)
     ax2.tick_params(axis="x", labelcolor=col)  
-    ax2.set_xlim([-0.015,0.040])
+    ax2.set_xlim([-0.015,0.050])
     ax2.legend(loc="lower right", fontsize="x-small") 
 
-    ax.set_ylim([0,20])
+    ax.set_ylim([0,24])
     ax.invert_yaxis()
     
     # ax3 = fig.add_subplot(122)   
