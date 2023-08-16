@@ -54,26 +54,29 @@ function fricDepth(FltX)
     ccb::Array{Float64} = repeat([0.019], FltNglob)    # b is always a constant
    
     fP1_a = [0.015, 0e3]   # fP1 = [-0.003, 0e3]
-    fP2_a = [0.015, -17e3]
-    fP3_a = [0.048, -24e3]
-    fP4_a = [0.048, -48e3]
+    fP2_a = [0.015, -12e3]
+    fP3_a = [0.034, -17e3]
+    fP4_a = [0.043, -24e3]
+    fP5_a = [0.043, -48e3]
     # fP3_a = [0.048, -24e3]
     # fP4_a = [0.048, -48e3]
 
     # Return a vector I of the indices or keys of A
     fric_depth1 = findall(abs(fP2_a[2]) .< abs.(FltX) .<= abs(fP3_a[2]))
     fric_depth2 = findall(abs(fP3_a[2]) .< abs.(FltX) .<= abs(fP4_a[2]))
+    fric_depth3 = findall(abs(fP4_a[2]) .< abs.(FltX) .<= abs(fP5_a[2]))
 
     cca[fric_depth1] .= Int1D(fP2_a, fP3_a, FltX[fric_depth1])
     cca[fric_depth2] .= Int1D(fP3_a, fP4_a, FltX[fric_depth2])
+    cca[fric_depth3] .= Int1D(fP4_a, fP5_a, FltX[fric_depth3])
 
     fP1_b = [0.003, 0e3]   # fP1 = [-0.003, 0e3]
     fP2_b = [0.019, -2e3]
 
     # Return a vector I of the indices or keys of A
-    fric_depth3 = findall(abs(fP1_b[2]) .< abs.(FltX) .<= abs(fP2_b[2]))
+    fric_depth4 = findall(abs(fP1_b[2]) .< abs.(FltX) .<= abs(fP2_b[2]))
 
-    ccb[fric_depth3] .= Int1D(fP1_b, fP2_b, FltX[fric_depth3])
+    ccb[fric_depth4] .= Int1D(fP1_b, fP2_b, FltX[fric_depth4])
 
     #  cca[fric_depth4] .= Int1D(fP4, fP5, FltX[fric_depth4]) .+ 0.0001
     a_b = cca .- ccb      # so a is variable and b is a constant in all depth

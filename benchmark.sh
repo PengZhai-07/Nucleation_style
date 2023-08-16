@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #SBATCH --job-name=benchmark
-#SBATCH --array=23
+#SBATCH --array=21
 
 ##SBATCH --mail-user=pengzhai@umich.edu
 ##SBATCH --mail-type=FAIL,ARRAY_TASKS
@@ -10,7 +10,7 @@
 #SBATCH --cpus-per-task=24
 
 #SBATCH --mem=40000m
-#SBATCH --time=6-00:00:00
+#SBATCH --time=4-00:00:00
 #SBATCH --partition=standard
 #SBATCH --account=yiheh1
 
