@@ -15,11 +15,13 @@ project = "wholespace/phase_diagram_L_b/"
 # input_parameter = readdlm("$(@__DIR__)/SSE_Creep.txt", ',',  header=false)     # seismic events: 1-12,16,25,28,31,36,39,42
 # input_parameter = readdlm("$(@__DIR__)/SSE_Creep_2.txt", ',',  header=false)
 # input_parameter = readdlm("$(@__DIR__)/high_res.txt", ',',  header=false)
-input_parameter = readdlm("$(@__DIR__)/whole_space_32.txt", ',',  header=false)
+# input_parameter = readdlm("$(@__DIR__)/whole_space_32.txt", ',',  header=false)
 # input_parameter = readdlm("$(@__DIR__)/high_res_2.txt", ',',  header=false)
+input_parameter = readdlm("$(@__DIR__)/domain_size_test.txt", ',',  header=false)
+
 a = size(input_parameter)[1]
 
-for index = 115
+for index = 1
 
     # domain parameters
     Domain = input_parameter[index,1]   # amplify factor of the domain size, the current domain size is 30km*24km for 0.75 domain size
