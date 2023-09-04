@@ -222,9 +222,9 @@ scatter(log10(20), 0.5, 180, 's','MarkerEdgeColor',[0,0,0])   %  113
 % unilateral ruptures with constant weakening
 % scatter(log10(8), 0.55, 180, 'v','MarkerEdgeColor',[0,0,0])   %  167
 % scatter(log10(5), 0.65, 180, 'v','MarkerEdgeColor',[0,0,0])   %  154
-scatter(log10(2.5), 0.75, 180, 'v','MarkerEdgeColor',[0,0,0])   %  128
-scatter(log10(1.6), 0.8, 180, 'v','MarkerEdgeColor',[0,0,0])   %  185
-scatter(log10(0.8), 0.85, 180, 'v','MarkerEdgeColor',[0,0,0])   %  
+scatter(log10(2.5), 0.75, 180, 'p','MarkerEdgeColor',[0,0,0])   %  128
+scatter(log10(1.6), 0.8, 180, 'p','MarkerEdgeColor',[0,0,0])   %  185
+scatter(log10(0.8), 0.85, 180, 'p','MarkerEdgeColor',[0,0,0])   %  
 % no-healing limit with all kinds of rupture styles
 scatter(log10(10), 0.3, 180, 'o','MarkerEdgeColor',[0,0,0])   %  154
 scatter(log10(30), 0.3, 180, 'o','MarkerEdgeColor',[0,0,0])   %  167

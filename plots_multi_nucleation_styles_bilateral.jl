@@ -27,7 +27,7 @@ global ii::Int = 0
 plot_params()
 fig = PyPlot.figure(figsize=(20, 20))
 
-EX = [113, 130, 171, 193]
+EX = [118, 135, 176, 198]
 N_EX = length(EX)
 
 for index = EX                   # normal stress
@@ -64,9 +64,9 @@ for index = EX                   # normal stress
     #     rm(path, recursive = true)
     # end
 
-    mkpath(path)
+    # mkpath(path)
 
-    include("analyze_results.jl")     
+    include("analyze_results.jl");     
 
     # calculate the nucleation size and plot the nucleation process
     N_timestep::Int = input_parameter[index,11]       # time steps to use in sliprate for nucleation process
@@ -129,7 +129,7 @@ for index = EX                   # normal stress
     EEPP = zeros(group)
     indx_1::Vector{Int64} = zeros(n_e)
     nn_before = 0
-    i = 1
+    i = 1    # only process the first event!
 
     #println("Time of the last seismic event(s):",tStart[end])
     indx_last = findall(t[:].<= tStart[i+2])[end]    # here i+2 is used: from the second normal event(or 3rd normal event)
@@ -154,7 +154,7 @@ for index = EX                   # normal stress
         end
     end
 
-    println("The number of the timestep over 1e-8 m/s is:", mm)
+    # println("The number of the timestep over 1e-8 m/s is:", mm)
 
     for k = 1:n_e
 
@@ -184,10 +184,16 @@ for index = EX                   # normal stress
         indx_1[k] = findall(FltX .>= NS_width[i,k,1])[end]   
         # Ω[k] = value_1[indx_1 ,nn]
 
+
     end
-    println("indx_1=", indx_1)
+    # println("indx_1=", indx_1)
+    println("Comparison between measurement and theory:")
 
-
+    println(minimum(NS_width[i,:, 2]))     # min(Li)
+    println(TNS_2)
+    println(NS_width[i,n_e, 2])      # L0.1
+    println(TNS_1)
+    
     # the center of the asperity
     for k = 1:nn_e
 
@@ -198,7 +204,7 @@ for index = EX                   # normal stress
                 break
             end
         end
-        println("The number of the timestep from 1e-11 m/s when maximum sliprate is over ",criteria/(10^(nn_e-k)) ,"m/s is:", nnn)
+        # println("The number of the timestep from 1e-11 m/s when maximum sliprate is over ",criteria/(10^(nn_e-k)) ,"m/s is:", nnn)
 
         Ω[k] = value_1[indx_1[end] ,nnn]
             

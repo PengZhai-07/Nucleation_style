@@ -29,7 +29,7 @@ global ii::Int = 0
 plot_params()
 fig = PyPlot.figure(figsize=(20, 20))
 
-EX = [181,191,197,200]
+EX = [181,191,197,200].+5
 N_EX = length(EX)
 
 for index = EX                  # normal stress
@@ -220,7 +220,7 @@ for index = EX                  # normal stress
 
     end
 
-    EEP[i] = sum(EEP[i,:])
+    EEPP[i] = sum(EEP[i,:])
 
     # plot slip rate profile
     # ax = fig.add_subplot(n-1, 1, i)

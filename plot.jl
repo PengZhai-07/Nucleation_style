@@ -15,11 +15,11 @@ project = "wholespace/phase_diagram_L_b/"
 # input_parameter = readdlm("$(@__DIR__)/SSE_Creep.txt", ',',  header=false)     # seismic events: 1-12,16,25,28,31,36,39,42
 # input_parameter = readdlm("$(@__DIR__)/SSE_Creep_2.txt", ',',  header=false)
 # input_parameter = readdlm("$(@__DIR__)/high_res.txt", ',',  header=false)
-# input_parameter = readdlm("$(@__DIR__)/whole_space_32.txt", ',',  header=false)
-input_parameter = readdlm("$(@__DIR__)/high_res_2.txt", ',',  header=false)
+input_parameter = readdlm("$(@__DIR__)/whole_space_32.txt", ',',  header=false)
+# input_parameter = readdlm("$(@__DIR__)/high_res_2.txt", ',',  header=false)
 a = size(input_parameter)[1]
 
-for index = 69
+for index = 115
 
     # domain parameters
     Domain = input_parameter[index,1]   # amplify factor of the domain size, the current domain size is 30km*24km for 0.75 domain size
@@ -70,85 +70,85 @@ for index = 69
 
     # moment_release_example(sliprate', FltX, tStart, t, N_timestep, criteria, measure_threshold, Domain/1000)       
 
-    sliprate_analysis(Vfmax, alphaa, t, yr2sec, sliprate', FltX, N, Domain/1000)
+    # sliprate_analysis(Vfmax, alphaa, t, yr2sec, sliprate', FltX, N, Domain/1000)
 
 
      # Plot friction parameters
-    icsPlot(a_b, Seff, tauo, FltX, Domain/1000)
+    icsPlot(a_b, Seff, tauo, FltX.-Domain*Domain_X/1000/2, Domain/1000)
 
-    # max slip rate versus timestep
-    VfmaxPlot(Vfmax, N, t)
+    # # max slip rate versus timestep
+    # VfmaxPlot(Vfmax, N, t)
 
-    # healing analysis: Vfmax and regidity ratio vs. time
-    V_max = healing_analysis(Vfmax, alphaa, t, yr2sec)
-    open(string(path,"Maximum_slip_velocity.out"), "w") do io
-        write(io, join(V_max), "\n") 
-    end
+    # # healing analysis: Vfmax and regidity ratio vs. time
+    # V_max = healing_analysis(Vfmax, alphaa, t, yr2sec)
+    # open(string(path,"Maximum_slip_velocity.out"), "w") do io
+    #     write(io, join(V_max), "\n") 
+    # end
 
-    # slip rate vs timesteps
-    # how many years to plot
-    eqCyclePlot(sliprate', FltX, N, t, Domain/1000)
+    # # slip rate vs timesteps
+    # # how many years to plot
+    # eqCyclePlot(sliprate', FltX, N, t, Domain/1000)
    
     
-    # culmulative slip
-    cumSlipPlot(delfsec[1:4:end,:], delfyr[1:4:end, :], FltX, hypo, d_hypo, N, Domain/1000);
-    # cumSlipPlot_no_hypocenter(delfsec[1:4:end,:], delfyr[1:end, :], FltX, N);
+    # # culmulative slip
+    # cumSlipPlot(delfsec[1:4:end,:], delfyr[1:4:end, :], FltX, hypo, d_hypo, N, Domain/1000);
+    # # cumSlipPlot_no_hypocenter(delfsec[1:4:end,:], delfyr[1:end, :], FltX, N);
 
-    # theoretical nucleation size
-    if a_over_b >= 0.3781
-        TNS = 2/pi*mu*Lc*(a/a_over_b)/(multiple*10e6)/(a/a_over_b-a)^2/1000     # unit: km
-    else
-        TNS = 2*1.3774*mu*Lc/(a/a_over_b)/(multiple*10e6)/1000    # unit: km
-    end
-    println("Theoretical nucleation size: ", TNS)
+    # # theoretical nucleation size
+    # if a_over_b >= 0.3781
+    #     TNS = 2/pi*mu*Lc*(a/a_over_b)/(multiple*10e6)/(a/a_over_b-a)^2/1000     # unit: km
+    # else
+    #     TNS = 2*1.3774*mu*Lc/(a/a_over_b)/(multiple*10e6)/1000    # unit: km
+    # end
+    # println("Theoretical nucleation size: ", TNS)
 
-    # Nucleation_example(sliprate', weakeningrate', FltX, tStart, t, N_timestep, criteria, measure_threshold, Domain/1000)    # only plot the last seismic event
+    # # Nucleation_example(sliprate', weakeningrate', FltX, tStart, t, N_timestep, criteria, measure_threshold, Domain/1000)    # only plot the last seismic event
     
-    EEP = Nucleation_example_evolution(sliprate', weakeningrate', FltX, tStart, t, N_timestep, criteria, measure_threshold, Domain/1000, TNS, hypo/1000, [3,5,6,8,9])    # only plot the last seismic event
-    # EEP = Nucleation_example_evolution(sliprate', weakeningrate', FltX, tStart, t, N_timestep, criteria, measure_threshold, Domain/1000, TNS, hypo/1000, characteristic_index[3:7])    # only plot the last seismic event
+    # EEP = Nucleation_example_evolution(sliprate', weakeningrate', FltX, tStart, t, N_timestep, criteria, measure_threshold, Domain/1000, TNS, hypo/1000, [3,5,6,8,9])    # only plot the last seismic event
+    # # EEP = Nucleation_example_evolution(sliprate', weakeningrate', FltX, tStart, t, N_timestep, criteria, measure_threshold, Domain/1000, TNS, hypo/1000, characteristic_index[3:7])    # only plot the last seismic event
 
-    ## Nucleation_example_no_weakening_rate(sliprate', FltX, tStart, t, N_timestep, criteria, measure_threshold)    # only plot the last seismic event
+    # ## Nucleation_example_no_weakening_rate(sliprate', FltX, tStart, t, N_timestep, criteria, measure_threshold)    # only plot the last seismic event
 
-    NS_width, min_Ω = Nucleation(sliprate', weakeningrate', FltX, tStart, t, N_timestep, criteria, measure_threshold, Domain/1000)
-    println(NS_width)
-    println(min_Ω)
+    # NS_width, min_Ω = Nucleation(sliprate', weakeningrate', FltX, tStart, t, N_timestep, criteria, measure_threshold, Domain/1000)
+    # println(NS_width)
+    # println(min_Ω)
 
-    df = mean(abs.(NS_width[:,1].-(Domain_X/1e3*Domain/2)))/(Domain_X/1e3*Domain/4)     # deviation factor of hypocenter
-    println(df)
-    if  0 <= df < 0.2
-        rupture_style = "Symmetric-bilateral rupture"
-    elseif 0.2 <= df <= 0.6
-        rupture_style = "Asymmetric-bilateral rupture"
-    elseif 0.6 < df 
-        rupture_style = "Unilateral rupture"
-    end
-    println(rupture_style)
-    Ω = mean(min_Ω)
-    if  EEP < 0         # this criterion is not accurate
-        nucleation_style = "fixed length nucleation"
-    else
-        nucleation_style = "constant weakening nucleation"
-    end
-    println(nucleation_style)
+    # df = mean(abs.(NS_width[:,1].-(Domain_X/1e3*Domain/2)))/(Domain_X/1e3*Domain/4)     # deviation factor of hypocenter
+    # println(df)
+    # if  0 <= df < 0.2
+    #     rupture_style = "Symmetric-bilateral rupture"
+    # elseif 0.2 <= df <= 0.6
+    #     rupture_style = "Asymmetric-bilateral rupture"
+    # elseif 0.6 < df 
+    #     rupture_style = "Unilateral rupture"
+    # end
+    # println(rupture_style)
+    # Ω = mean(min_Ω)
+    # if  EEP < 0         # this criterion is not accurate
+    #     nucleation_style = "fixed length nucleation"
+    # else
+    #     nucleation_style = "constant weakening nucleation"
+    # end
+    # println(nucleation_style)
 
-    open(string(path,"nucleation.out"), "w") do io
-        for i = 1: size(NS_width)[1]
-            write(io, join(vcat(NS_width[i,:],min_Ω[i])," "), "\n") 
-        end
-    end
-    open(string(path,"nucleation_stats.out"), "w") do io
-        write(io, join(df), "\n") 
-        write(io, join(rupture_style), "\n") 
-        write(io, join(Ω), "\n") 
-        write(io, join(EEP), "\n")
-        write(io, join(nucleation_style), "\n") 
-    end
+    # open(string(path,"nucleation.out"), "w") do io
+    #     for i = 1: size(NS_width)[1]
+    #         write(io, join(vcat(NS_width[i,:],min_Ω[i])," "), "\n") 
+    #     end
+    # end
+    # open(string(path,"nucleation_stats.out"), "w") do io
+    #     write(io, join(df), "\n") 
+    #     write(io, join(rupture_style), "\n") 
+    #     write(io, join(Ω), "\n") 
+    #     write(io, join(EEP), "\n")
+    #     write(io, join(nucleation_style), "\n") 
+    # end
 
-    # sliprate versus time for the last event
-    n = 2        # how many seismic events to plot
-    eqCyclePlot_last_1(sliprate', FltX, tStart, t, floor(Int64, N_timestep*1.2), n, Domain/1000, characteristic_index[2:n+1], TNS, vs2/1000)
-    eqCyclePlot_last_2(sliprate', FltX, tStart, t, floor(Int64, N_timestep*1.2), n, Domain/1000, characteristic_index[2:n+1], TNS, vs2/1000)
-    eqCyclePlot_last_3(sliprate', FltX, tStart, t, floor(Int64, N_timestep*1.2), n, Domain/1000, characteristic_index[2:n+1], TNS, vs2/1000)
+    # # sliprate versus time for the last event
+    # n = 2        # how many seismic events to plot
+    # eqCyclePlot_last_1(sliprate', FltX, tStart, t, floor(Int64, N_timestep*1.2), n, Domain/1000, characteristic_index[2:n+1], TNS, vs2/1000)
+    # eqCyclePlot_last_2(sliprate', FltX, tStart, t, floor(Int64, N_timestep*1.2), n, Domain/1000, characteristic_index[2:n+1], TNS, vs2/1000)
+    # eqCyclePlot_last_3(sliprate', FltX, tStart, t, floor(Int64, N_timestep*1.2), n, Domain/1000, characteristic_index[2:n+1], TNS, vs2/1000)
     
 
     #  coseismic stress drop

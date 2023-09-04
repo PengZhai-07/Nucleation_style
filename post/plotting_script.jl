@@ -44,25 +44,25 @@ function icsPlot(a_b, Seff, tauo, FltX,Domain)
     
     ax.plot(Seff, FltX, "b", label="Normal Stress")
     ax.plot(tauo, FltX, "orange", label="Shear Stress")
-    ax.set_xlabel("Stresses (MPa)")
-    ax.set_ylabel("Depth (km)")
+    ax.set_xlabel("Stress (MPa)")
+    ax.set_ylabel("X (km)")
     ax.legend(loc="lower right") 
     
     col="tab:green"
     ax2 = ax.twiny()
     ax2.plot(a_b, FltX, "g",label="(a-b)")
     #println(FltX)
-    seismogenic_depth = findall(abs(Domain*Domain_X/4) .< abs.(FltX) .<= abs(Domain*Domain_X*3/4))   # note: unit of FltX here is km
-    a_b[seismogenic_depth] .= a_b[seismogenic_depth] .- 0.006
+    # seismogenic_depth = findall(abs(Domain*Domain_X/4) .< abs.(FltX) .<= abs(Domain*Domain_X*3/4))   # note: unit of FltX here is km
+    # a_b[seismogenic_depth] .= a_b[seismogenic_depth] .- 0.006
     #println(a_b)
-    ax2.plot(a_b, FltX, "r",label="coseismic (a-b)", linestyle=":")
+    # ax2.plot(a_b, FltX, "r",label="coseismic (a-b)", linestyle=":")
     ax2.set_xlabel("Rate-state friction value (a-b)", color=col)
     ax2.get_xaxis().set_tick_params(color=col)
     ax2.tick_params(axis="x", labelcolor=col)  
     ax2.set_xlim([-0.015,0.040])
     ax2.legend(loc="lower left") 
 
-    ax.set_ylim([0,Domain*Domain_X])
+    ax.set_ylim([-Domain*Domain_X/2, Domain*Domain_X/2])
     ax.invert_yaxis()
              
     figname = string(path, "initial_condition.png")
