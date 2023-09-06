@@ -21,7 +21,7 @@ input_parameter = readdlm("$(@__DIR__)/domain_size_test.txt", ',',  header=false
 
 a = size(input_parameter)[1]
 
-for index = 1
+for index = 7
 
     # domain parameters
     Domain = input_parameter[index,1]   # amplify factor of the domain size, the current domain size is 30km*24km for 0.75 domain size
