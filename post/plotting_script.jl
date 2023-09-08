@@ -46,7 +46,7 @@ function icsPlot(a_b, Seff, tauo, FltX,Domain)
     ax.plot(tauo, FltX, "orange", label="Shear Stress")
     ax.set_xlabel("Stress (MPa)")
     ax.set_ylabel("X (km)")
-    ax.legend(loc="lower right") 
+    ax.legend(loc="lower center") 
     
     col="tab:green"
     ax2 = ax.twiny()
@@ -60,7 +60,7 @@ function icsPlot(a_b, Seff, tauo, FltX,Domain)
     ax2.get_xaxis().set_tick_params(color=col)
     ax2.tick_params(axis="x", labelcolor=col)  
     ax2.set_xlim([-0.015,0.040])
-    ax2.legend(loc="lower left") 
+    ax2.legend(loc="upper center") 
 
     ax.set_ylim([-Domain*Domain_X/2, Domain*Domain_X/2])
     ax.invert_yaxis()
