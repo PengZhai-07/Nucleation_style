@@ -94,7 +94,7 @@ function VfmaxPlot(Vfmax, N, t)
 end
 
 # Plot alpha and Vfmax on the same plot
-function healing_analysis(Vf, alphaa, t, yr2sec)
+function healing_analysis(Vf, alphaa, t, yr2sec, N)
     plot_params()
     fig = PyPlot.figure(figsize=(15, 5))
     ax = fig.add_subplot(111)
@@ -104,7 +104,7 @@ function healing_analysis(Vf, alphaa, t, yr2sec)
     ax.plot([0, maximum(t./yr2sec)],[1.3e-1, 1.3e-1] , "k", linestyle="--", label="Nucleation threshold")
     ax.set_ylabel("Max. Slip rate (m/s)")
     ax.set_yscale("log")
-    #ax.set_xlim([0, 600])
+    ax.set_xlim([0, N])
     ax.set_ylim([1e-10, 1e2])
     ax.legend(loc="upper right") 
 
@@ -185,8 +185,10 @@ function sliprate_analysis(Vf, alphaa, t, yr2sec, sliprate, FltX, N, Domain)
     
     ax1.set_xlabel("Timestep")
     ax1.set_ylabel("X (km)")
-    ax1.set_yticks([0, 2, 4, 6, 8, 10])
-    ax1.set_yticklabels([-5, -3, -1, 1, 3, 5])
+    ax.set_ylim([0, Domain*Domain_X])
+    # ax1.set_yticks([0, 2, 4, 6, 8, 10])
+    # ax1.set_yticklabels([-5, -3, -1, 1, 3, 5])
+
     ax1.set_title("(b)", loc="left")
     ax1.invert_yaxis()
     
@@ -196,6 +198,40 @@ function sliprate_analysis(Vf, alphaa, t, yr2sec, sliprate, FltX, N, Domain)
     # show()
     figname = string(path, "sliprate_analysis.png")
     fig.savefig(figname, dpi = 600)
+
+end
+
+function cumSlipPlot_no_hypocenter(delfsec, delfyr, FltX, N, Domain)
+
+    indx_1 = findall(abs.(FltX) .<= 40)[1]
+    indx_2 = findall(abs.(FltX) .>= 0)[end]
+
+    print(indx_1)
+    print(indx_2)
+
+    delfsec2 = transpose(delfsec[:, indx_1:indx_2])
+    delfyr2 = transpose(delfyr)
+
+    plot_params()
+    fig = PyPlot.figure(figsize=(7.2, 4.45))
+
+    ax = fig.add_subplot(111)
+    plt.rc("font",size=12)
+    ax.plot(delfyr2, FltX, color="royalblue", lw=1.0)
+    ax.plot(delfsec2, FltX[indx_1:indx_2], color="chocolate", lw=1.0)
+    # ax.plot(d_hypo, hypo./1000, "*", color="saddlebrown", markersize=25)
+    ax.set_xlabel("Cumulative Slip (m)")
+    ax.set_ylabel("Depth (km)")
+    ax.set_ylim([0,Domain*Domain_X])
+
+    L = (N+100) * 365 * 24 * 60 * 60 * 1e-9
+    ax.set_xlim([0,L])
+    #ax.set_xlim([0,9.0])
+    ax.invert_yaxis()
+    # show()
+    
+    figname = string(path, "cumulative_slip_no_hypocenter.png")
+    fig.savefig(figname, dpi = 300)
 
 end
 
@@ -1132,39 +1168,7 @@ end
 
 
 
-function cumSlipPlot_no_hypocenter(delfsec, delfyr, FltX, N)
 
-    indx_1 = findall(abs.(FltX) .<= 25)[1]
-    indx_2 = findall(abs.(FltX) .>= 5)[end]
-
-    print(indx_1)
-    print(indx_2)
-
-    delfsec2 = transpose(delfsec[:, indx_1:indx_2])
-    delfyr2 = transpose(delfyr)
-
-    plot_params()
-    fig = PyPlot.figure(figsize=(7.2, 4.45))
-
-    ax = fig.add_subplot(111)
-    plt.rc("font",size=12)
-    ax.plot(delfyr2, FltX, color="royalblue", lw=1.0)
-    ax.plot(delfsec2, FltX[indx_1:indx_2], color="chocolate", lw=1.0)
-    # ax.plot(d_hypo, hypo./1000, "*", color="saddlebrown", markersize=25)
-    ax.set_xlabel("Cumulative Slip (m)")
-    ax.set_ylabel("Depth (km)")
-    ax.set_ylim([0,30])
-
-    L = (N+100) * 365 * 24 * 60 * 60 * 1e-9
-    ax.set_xlim([0,L])
-    #ax.set_xlim([0,9.0])
-    ax.invert_yaxis()
-    # show()
-    
-    figname = string(path, "cumulative_slip_no_hypocenter.png")
-    fig.savefig(figname, dpi = 300)
-
-end
 
 
 # not yet working
@@ -1423,7 +1427,7 @@ end
 
 
 # depth vs event number
-function hypo_Mw_stressdrop(hypo, Mw, del_sigma, delfafter, FltX)
+function hypo_Mw_stressdrop(hypo, Mw, del_sigma, delfafter, FltX, Domain)
   
     plot_params()
     fig = PyPlot.figure(figsize=(20,7))
@@ -1433,7 +1437,7 @@ function hypo_Mw_stressdrop(hypo, Mw, del_sigma, delfafter, FltX)
     ax.hist(xaxis[2:end], bins=collect(-0.5:16.5), orientation="horizontal", rwidth=0.9)
     ax.set_ylabel("Depth(km)")
     ax.set_xlabel("Event Number")
-    ax.set_ylim([0,16])
+    ax.set_ylim([0,Domain*Domain_X])
     ax.invert_yaxis()
 
     ax = fig.add_subplot(142)
@@ -1447,21 +1451,23 @@ function hypo_Mw_stressdrop(hypo, Mw, del_sigma, delfafter, FltX)
 
     ax = fig.add_subplot(143)
     xaxis = del_sigma[Mw .>2.8]   # choose seismic event larger than Mw2.8 
+    println("stress drops(MPa)", xaxis)
 
-    ax.hist(xaxis[2:end], bins=collect(0.05:0.2:5.05), orientation="horizontal", rwidth=0.9)
+    ax.hist(xaxis[2:end], bins=collect(0.05:0.2:15.05), orientation="horizontal", rwidth=0.9)
     ax.set_ylabel("Stress drop(MPa)")
     ax.set_xlabel("Event Number")
     # ax.set_ylim([1.5,3.5])
     ax.invert_yaxis()
 
     ax = fig.add_subplot(144)
-    iter = length(delfafter[:,1])    # number of events
     xaxis = delfafter[Mw .>2.8,:]    # choose seismic event larger than Mw2.8 
+    iter = length(xaxis[:,1])    # number of events
+    println("Mw>2.8 events number:", iter)
     for i = 2:iter               # from the second earthquake
         ax.plot(xaxis[i,:], FltX)
         ax.set_xlabel("Coseismic Slip (m)")
         ax.set_ylabel("Depth (km)")
-        ax.set_ylim([0,16])
+        ax.set_ylim([0,Domain*Domain_X])
         ax.set_xlim([0,maximum(delfafter)])
         #ax.set_xlim([0,9.0])
         ax.invert_yaxis()

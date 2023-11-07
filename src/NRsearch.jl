@@ -3,7 +3,7 @@
 ####################################
 
 # Fault Boundary function
-function FBC!(IDstate, P::params_farray, NFBC, FltNglob, psi1, Vf1, tau1, psi2, Vf2, tau2, psi, Vf, FltVfree, dt)
+function FBC!(IDstate::Int64, P::params_farray, NFBC, FltNglob, psi1, Vf1, tau1, psi2, Vf2, tau2, psi, Vf, FltVfree, dt)
 
     #  tauNR::Vector{BigFloat} = zeros(FltNglob)
     tauNR::BigFloat = 0.
@@ -11,7 +11,7 @@ function FBC!(IDstate, P::params_farray, NFBC, FltNglob, psi1, Vf1, tau1, psi2, 
     for j = NFBC[1]: NFBC[2]
 
         tauNR = 0.
-        psi1[j] = IDS!(P.xLf[j], P.Vo[j], psi[j], dt, Vf[j], 1e-5, IDstate)          # state variable evolution
+        psi1[j] = IDS!(P.xLf[j], P.Vo[j], psi[j], dt, Vf[j], 1e-6, IDstate)          # state variable evolution
 
         Vf1[j], tau1[j] = NRsearch!(P.fo[j], P.Vo[j], P.cca[j], P.ccb[j], P.Seff[j],
                                     tauNR, P.tauo[j], psi1[j], P.FltZ[j], FltVfree[j])
@@ -32,7 +32,7 @@ function FBC!(IDstate, P::params_farray, NFBC, FltNglob, psi1, Vf1, tau1, psi2, 
         end
         
         # correct the state variable again!!
-        psi2[j] = IDS2!(P.xLf[j], P.Vo[j], psi[j], psi1[j], dt, Vf[j], Vf1[j], 1e-5, IDstate)
+        psi2[j] = IDS2!(P.xLf[j], P.Vo[j], psi[j], psi1[j], dt, Vf[j], Vf1[j], 1e-6, IDstate)
         
         # NRsearch 2nd loop: using new state variable psi2
         Vf2[j], tau2[j] = NRsearch!(P.fo[j], P.Vo[j], P.cca[j], P.ccb[j], P.Seff[j],
@@ -61,7 +61,8 @@ function NRsearch!(fo, Vo, cca, ccb, Seff, tau, tauo, psi, FltZ, FltVfree)
 
     # NR search point by point for tau if Vf < Vlimit
 
-    eps = 0.001*cca*Seff
+    # eps = 0.001*cca*Seff
+    eps = 1e-6*cca*Seff
     k = 0
     delta = Inf
 
@@ -78,9 +79,9 @@ function NRsearch!(fo, Vo, cca, ccb, Seff, tau, tauo, psi, FltZ, FltVfree)
         # Vfprime is the first derivative of Vf to the traction(shear stress tau)
         Vfprime = fact*(Vo/(cca*Seff))*(help1 + help2)      
 
-        # Our target function is (FltZ*FltVfree - FltZ*Vf + tauo - tau), 
+        # Our target loss function is (FltZ*FltVfree - FltZ*Vf + tauo - tau), 
         # which is a function of shear stress(traction): tau
-        # 
+        # residual shear stress (will decrease as iteration time increases))
         delta = (FltZ*FltVfree - FltZ*Vf + tauo - tau)/(1 + FltZ*Vfprime)
 
         # (FltZ * FltVfree + tauo - tau) should be zero, then 
@@ -88,7 +89,7 @@ function NRsearch!(fo, Vo, cca, ccb, Seff, tau, tauo, psi, FltZ, FltVfree)
         tau = tau + delta      # correct the shear stress
         k = k + 1       # record the number of searching
 
-        if abs(delta) > 1e10 || k == 1000
+        if abs(delta) > 1e10 || k == 2000       # maximum search times
             println("k = ", k)
             # Save simulation results
             #filename = string(dir, "/data", name, "nrfail.jld2")

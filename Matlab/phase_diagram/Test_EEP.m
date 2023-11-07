@@ -8,8 +8,9 @@ set(0,'defaultfigurecolor','w')
 set(gcf,'Position',[0 0 1000 650]);%左下角位置，宽高
 hold on
 %%
+vv = 0.25;
 gamma = pi/4;  % empirical constant parameter about geometry
-mu = 3.20e10;  % Pa 
+mu = 3.2e10;  % Pa 
 sigma = 40e6;  % Pa
 a = 0.015;
 a_b = 0.2:0.05:0.9;
@@ -52,14 +53,16 @@ for i = 1:length(b)
             if a_b(i) > 0.3781
                 syms y 
                 exp = W/y*tanh(2*gamma*H(k)/W*y+atanh(mu_D/mu)) -...
-                   2/pi*mu_D*L(j)*b(i)/sigma/(b(i)-a)^2;       % Rubin and Ampuero for a/b>0.5
+                   2/pi*mu_D*L(j)*b(i)/sigma/(b(i)-a)^2/(1-vv);       % Rubin and Ampuero for a/b>0.5 and mode 2
+                exp = W/y*tanh(2*gamma*H(k)/W*y+atanh(mu_D/mu)) -...
+                   2/pi*mu_D*L(j)*b(i)/sigma/(b(i)-a)^2;       % Rubin and Ampuero for a/b>0.5 and mode 3
    %                 exp = y*tanh(2*gamma*H(k)/y+atanh(mu_D(i)/mu)) -... %
                     % pi/4*mu_D(i)*L(j)/sigma/(b-a); %                exp =
                     % 1/y*tanh(2*H(k)*gamma/W*y+atanh(mu_D/mu)) -... %
                     % mu_D*L(j)/sigma/(a/a_b(i)-a)/W;    % without pi/4?
                 y = double(vpasolve(exp,[0,1000000])) ;
             else
-                y = W/(2*1.3774*mu_D*L(j)/b(i)/sigma);                        % Rubin and Ampuero for a/b<0.3781
+                y = W/(2*1.3774*mu_D*L(j)/b(i)/sigma/(1-vv));                        % Rubin and Ampuero for a/b<0.3781
             end
             Ru(i,j,k) = y;
             NS(i,j,k) = W/y;       % meter
@@ -188,7 +191,7 @@ box on
 % text(log10(200),0.7,"EEP<=-0.2",'Rotation',0)
 % scatter(log10(210), 0.7,60,'o','MarkerEdgeColor',[0,0,1],  'MarkerFaceColor',[0,0,1])
 %% rupture style for a/b>=0.4
-text(log10(160),0.75,  ["Aseismic slip zone"],'Rotation',0,'FontSize',12)
+text(log10(240),0.5,  ["Aseismic slip"],'Rotation',0,'FontSize',12)
 % text(log10(10),0.55,"Regular seismic events",'Rotation',0)
 % text(log10(63),0.45,"Symmetric-bilateral",'Rotation',40)
 % text(log10(18),0.45,["Unsymmetric-";"bilateral";"and unilateral"],'Rotation',40)
@@ -209,6 +212,12 @@ text(log10(160),0.75,  ["Aseismic slip zone"],'Rotation',0,'FontSize',12)
 %% all test cases
 % scatter(P_1(:,1),P_1(:,2) ,'*','MarkerEdgeColor',"#77AC30", 'MarkerFaceColor',"#77AC30")    % resolution limit
 scatter(P_1(:,1),P_1(:,2) ,'*','g')    % resolution limit
+scatter(log10(40), 0.6 ,'*','g')    % resolution limit
+scatter(log10(30), 0.65 ,'*','g')    % resolution limit
+scatter(log10(20), 0.7 ,'*','g')    % resolution limit
+scatter(log10(8), 0.8 ,'*','g')    % resolution limit
+scatter(log10(4), 0.85 ,'*','g')    % resolution limit
+scatter(log10(2), 0.9 ,'*','g')    % resolution limit
 % scatter(log10(0.5), 0.9,'*','r')    % resolution limit
 %% example
 % scatter(log10(6), 0.8, 150, 'o','MarkerEdgeColor',[0,0,0], 'MarkerFaceColor',[1,0,0])    %  193

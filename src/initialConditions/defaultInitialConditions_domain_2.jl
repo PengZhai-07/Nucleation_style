@@ -89,18 +89,6 @@ function tauDepth(FltX, multiple)
 end
 
 
-
-
-
-
-
-
-
-
-
-
-
-
 # test functions
 # Initial normal stress: linear dependent
 function SnormalDepth(FltX)

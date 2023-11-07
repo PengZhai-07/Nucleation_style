@@ -48,18 +48,20 @@ println("Coseismic reduction of rigidity ratio: ", cos_reduction)
 # friction parameter on fault surface
 multiple::Int = input_parameter[index,8]  # effective normal stress on fault: 10MPa*multiple
 a_over_b = input_parameter[index,9] 
-a = 0.015
-coseismic_b =  a/a_over_b            # coseismic b increase 
+coseismic_a = 0.006
+coseismic_b =  coseismic_a/a_over_b            # coseismic b increase 
 Lc = input_parameter[index,10]     # characteristic slip distance      unit:m
+IDstate::Int = input_parameter[index,12]     # evolution of state variable: 2: aging law   3: slip law
 println("Effective normal stress(10MPa*multiple): ", multiple)
 println("Coseismic b: ", coseismic_b)
 println("characteristic slip distance(m): ", Lc)
+println("Evolution of state variable(2:aging, 3: slip):",IDstate) 
 
 # output path
 turbo = "/nfs/turbo/lsa-yiheh/yiheh-mistorage/pengz/data"
-project = "wholespace/phase_diagram_L_b"
+project = "wholespace/test_quartz"
 # Output directory to save data
-out_dir = "$(turbo)/$(project)/$(Domain)_$(res)_$(T)_$(FZlength)_$(halfwidth)_$(alpha)_$(cos_reduction)_$(multiple)_$(a_over_b)_$(Lc)/"    
+out_dir = "$(turbo)/$(project)/$(Domain)_$(res)_$(T)_$(FZlength)_$(halfwidth)_$(alpha)_$(cos_reduction)_$(multiple)_$(a_over_b)_$(Lc)_$(IDstate)/"    
 println("Output directory: ", out_dir)
 # clean old files 
 if isdir(out_dir)
@@ -68,12 +70,12 @@ end
 
 mkpath(out_dir)      
 
-P = setParameters(FZdepth, halfwidth, res, T, alpha, multiple, Lc, Domain)    # usually includes constant parameters for each simulation 
+P = setParameters(FZdepth, halfwidth, res, T, alpha, multiple, Lc, Domain, IDstate, coseismic_a, coseismic_b)    # usually includes constant parameters for each simulation 
 # println(size(P[4].FltNI))   # total number of off-fault GLL nodes
 
 include("$(@__DIR__)/NucleationSize.jl") 
 # calculate the nucleation size of initial rigidity ratio!!
-h_hom_host, h_hom_dam = NucleationSize(P, alpha, a, coseismic_b)
+h_hom_host, h_hom_dam = NucleationSize(P, alpha, coseismic_a, coseismic_b)
 println("The nucleation size of homogeneous host medium:", h_hom_host, " m")
 println("The nucleation size of homogeneous damage medium:", h_hom_dam, " m")
 # # h_dam = h_hom/3           # with alphaa = 0.60

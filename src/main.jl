@@ -103,11 +103,10 @@ function main(P, alphaa, cos_reduction, coseismic_b,Domain)
 
     # after earthquake, normal stress reduces and psi increase: how can normal stress influence state variable
     
-    # Initial state variable psi = tau/sigma/b - f0/b - a*ln(V/V0)/b = ln(V0*theta/Dc)
+    # Initial state variable psi = tau/sigma/b - f0/b - a/b*ln(V/V0) = ln(V0*theta/Dc)
     # log.(P[3].Vo.*theta./xLf)
-
+    # psi0 .= psi[:]
     psi = P[3].tauo./(P[3].Seff.*P[3].ccb) - P[3].fo./P[3].ccb - (P[3].cca./P[3].ccb).*log.(2*v[P[4].iFlt]./P[3].Vo)
-    #psi0 .= psi[:]
 
     # which kind of solver to use at first
     isolver::Int = 1         # quasi-static
@@ -254,8 +253,10 @@ function main(P, alphaa, cos_reduction, coseismic_b,Domain)
             vPre .= v     # non-zero
             dPre .= d     # Culmulative slip (zero) 
 
-            Vf0 .= 2*v[P[4].iFlt] .+ P[2].Vpl   #  
+            Vf0 .= 2*v[P[4].iFlt] .+ P[2].Vpl   #   previous sliprate
             Vf  .= Vf0    # 0 m/s on kinematic fault segment while 1e-3 m/s on dynamic fault!
+            Vf1 .= Vf0
+            psi1 .= psi
 
             # first two adjustation every time step during interseismic phase
             for p1 = 1:2
@@ -291,7 +292,7 @@ function main(P, alphaa, cos_reduction, coseismic_b,Domain)
                 mul!(a,Ksparse,d)
                 #   a = Ksparse*d
 
-                # step4: compute traction on the fault
+                # step4: compute traction peturbation on the fault
                 # Enforce K*d to be zero for velocity boundary (0-20 km)
                 # there is no traction on creeping fault 
                 a[P[4].FltIglobBC] .= 0.       # for creeping fault, traction is zero 
@@ -303,7 +304,7 @@ function main(P, alphaa, cos_reduction, coseismic_b,Domain)
 
                 # note that slrFunc! depends on ccb           
                 # update the new state psi1
-                psi1, Vf1 = slrFunc!(P[3], NFBC, P[1].FltNglob, psi, psi1, Vf, Vf1, P[1].IDstate, tau1, dt)   # from other functions
+                psi1, Vf1 = slrFunc!(P[3], NFBC, P[1].FltNglob, psi, psi1, Vf, Vf1, P[1].IDstate, tau1, dt, P[2].η)   # from other functions
                 
                 # step6: correct slip rate on the fault
                 Vf1[iFBC] .= P[2].Vpl     # set slip rate on creep fault to be plate motion rate
@@ -433,35 +434,35 @@ function main(P, alphaa, cos_reduction, coseismic_b,Domain)
         Vfmax = 2*maximum(v[P[4].iFlt]) .+ P[2].Vpl   # background plate motion rate: P[2].Vpl
 
 # velocity dependent b (evolution effect)
-        b_initial = coseismic_b
-        if t > 1*P[1].yr2sec
+        # b_initial = coseismic_b
+        # if t > 1*P[1].yr2sec
 
-            if  Vfmax <= 1e-5          
-                P[3].ccb[seismogenic_depth] .= b_initial
+        #     if  Vfmax <= 1e-5          
+        #         P[3].ccb[seismogenic_depth] .= b_initial
 
-            elseif 1e-5 < Vfmax < 1e-3  
-                # linear increase in Cartesian velocity
-                # K_b = (0.025-0.019)/(1e-3-1e-5)
-                # P[3].ccb[seismogenic_depth] .= 0.019 .+ (Vfmax - 1e-5)* K_b
+        #     elseif 1e-5 < Vfmax < 1e-3  
+        #         # linear increase in Cartesian velocity
+        #         # K_b = (0.025-0.019)/(1e-3-1e-5)
+        #         # P[3].ccb[seismogenic_depth] .= 0.019 .+ (Vfmax - 1e-5)* K_b
 
-                # sin increase in Cartesian velocity
-                # normalization
-                K_b = (1+sin((Vfmax - 1e-5)/(1e-3 - 1e-5)*pi-pi/2))/2
-                P[3].ccb[seismogenic_depth] .= b_initial + (coseismic_b - b_initial) * K_b
+        #         # sin increase in Cartesian velocity
+        #         # normalization
+        #         K_b = (1+sin((Vfmax - 1e-5)/(1e-3 - 1e-5)*pi-pi/2))/2
+        #         P[3].ccb[seismogenic_depth] .= b_initial + (coseismic_b - b_initial) * K_b
 
-                # linear increase in log scale velocity
-                # K_b = (0.025-0.019)/(log10(1e-3) - log10(1e-5))
-                # P[3].ccb[seismogenic_depth] .= 0.019 .+ (log10(Vfmax) - log(1e-5))* K_b  
+        #         # linear increase in log scale velocity
+        #         # K_b = (0.025-0.019)/(log10(1e-3) - log10(1e-5))
+        #         # P[3].ccb[seismogenic_depth] .= 0.019 .+ (log10(Vfmax) - log(1e-5))* K_b  
 
-                # if  SSS == 0
-                #     println(P[3].ccb)
-                # end
-                # SSS = SSS + 1
+        #         # if  SSS == 0
+        #         #     println(P[3].ccb)
+        #         # end
+        #         # SSS = SSS + 1
 
-            elseif Vfmax >= 1e-3
-                P[3].ccb[seismogenic_depth] .= coseismic_b
-            end    
-        end
+        #     elseif Vfmax >= 1e-3
+        #         P[3].ccb[seismogenic_depth] .= coseismic_b
+        #     end    
+        # end
 
         #-----
         # Output the variables before and after events
@@ -600,8 +601,8 @@ function main(P, alphaa, cos_reduction, coseismic_b,Domain)
         end
 
         # Determine quasi-static or dynamic regime based on max-slip velocity
-        #  if isolver == 1 && Vfmax < 5e-3 || isolver == 2 && Vfmax < 2e-3
-        # when to change the solver
+        # When to change the solver
+        # if isolver == 1 && Vfmax < 1e-3 || isolver == 2 && Vfmax < 1e-3         # with radiation damping as suggested by Ellbanna
         if isolver == 1 && Vfmax < 5e-3 || isolver == 2 && Vfmax < 2e-3    
             # 0.5e-3 is the initial slip rate, so that there is an initial earthquake at zero time!!
             # in addition, 5e-3 is half of the vthres, if it necessary to convert to dynamic regime in advance??

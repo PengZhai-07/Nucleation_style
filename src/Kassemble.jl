@@ -65,7 +65,6 @@ function K_element(W, dxe, dye, NGLL, H, Nel)
     return Ke
 end
 
-
 # My naive approach
 #  function assembley_2(Ke, iglob, Nel, nglob)
     #  Ksparse::SparseMatrixCSC{Float64} = spzeros(nglob,nglob) 

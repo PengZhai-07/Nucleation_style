@@ -159,7 +159,7 @@ plot([log10(0.5), log10(300)],[0.35,0.35], "k--")
 n_xxx = [log10(1.6),log10(1.6),log10(1.2), log10(1.0), log10(0.8), log10(0.8), log10(0.8),log10(0.6),log10(0.6), log10(0.5), log10(0.5), log10(0.5),log10(0.4), log10(0.4)];
 n_yyy = [0.2,0.25,0.3,0.35,0.4,0.45,0.5,0.55,0.6,0.65,0.7,0.75,0.8,0.2];
 fill(n_xxx, n_yyy, [0.8,0.8,0.8],"LineStyle","-")
-text(log10(1),0.3, 'No data','Rotation',0,'FontSize',12)
+text(log10(1),0.3, 'No data','Color','k','Rotation',0,'FontSize',12)
 %%
 % different rupture style
 %  aseismic slip
@@ -178,7 +178,7 @@ i = [10:12,31:32,51:52, 92, 115, 134:135,154:156,173:176,189:193,205:208,219:222
 scatter(P_1(i,1), P_1(i,2),'v','filled','MarkerFaceColor','w', 'MarkerEdgeColor', 'k')
 %   crack-like
 i = [8:9,29:30,50,70:71,90:91,112:114, 132:133, 152:153,170:172, 186:188, 203:204,218];
-scatter(P_1(i,1), P_1(i,2),'p','filled','MarkerFaceColor','w', 'MarkerEdgeColor', 'k')
+scatter(P_1(i,1), P_1(i,2),70,'p','filled','MarkerFaceColor','w', 'MarkerEdgeColor', 'k')
 %   pulse-like
 i = [1:7, 22:28, 42:49, 62:69, 82:89, 105:111,126:131, 146:151,166:169,184:185,202];
 scatter(P_1(i,1), P_1(i,2),'d','filled','MarkerFaceColor','w', 'MarkerEdgeColor', 'k')
@@ -194,7 +194,7 @@ set(h,"color","k")
 % set(findobj(gca,'Type','patch','UserData',1),'EdgeColor', 'w')
 v = [0.5 , 2, 8, 12, 18];
 [c,h]=contour(X(:,1:4),Y(:,1:4),Ru(1:4,:)',v);
-clabel(c,h)
+ 
 set(h,"color","black")
 
 %% representative cases
@@ -202,25 +202,26 @@ scatter(log10(63), 0.55, 100, 'o', 'filled','MarkerFaceColor','w', 'MarkerEdgeCo
 scatter(log10(25), 0.55,100,'h','filled','MarkerFaceColor','w', 'MarkerEdgeColor', 'k')
 scatter(log10(8), 0.55,100,'square','filled','MarkerFaceColor','w', 'MarkerEdgeColor', 'k')
 scatter(log10(4), 0.55,100,'v','filled','MarkerFaceColor','w', 'MarkerEdgeColor', 'k')
-scatter(log10(2.5), 0.55,100,'p','filled','MarkerFaceColor','w', 'MarkerEdgeColor', 'k')
+scatter(log10(2.5), 0.55,180,'p','filled','MarkerFaceColor','w', 'MarkerEdgeColor', 'k')
 scatter(log10(1), 0.55,100,'d','filled','MarkerFaceColor','w', 'MarkerEdgeColor', 'k')
+
+textcolor = [0,0.8,0];
 %% rupture style for a/b>=0.4
-text(log10(200),0.45,"Aseismic slip",'Color','k','Rotation',40)
-text(log10(60),0.45,"Symmetric-bilateral",'Rotation',40)
-text(log10(18),0.45,["Unsymmetric-";"bilateral";"and unilateral"],'Rotation',40)
-text(log10(10),0.45,"Full and partial",'Rotation',40)
-text(log10(5),0.45,"Crack-like with aftershocks ",'Rotation',40)
-text(log10(2),0.45,["Pulse-like with";  "aftershocks"],'Rotation',40)
+text(log10(200),0.55,"Aseismic slip",'Color',textcolor,'Rotation',40, 'FontWeight','demi')
+text(log10(60),0.45,"Symmetric-bilateral",'Color',textcolor,'Rotation',40, 'FontWeight','demi')
+text(log10(18),0.45,["Unsymmetric-";"bilateral";"and unilateral"],'Color',textcolor,'Rotation',40, 'FontWeight','demi')
+text(log10(10),0.45,"Full and partial",'Color',textcolor,'Rotation',40, 'FontWeight','demi')
+text(log10(5),0.45,"Crack-like with aftershocks ",'Color',textcolor,'Rotation',40, 'FontWeight','demi')
+text(log10(2),0.45,["Combination of pulse and crack";  "with aftershocks"],'Color',textcolor,'Rotation',40, 'FontWeight','demi')
 
 % text(log10(50),0.375,["Transition zone of two nucleation equations"],'Rotation',0)
 % rupture style for a/b<=0.35
 % text(log10(200),0.25,"SSE(<0.1m/s) and Creep(<1e-8m/s)",'Rotation',40)
-text(log10(160),0.23,"Symmetric-bilateral",'Rotation',45)
-text(log10(40),0.23,["Unsymmetric-";"bilateral";"and unilateral"],'Rotation',45)
-text(log10(16),0.23,"Full and partial",'Rotation',45)
-text(log10(10.2),0.23,["Crack-like with"; "aftershocks"],'Rotation', 55)
-text(log10(5),0.23,["Pulse-like with";  "aftershocks"],'Rotation',45)
-
+text(log10(160),0.23,"Symmetric-bilateral",'Color',textcolor,'Rotation',45, 'FontWeight','demi')
+text(log10(40),0.23,["Unsymmetric-";"bilateral";"and unilateral"],'Color',textcolor,'Rotation',45, 'FontWeight','demi')
+text(log10(16),0.23,"Full and partial",'Color',textcolor,'Rotation',45, 'FontWeight','demi', 'FontSize', 8)
+text(log10(10.2),0.23,["Crack-like with"; "aftershocks"],'Color',textcolor,'Rotation', 55, 'FontWeight','demi', 'FontSize', 8)
+text(log10(5),0.23,["Combination of";"pulse and crack";"with aftershocks"],'Color',textcolor,'Rotation', 55, 'FontWeight','demi')
 %%
 xticks([log10(L*1000)])
 xticklabels([0.4, 0.5,0.6,0.8,1,1.2,1.6,2,2.5,3,4,5,6,8,10,12,16,20,25,30,40,50,63,80,100,125,160,200,250,300]/5)
@@ -231,19 +232,19 @@ set(gca,'XDir','reverse');        %将x轴方向设置为反向(从右到左递�
 xlabel('RD_{RS}')
 ylabel('a/b')
 title("(a)")
-ax = gca;
+ax = nexttile(1,[2,3]);
 ax.TitleHorizontalAlignment = 'left';
+ax.TitleFontWeight = 'Normal';
 %%
 set(gca,'TickDir', 'out')
-
+hold off
 % axis normal
 % print(gcf, 'Maximum_sliprate.png','-dpng','-r600')
 % saveas(gcf, 'Maximum_sliprate.png')
-
 %% slip velocity distribution
 
 %% aseismic slip
-nexttile(7)
+ax = nexttile(7);
 filename = '/nfs/turbo/lsa-yiheh/yiheh-mistorage/pengz/data/wholespace/phase_diagram_L_b/0.25_32_600_0_0_1.0_0.0_4_0.55_0.063/sliprate.out';
 if exist(filename, "file") == 0
          disp(filename)
@@ -270,6 +271,7 @@ end
 new_v = [sliprate_1(1:10:indx_1(1),nn);sliprate_1(indx_1(1):indx_2(1),nn);sliprate_1(indx_2(1):10:indx_1(2),nn);...
     sliprate_1(indx_1(2):indx_2(2),nn);sliprate_1(indx_2(2):10:indx_1(3),nn); sliprate_1(indx_1(3):indx_2(3),nn);sliprate_1(indx_2(3):10:end,nn)];
 pcolor(log10(new_v))
+hold on
 colormap('turbo')
 shading interp
 clim([-9,2])
@@ -280,14 +282,15 @@ xticklabels([-2.5 2.5])
 ylabel('Time Steps(Integer)')
 set(gca,'YTickLabel', [])
 set(gca,'TickDir', 'out')
-hold on
 plot([101, 101],[0,rr-ll], 'k--')
 plot([501, 501],[0,rr-ll], 'k--')
-scatter(301, (rr-ll)*9/10, 80, 'o', 'filled','MarkerFaceColor','w', 'MarkerEdgeColor', 'k')
-text(201,(rr-ll)*4/5,"Aseismic slip",'Color','w')
+hold on
+scatter(301, (length(new_v))*19/20, 80, 'o', 'filled','MarkerFaceColor','w', 'MarkerEdgeColor', 'k')
+text(201,(length(new_v))*17/20,"Aseismic slip",'Color','k')
 title("(b)")
 ax = gca;
 ax.TitleHorizontalAlignment = 'left';
+ax.TitleFontWeight = 'Normal';
 clear sliprate
 %% bilateral
 nexttile(8)
@@ -326,16 +329,16 @@ xticklabels([-2.5 2.5])
 % set(gca,'XTickLabel', [])
 ylabel('Time Steps(Integer)')
 set(gca,'YTickLabel', [])
-
 set(gca,'TickDir', 'out')
 hold on
 plot([101, 101],[0,rr-ll], 'k--')
 plot([501, 501],[0,rr-ll], 'k--')
-scatter(301, (rr-ll)*9/10, 80, 'h', 'filled','MarkerFaceColor','w', 'MarkerEdgeColor', 'k')
-text(151,(rr-ll)*4/5,"Symmetric-bilateral",'Color','w')
+scatter(301, (length(new_v))*19/20, 80, 'h', 'filled','MarkerFaceColor','w', 'MarkerEdgeColor', 'k')
+text(151,(length(new_v))*17/20,"Symmetric-bilateral",'Color','k')
 title("(c)")
 ax = gca;
 ax.TitleHorizontalAlignment = 'left';
+ax.TitleFontWeight = 'Normal';
 clear sliprate
 %% unilateral
 nexttile(9)
@@ -378,11 +381,12 @@ set(gca,'TickDir', 'out')
 hold on
 plot([101, 101],[0,rr-ll], 'k--')
 plot([501, 501],[0,rr-ll], 'k--')
-scatter(301, (rr-ll)*9/10, 80, 'square', 'filled','MarkerFaceColor','w', 'MarkerEdgeColor', 'k')
-text(151,(rr-ll)*4/5,["Unsymmetric-bilateral";"and unilateral"],'Color','w')
+scatter(301, (length(new_v))*19/20, 80, 'square', 'filled','MarkerFaceColor','w', 'MarkerEdgeColor', 'k')
+text(151,(length(new_v))*17/20,["Unsymmetric-bilateral";"and unilateral"],'Color','k')
 title("(d)")
 ax = gca;
 ax.TitleHorizontalAlignment = 'left';
+ax.TitleFontWeight = 'Normal';
 clear sliprate
 %% full and partial
 nexttile(10)
@@ -425,11 +429,12 @@ set(gca,'TickDir', 'out')
 hold on
 plot([101, 101],[0,rr-ll], 'k--')
 plot([501, 501],[0,rr-ll], 'k--')
-scatter(301, (rr-ll)*9/10, 80, 'v', 'filled','MarkerFaceColor','w', 'MarkerEdgeColor', 'k')
-text(201,(rr-ll)*4/5,"Full and Partial",'Color','w')
+scatter(301, (length(new_v))*19/20, 80, 'v', 'filled','MarkerFaceColor','w', 'MarkerEdgeColor', 'k')
+text(201,(length(new_v))*17/20,"Full and Partial",'Color','k')
 title("(e)")
 ax = gca;
 ax.TitleHorizontalAlignment = 'left';
+ax.TitleFontWeight = 'Normal';
 clear sliprate
 %% crack-like with aftershocks
 nexttile(11)
@@ -475,11 +480,12 @@ set(gca,'TickDir', 'out')
 hold on
 plot([101, 101],[0,rr-ll], 'k--')
 plot([501, 501],[0,rr-ll], 'k--')
-scatter(301, (rr-ll)*9/10, 80, 'p', 'filled','MarkerFaceColor','w', 'MarkerEdgeColor', 'k')
-text(151,(rr-ll)*4/5,"Crack-like with aftershocks",'Color','w')
+scatter(301, (length(new_v))*19/20, 120, 'p', 'filled','MarkerFaceColor','w', 'MarkerEdgeColor', 'k')
+text(151,(length(new_v))*17/20,"Crack-like with aftershocks",'Color','k')
 title("(f)")
 ax = gca;
 ax.TitleHorizontalAlignment = 'left';
+ax.TitleFontWeight = 'Normal';
 clear sliprate
 %% pulse-like with afteshocks
 nexttile(12)
@@ -529,11 +535,12 @@ set(gca,'TickDir', 'out')
 hold on
 plot([151, 151],[0,rr-ll], 'k--')
 plot([751, 751],[0,rr-ll], 'k--')
-scatter(451, (rr-ll)*9/10, 80, 'd', 'filled','MarkerFaceColor','w', 'MarkerEdgeColor', 'k')
-text(251,(rr-ll)*4/5,"Pulse-like with aftershocks",'Color','w')
+scatter(451, (length(new_v))*19/20, 80, 'd', 'filled','MarkerFaceColor','w', 'MarkerEdgeColor', 'k')
+text(201,(length(new_v))*17/20,["Combination of pulse and"; "crack with aftershocks"],'Color','k')
 title("(g)")
 ax = gca;
 ax.TitleHorizontalAlignment = 'left';
+ax.TitleFontWeight = 'Normal';
 clear sliprate
 %%
 exportgraphics(gcf,'maximum_sliprate.png','Resolution',200)

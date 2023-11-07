@@ -22,7 +22,8 @@ project = "wholespace/phase_diagram_L_b"
 # input_parameter = readdlm("$(@__DIR__)/SSE_Creep.txt", ',',  header=false)
 # input_parameter = readdlm("$(@__DIR__)/SSE_Creep_2.txt", ',',  header=false)
 # input_parameter = readdlm("$(@__DIR__)/high_res.txt", ',',  header=false)
-input_parameter = readdlm("$(@__DIR__)/whole_space_32.txt", ',',  header=false)
+# input_parameter = readdlm("$(@__DIR__)/whole_space_32.txt", ',',  header=false)
+input_parameter = readdlm("$(@__DIR__)/whole_space_32_copy.txt", ',',  header=false)
 a = size(input_parameter)[1]
 global ii::Int = 0
 
@@ -117,7 +118,6 @@ for index = EX                  # normal stress
         n_before = 160
     end
     println("n_before=", n_before)
-
 
     n = length(tStart)         # how many seimsic events
     # n = 5
@@ -256,10 +256,11 @@ for index = EX                  # normal stress
     ax.set_ylabel("V(m/s)")
     ax.set_title(letter[1+(ii-1)*4], loc="left")
     
-
     ax2 = fig.add_subplot(N_EX, 4, 2+(ii-1)*4)
     ax2.plot([1e-7,1e-6,1e-5,1e-4,1e-3,1e-2,1e-1], NS_width[i,:,2], color="limegreen", marker="o")        # plot every five steps
-    ax2.plot([1e-7,1e-6,1e-5,1e-4,1e-3,1e-2,1e-1], TNS.*ones(n_e,1), color="k", linestyle=":", label="Theoretical length")
+    ax2.plot([1e-7,1e-6,1e-5,1e-4,1e-3,1e-2,1e-1], TNS.*ones(n_e,1), color="k", linestyle=":", label="Theoretical nucleation size")
+    ax2.plot([1e-7,1e-6,1e-5,1e-4,1e-3,1e-2,1e-1], TNS_2.*ones(n_e,1), color="k", linestyle=":", label="Lb")
+    
     if ii == N_EX
         ax2.set_xlabel("Vmax(m/s)")
     end

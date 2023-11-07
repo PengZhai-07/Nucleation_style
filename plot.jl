@@ -9,19 +9,22 @@ global output_freq = 10
 global Domain_X = 40e3
 
 turbo = "/nfs/turbo/lsa-yiheh/yiheh-mistorage/pengz/data"
-project = "wholespace/phase_diagram_L_b/"
+# project = "wholespace/phase_diagram_L_b/"
+project = "wholespace/test_quartz/"
 
 # other input parameter
 # input_parameter = readdlm("$(@__DIR__)/SSE_Creep.txt", ',',  header=false)     # seismic events: 1-12,16,25,28,31,36,39,42
 # input_parameter = readdlm("$(@__DIR__)/SSE_Creep_2.txt", ',',  header=false)
 # input_parameter = readdlm("$(@__DIR__)/high_res.txt", ',',  header=false)
-input_parameter = readdlm("$(@__DIR__)/whole_space_32.txt", ',',  header=false)
+# input_parameter = readdlm("$(@__DIR__)/whole_space_32.txt", ',',  header=false)
 # input_parameter = readdlm("$(@__DIR__)/high_res_2.txt", ',',  header=false)
 # input_parameter = readdlm("$(@__DIR__)/domain_size_test.txt", ',',  header=false)
+# input_parameter = readdlm("$(@__DIR__)/whole_space_32_copy.txt", ',',  header=false)
+input_parameter = readdlm("$(@__DIR__)/quartz_test.txt", ',',  header=false)
 
 a = size(input_parameter)[1]
 
-for index = 131
+for index = [7]
 
     # domain parameters
     Domain = input_parameter[index,1]   # amplify factor of the domain size, the current domain size is 30km*24km for 0.75 domain size
@@ -39,9 +42,10 @@ for index = 131
     local a = 0.015      # a is a constant value
     coseismic_b::Float64 =  a/a_over_b            # coseismic b increase 
     Lc= input_parameter[index,10]     # characteristic slip distance      unit:m
+    IDstate::Int = input_parameter[index,12]     # evolution of state variable: 2: aging law   3: slip law
 
     # global FILE = "0_500_$(res)_0.8_$(cos_reduction)_$(multiple)_$(Domain)_$(coseismic_b)_$(Lc)"
-    global FILE = "$(Domain)_$(res)_$(T)_$(FZlength)_$(halfwidth)_$(alpha)_$(cos_reduction)_$(multiple)_$(a_over_b)_$(Lc)"
+    global FILE = "$(Domain)_$(res)_$(T)_$(FZlength)_$(halfwidth)_$(alpha)_$(cos_reduction)_$(multiple)_$(a_over_b)_$(Lc)_$(IDstate)"
     println(FILE)
 
     global out_path = "$(turbo)/$(project)/$(FILE)/"
@@ -58,8 +62,8 @@ for index = 131
 
     include("analyze_results.jl")     
 
-    # N = 500
-    N = T
+    # N = 300
+    N = T      # total simulation time
 
     # calculate the nucleation size and plot the nucleation process
     N_timestep::Int = input_parameter[index,11]       # time steps to use in sliprate for nucleation process
@@ -69,32 +73,29 @@ for index = 131
     measure_threshold = 1e-2    # where measure the width of nucleation zone: 1e-7m/s for 
                                 # constant weakening(expanding crack) and 1e-2 m/s for fixed length patch
       
-
     # moment_release_example(sliprate', FltX, tStart, t, N_timestep, criteria, measure_threshold, Domain/1000)       
 
-    # sliprate_analysis(Vfmax, alphaa, t, yr2sec, sliprate', FltX, N, Domain/1000)
-
+    sliprate_analysis(Vfmax, alphaa, t, yr2sec, sliprate', FltX, N, Domain/1000)
 
      # Plot friction parameters
     icsPlot(a_b, Seff, tauo, FltX.-Domain*Domain_X/1000/2, Domain/1000)
 
-    # # max slip rate versus timestep
-    # VfmaxPlot(Vfmax, N, t)
+    # max slip rate versus timestep
+    VfmaxPlot(Vfmax, N, t)
 
-    # # healing analysis: Vfmax and regidity ratio vs. time
-    # V_max = healing_analysis(Vfmax, alphaa, t, yr2sec)
-    # open(string(path,"Maximum_slip_velocity.out"), "w") do io
-    #     write(io, join(V_max), "\n") 
-    # end
+    # healing analysis: Vfmax and regidity ratio vs. time
+    V_max = healing_analysis(Vfmax, alphaa, t, yr2sec, N)
+    open(string(path,"Maximum_slip_velocity.out"), "w") do io
+        write(io, join(V_max), "\n") 
+    end
 
-    # # slip rate vs timesteps
-    # # how many years to plot
-    # eqCyclePlot(sliprate', FltX, N, t, Domain/1000)
+    # slip rate vs timesteps
+    # how many years to plot
+    eqCyclePlot(sliprate', FltX, N, t, Domain/1000)
    
-    
-    # # culmulative slip
-    # cumSlipPlot(delfsec[1:4:end,:], delfyr[1:4:end, :], FltX, hypo, d_hypo, N, Domain/1000);
-    # # cumSlipPlot_no_hypocenter(delfsec[1:4:end,:], delfyr[1:end, :], FltX, N);
+    # culmulative slip
+    cumSlipPlot(delfsec[1:4:end,:], delfyr[1:end, :], FltX, hypo, d_hypo, N, Domain/1000);
+    # cumSlipPlot_no_hypocenter(delfsec[1:4:end,:], delfyr[1:end, :], FltX, N, Domain/1000);
 
     # # theoretical nucleation size
     # if a_over_b >= 0.3781
@@ -106,8 +107,8 @@ for index = 131
 
     # # Nucleation_example(sliprate', weakeningrate', FltX, tStart, t, N_timestep, criteria, measure_threshold, Domain/1000)    # only plot the last seismic event
     
-    # EEP = Nucleation_example_evolution(sliprate', weakeningrate', FltX, tStart, t, N_timestep, criteria, measure_threshold, Domain/1000, TNS, hypo/1000, [3,5,6,8,9])    # only plot the last seismic event
-    # # EEP = Nucleation_example_evolution(sliprate', weakeningrate', FltX, tStart, t, N_timestep, criteria, measure_threshold, Domain/1000, TNS, hypo/1000, characteristic_index[3:7])    # only plot the last seismic event
+    # EEP = Nucleation_example_evolution(sliprate', weakeningrate', FltX, tStart, t, N_timestep, criteria, measure_threshold, Domain/1000, TNS, hypo/1000, [2,3,4,5])    # only plot the last seismic event
+    # # EEP = Nucleation_example_evolution(sliprate', weakeningrate', FltX, tStart, t, N_timestep, criteria, measure_threshold, Domain/1000, TNS, hypo/1000, characteristic_index[2:6])    # only plot the last seismic event
 
     # ## Nucleation_example_no_weakening_rate(sliprate', FltX, tStart, t, N_timestep, criteria, measure_threshold)    # only plot the last seismic event
 
@@ -155,20 +156,20 @@ for index = 131
 
     #  coseismic stress drop
     # stressdrop_2(taubefore, tauafter, FltX, tStart, Domain/1000)    # the row is the number of event
-    # # default is the first event, so taubefore is the initial shear stress: 0.6*normal stress
+    # default is the first event, so taubefore is the initial shear stress: 0.6*normal stress
     
-    # # # plot the variation of apparent stress
-    # # # apparent_friction(stress, index_start, index_end, delfsec, index_ds_start, index_ds_end, depth, t, 2, 50)
-    # apparent_friction_new(stress, index_start, index_end, delfsec_et, index_ds_start, index_ds_end, NS_width, 40, N_events)
+    # # plot the variation of apparent stress
+    # apparent_friction(stress, index_start, index_end, delfsec, index_ds_start, index_ds_end, depth, t, 2, 50)
+    # apparent_friction_new(stress, index_start, index_end, delfsec_et, index_ds_start, index_ds_end, NS_width, 50, N_events)
     # apparent_friction_new_prapogation(stress, index_start, index_end, delfsec_et, index_ds_start,
     #     index_ds_end, NS_width, 40, N_events)
 
     # stress drop of the first artificial event 
 
-    # # stressdrop_1(taubefore[1,:], tauafter[1,:], FltX)    # the row is the number of event
+    # stressdrop_1(taubefore[1,:], tauafter[1,:], FltX)    # the row is the number of event
 
-    # #Plot hypo(km) vs event number, average stress drop(MPa), duration(s), moment magnitude.
-    # hypo_Mw_stressdrop(hypo, Mw, del_sigma, delfafter,FltX)
+    #Plot hypo(km) vs event number, average stress drop(MPa), duration(s), moment magnitude.
+    hypo_Mw_stressdrop(hypo, Mw, del_sigma, delfafter,FltX, Domain/1000)
 
 
 

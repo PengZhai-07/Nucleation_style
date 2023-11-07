@@ -11,14 +11,14 @@ include("$(@__DIR__)/src/MaterialProperties.jl")		 # 	Build 2D mesh
 include("$(@__DIR__)/src/damageEvol.jl")   #    Stiffness index of damaged medium
 include("$(@__DIR__)/src/BoundaryMatrix.jl")    #	Boundary matrices
 # include("$(@__DIR__)/src/initialConditions/defaultInitialConditions.jl")
-include("$(@__DIR__)/src/initialConditions/defaultInitialConditions_domain_1.jl")
+include("$(@__DIR__)/src/initialConditions/defaultInitialConditions.jl")
 
-function setParameters(FZdepth::Int, halfwidth::Int, res::Int, T::Int, alpha::Float64, multiple::Int, Lc::Float64, Domain)
+function setParameters(FZdepth::Int, halfwidth::Int, res::Int, T::Int, alpha::Float64, multiple::Int, Lc::Float64, Domain, IDstate::Int, coseismic_a::Float64, coseismic_b::Float64)
 
     LX::Int = Domain*Domain_X  # depth dimension of rectangular domain
     LY::Int = Domain*Domain_Y # off fault dimenstion of rectangular domain
 
-    NelX::Int = 25*res*Domain # no. of elements in x
+    NelX::Int = 25*res*Domain # no. of elements in x (vertical)
     NelY::Int = 20*res*Domain # no. of elements in y
 
     dxe::Float64 = LX/NelX   #	Size of one element along X
@@ -52,7 +52,7 @@ function setParameters(FZdepth::Int, halfwidth::Int, res::Int, T::Int, alpha::Fl
 
     CFL::Float64 = 0.6	#	Courant stability number     c*(dt/dx) <= 1
 
-    IDstate::Int = 2    #   State variable equation type: aging law
+    # IDstate::Int = 2    #   State variable equation type: aging law
 
     # Some other variables used to define the time steps: see koneko's function
     dtincf::Float64 = 1.2      # useless
@@ -64,16 +64,18 @@ function setParameters(FZdepth::Int, halfwidth::Int, res::Int, T::Int, alpha::Fl
     #...................
 
     # default: host rock!!
-    rho1::Float64 = 2670
-    vs1::Float64 = 3462
+    # rho1::Float64 = 2670
+    # vs1::Float64 = 3462
+
+    # quartz
+    rho1::Float64 = 2650    # kg/m^3
+    vs1::Float64 = 4480    # m/s
     
     # # The entire medium has low rigidity
     # rho1::Float64 = 2500
     # vs1::Float64 = 0.6*3462
     # the initial property of fualt damage zone: fault zone evolution!!!
-    rho2::Float64 = 2670
-    #vs2::Float64 = 1.00*vs1       # for healing test: define the variation of regidity in main.jl
-
+    rho2::Float64 = 2650
     vs2::Float64 = sqrt(alpha)*vs1   # define the rigidity now(a constant during whole simulation)
 
     # note: it is not necessary to define the damage zone here with healing
@@ -84,6 +86,9 @@ function setParameters(FZdepth::Int, halfwidth::Int, res::Int, T::Int, alpha::Fl
 
     # without viscosity damping
     ETA = 0.
+
+    # radiation damping coefficient
+    η::Float64 = 9.5e6     # Pa*s/m     from  allison et al. (2018) 
 
     # Low velocity layer dimensions
     ThickX::Float64 = LX - ceil(FZdepth/dxe)*dxe   # ~distance from low boundary to fault zone low boundary
@@ -128,7 +133,6 @@ function setParameters(FZdepth::Int, halfwidth::Int, res::Int, T::Int, alpha::Fl
     xgll::Vector{Float64}, wgll::Vector{Float64}, H::Matrix{Float64} = GetGLL(NGLL)
     wgll2::SMatrix{NGLL,NGLL,Float64} = wgll*wgll'       # define a sparse Matrix from FEMSparse
     # println(wgll2)
-
 
     #.............................
     #   OUTPUT RECEIVER LOCATIONS
@@ -224,7 +228,7 @@ function setParameters(FZdepth::Int, halfwidth::Int, res::Int, T::Int, alpha::Fl
                        rho1, vs1, rho2, vs2, dy_deta, dx_dxi, wgll, iglob, 'L')
     # println(iFlt)
 
-    # what is FltZ? Faulr impedance matrix  FltZ = jac1D(dy_deta)*wgll*rho1/dt_min  used in NRsearch
+    # what is FltZ? Fault impedance matrix  FltZ = jac1D(dy_deta)*wgll*rho1/dt_min  used in NRsearch
     # M = wgll2.*rho1 (damage zone).*jac (dx_dxi*dy_deta)
     # FltL = dx_dxi.*wgll.*1 (impedance)
     # half_dt = 0.5*dtmin
@@ -237,11 +241,13 @@ function setParameters(FZdepth::Int, halfwidth::Int, res::Int, T::Int, alpha::Fl
     #......................
     # Initial Conditions
     #......................
-    cca::Vector{Float64}, ccb::Vector{Float64}, a_b = fricDepth(FltX,Domain)   # rate-state friction parameters
+    cca::Vector{Float64}, ccb::Vector{Float64}, a_b = fricDepth(FltX, Domain, coseismic_a, coseismic_b)   # rate-state friction parameters
     # fric_depth = findall(abs(2e3) .< abs.(FltX) .<= abs(12e3))
     # # println(fric_depth)
     # ccb[fric_depth] .= 0.025
-    # println(ccb)
+    println(cca)
+    println(ccb)
+    println(a_b)
 
     Seff::Vector{Float64} = SeffDepth(FltX, multiple)       # default effective normal stress: 10MPa
     #println(Seff)
@@ -275,11 +281,13 @@ function setParameters(FZdepth::Int, halfwidth::Int, res::Int, T::Int, alpha::Fl
     idx_1 = findall(fbc .== findall(x .>= -Domain*Domain_X*7/8)[1])[1]     # lower boundary of frictional parameters: over 20km are all creeping fault
     idx_2 = findall(fbc .== findall(x .>= -Domain*Domain_X/8)[1])[1] 
 
+    # idx_1 = findall(fbc .== findall(x .>= -Domain*Domain_X*11/16)[1])[1]     # lower boundary of frictional parameters: over 20km are all creeping fault
+    # idx_2 = findall(fbc .== findall(x .>= -Domain*Domain_X*5/16)[1])[1] 
+
     println("idx_1=", idx_1)
     println("idx_2=", idx_2)
     #println("idx=", idx)
     #println(fbc[idx_2:end])
-
 
     # note that for small resolution, this creterion may be not accurate
     FltIglobBC::Vector{Int} = vcat(fbc[1:idx_1], fbc[idx_2:idx_2+idx_1])  # GLL nodes within creeping fault (>20 km)  with repeated nodes
@@ -287,9 +295,11 @@ function setParameters(FZdepth::Int, halfwidth::Int, res::Int, T::Int, alpha::Fl
     println(fbc[1:idx_1])
     println(fbc[idx_2:idx_2+idx_1])  # for resolution 32
 
-    # # Kelvin-Voigt Viscosity : one technical method to increase the convergence rate
+    # # Kelvin-Voigt Viscosity : one technical method to increase the convergence rate of on-fault displacement
+    # add damping to internal forces(a in main.jl) within near fault elements!
+
     # Nel_ETA::Int = 0   # not used! 
-    # if ETA != 0
+    # if  ETA != 0
     #     Nel_ETA = NelX
     #     x1 = 0.5*(1 .+ xgll')
     #     eta_taper = exp.(-pi*x1.^2)
@@ -310,7 +320,7 @@ function setParameters(FZdepth::Int, halfwidth::Int, res::Int, T::Int, alpha::Fl
     @printf("dt: %1.09f s\n", dt)   # minimal timestep during coseismic stage
 
     return params_int(Nel, FltNglob, yr2sec, Total_time, IDstate, nglob),
-            params_float(ETA, Vpl, Vthres, Vevne, dt, mu, ThickY),
+            params_float(ETA, Vpl, Vthres, Vevne, dt, mu, ThickY, η),
             # arrary = vector
             params_farray(fo, Vo, xLf, M, BcBC, BcRC, BcTC, FltL, FltZ, FltX, cca, ccb, Seff, Snormal, SSpp, 
             tauo, XiLf, x_out, y_out),
@@ -319,13 +329,11 @@ function setParameters(FZdepth::Int, halfwidth::Int, res::Int, T::Int, alpha::Fl
 
 end
 
-
-
 # the sequence of above parameters should be the same with the following
 struct params_int{T<:Int}
     # Domain size
     Nel::T          # total number of elements in the  2D model
-    FltNglob::T     # total number of GLL nodes on the fault line  
+    FltNglob::T     # total number of GLL nodes on the fault line 
 
     # Time parameters
     yr2sec::T       # how many seconds in a year
@@ -334,6 +342,7 @@ struct params_int{T<:Int}
 
     # Fault setup parameters
     nglob::T        # total number of GLL nodes in the 2D model
+
 
 end
 
@@ -355,6 +364,9 @@ struct params_float{T<:AbstractFloat}
     dt::T        # timestep based on CFL creterion   
     mu::T        # shear modulus of host rock
     ThickY::T     # real halfwidth of damage zone
+
+    # radiation damping coefficient
+    η::T      # Pa*s/m
 end
 
 struct params_farray{T<:Vector{Float64}}

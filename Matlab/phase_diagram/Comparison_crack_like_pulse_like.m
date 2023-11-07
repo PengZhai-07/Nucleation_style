@@ -109,7 +109,6 @@ title("(e)")
 ax = gca;
 ax.TitleHorizontalAlignment = 'left';
 
-
 clear sliprate
 
 %%
@@ -140,7 +139,7 @@ set(gca,'TickDir', 'out')
 hold on
 plot([STF, STF],[0,rr-ll], 'b--')    % points for the STF
 scatter(151, (rr-ll)*9/10, 80, 'd', 'filled','MarkerFaceColor','w', 'MarkerEdgeColor', 'k')
-text(181,(rr-ll)*9/10,"Pulse-like",'Color','w')
+text(181,(rr-ll)*9/10,["Combination of"; "pulse and crack"],'Color','w')
 title("(b)")
 ax = gca;
 ax.TitleHorizontalAlignment = 'left';

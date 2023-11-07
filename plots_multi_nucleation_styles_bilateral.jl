@@ -307,6 +307,6 @@ for index = EX                   # normal stress
 
 end
 path = "$(@__DIR__)/plots/wholespace/phase_diagram_L_b"        
-figname = string(path, "_4_representative_nucleation_style.png")
+figname = string(path, "_4_representative_nucleation_style.pdf")
 fig.savefig(figname, dpi = 600)
 #show()
