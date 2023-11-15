@@ -1,0 +1,12 @@
+
+Currently Loaded Modules:
+  1) gcc/10.3.0   2) openmpi/4.1.6
+
+ 
+
+[gl3021.arc-ts.umich.edu:2865017] MCW rank 0 is not bound (or bound to all available processors)
+
+(.:2865044): Gdk-CRITICAL **: 21:29:14.491: gdk_cursor_new_for_display: assertion 'GDK_IS_DISPLAY (display)' failed
+
+(.:2865044): Gdk-CRITICAL **: 21:29:14.566: gdk_cursor_new_for_display: assertion 'GDK_IS_DISPLAY (display)' failed
+[ Info: Simulation Complete!

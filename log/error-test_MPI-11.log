@@ -1,0 +1,18 @@
+
+Currently Loaded Modules:
+  1) gcc/10.3.0   2) openmpi/4.1.6
+
+ 
+
+
+Currently Loaded Modules:
+  1) gcc/10.3.0   2) openmpi/4.1.6
+
+ 
+
+[gl3022.arc-ts.umich.edu:3492684] MCW rank 1 bound to socket 0[core 2[hwt 0]], socket 0[core 3[hwt 0]]: [././B/B][./././.]
+[gl3022.arc-ts.umich.edu:3492684] MCW rank 2 bound to socket 1[core 4[hwt 0]], socket 1[core 5[hwt 0]]: [./././.][B/B/./.]
+[gl3022.arc-ts.umich.edu:3492684] MCW rank 3 bound to socket 1[core 6[hwt 0]], socket 1[core 7[hwt 0]]: [./././.][././B/B]
+[gl3022.arc-ts.umich.edu:3492684] MCW rank 0 bound to socket 0[core 0[hwt 0]], socket 0[core 1[hwt 0]]: [B/B/./.][./././.]
+slurmstepd: error: *** JOB 64466168 ON gl3022 CANCELLED AT 2023-11-12T10:01:28 DUE TO TIME LIMIT ***
+mpirun: Forwarding signal 18 to job

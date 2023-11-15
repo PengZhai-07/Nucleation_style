@@ -1,0 +1,9 @@
+
+Currently Loaded Modules:
+  1) gcc/10.3.0   2) openmpi/4.1.6
+
+ 
+
+[gl3127.arc-ts.umich.edu:3505797] MCW rank 0 is not bound (or bound to all available processors)
+slurmstepd: error: *** JOB 64688634 ON gl3127 CANCELLED AT 2023-11-14T16:50:10 DUE TO TIME LIMIT ***
+mpirun: Forwarding signal 18 to job

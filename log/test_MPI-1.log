@@ -1,0 +1,11 @@
+1
+julia running on 8*1 cores with 8 MPI-tasks and 1 threads
+mpirun -n 8 --bind-to core --map-by node:PE=1 -report-bindings julia testMPI.jl
+Hello world, I am 4 of 8Hello world, I am 6 of 8Hello world, I am 7 of 8Hello world, I am 5 of 8Hello world, I am 3 of 8Hello world, I am 2 of 8Hello world, I am 0 of 8Hello world, I am 1 of 8
+
+
+
+
+
+
+

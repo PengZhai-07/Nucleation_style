@@ -11,8 +11,8 @@ function Kassemble(NGLL, NelX, NelY, dxe,dye, nglob, iglob, W)
     Ke = K_element(W, dxe, dye, NGLL, H, NelX*NelY)  # complete stiffness Matrix
     println("the dimension of stiffness for each element is",size(Ke))
     #  Ks22 = assembley(Ke, iglob, NelX*NelY, nglob)
-    K = FEsparse(NelX*NelY, Ke, iglob)    # change into Sparse matrix K!!
-    return dropzeros!(K)
+    K = FEsparse(NelX*NelY, Ke, iglob)    # return Sparse matrix K!!
+    return dropzeros!(K)      # from   SparseArrays: only return nonzero elements and locations of them
     #  return rcmpermute(dropzeros!(K))
 end
 

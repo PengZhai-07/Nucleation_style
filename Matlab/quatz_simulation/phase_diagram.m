@@ -9,7 +9,7 @@ set(gcf,'Position',[0 0 1000 600]);%左下角位置，宽高
 
 % t = tiledlayout(4,3);
 % t.TileSpacing = 'tight';
-% t.Padding = 'tight';
+% t.Padding = 'tight';5.32e10
 % 
 % nexttile(1,[2,3])
 %%

@@ -99,7 +99,7 @@ Mw, del_sigma, fault_slip, rupture_len, scaled_energy, radiation_eff =
         moment_magnitude_new(mu/1e6, FltX, delfafter', stressdrops', delfsec_et, index_ds_start, index_ds_end, stress,index_start, index_end);   # Time*L
 
 # index of characteristics event
-characteristic_index = findall(rupture_len .> 5000)      # unit of rupture length: meter
+characteristic_index = findall(rupture_len .> maximum(FltX)/2)      # unit of rupture length: meter
 
 println("The index of characteristic event is ", characteristic_index)
 

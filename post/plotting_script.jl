@@ -315,7 +315,7 @@ function eqCyclePlot(sliprate, FltX, N, t, Domain)
     
 end
 
-function moment_release_example(sliprate, FltX, tStart, t, N, criteria, measure_threshold, Domain)
+function moment_release_example(sliprate, FltX, tStart, t, N, criteria, seismic_threshold, Domain)
     n_before = 150             # 200 time steps before seismic threshold 
     n = length(tStart)         # how many seimsic events
     # n = 5
@@ -324,13 +324,14 @@ function moment_release_example(sliprate, FltX, tStart, t, N, criteria, measure_
     fig = PyPlot.figure(figsize=(10, 8))
     # for i = 1: n-1 
     
-    for i = n-2        # plot the i_th normal earthquake: choose by yourself    if i=n-1, then plot the last one!!
+    for i = 5        # plot the i_th normal earthquake: choose by yourself    if i=n-1, then plot the last one!!
         #println("Time of the last seismic event(s):",tStart[end])
         indx_last = findall(t[:] .<= tStart[i+1])[end]   
         indx_last_int::Int = floor(indx_last/output_freq)
         #println("Index of timestep in sliprate(output every 10) at the beginning of last seismic event:", indx_last_int)
-        t_coseismic = t[indx_last:output_freq:indx_last+N*output_freq]   # accurate time for each sliprate
-        
+
+        t_coseismic = t[indx_last:output_freq:indx_last+N*output_freq]
+
         indx = findall(abs.(FltX) .<= Domain*Domain_X)[1]
         depth = FltX[indx:end]
         value = sliprate[indx:end, indx_last_int:indx_last_int+N]       # depth, timestep  # only use the slip rate data after the seismic threshold!
@@ -353,20 +354,23 @@ function moment_release_example(sliprate, FltX, tStart, t, N, criteria, measure_
 
         moment_before = 0
         # calculate the crack length
-        for k in 2:length(t_coseismic)
-            # measure the width of nucleation zone for each timestep
-            indx_nucleation = findall(value[:, k] .>= measure_threshold)       # using the second line(n_before+2) to define the width of nucleation size
-            new_depth = FltX[indx:end][indx_nucleation]
-            downdip_depth = maximum(new_depth)
-            updip_depth = minimum(new_depth)
-            V[k] = maximum(value[:, k])
-            # expanding crack
-            crack_length[k] = downdip_depth - updip_depth        # width of nucleation zone
-             # moment release: assuming that the rupture width is the same with rupture length
-            moment_rate[k] = 3.2e10 * (crack_length[k]*1000)^2 * mean(value[indx_nucleation, k])   # unit: Nm/s
-            if k < nn
-                moment_before = moment_before + 0.5*(moment_rate[k] + moment_rate[k-1])*(t_coseismic[k] - t_coseismic[k-1])
-            end
+
+
+        for k in 2:length(t_coseismic)     # time step after seismic threshold(1e-3 m/s)
+                # measure the width of nucleation zone for each timestep
+                # println("Max slip rate is", maximum(value[:, k]))
+                indx_nucleation = findall(value[:, k] .>= seismic_threshold)       # using the second line(n_before+2) to define the width of nucleation size
+                new_depth = FltX[indx:end][indx_nucleation]
+                downdip_depth = maximum(new_depth)
+                updip_depth = minimum(new_depth)
+                V[k] = maximum(value[:, k])
+                # expanding crack
+                crack_length[k] = downdip_depth - updip_depth        # width of nucleation zone
+                # moment release: assuming that the rupture width is the same with rupture length
+                moment_rate[k] = 3.2e10 * (crack_length[k]*1000)^2 * mean(value[indx_nucleation, k])   # unit: Nm/s
+                if k < nn
+                    moment_before = moment_before + 0.5*(moment_rate[k] + moment_rate[k-1])*(t_coseismic[k] - t_coseismic[k-1])
+                end
         end
         for k in eachindex(t_coseismic)[2:end-1]
             rupture_speed[k] = (crack_length[k+1] - crack_length[k-1])/(t_coseismic[k+1] - t_coseismic[k-1])   # central difference   
@@ -381,7 +385,7 @@ function moment_release_example(sliprate, FltX, tStart, t, N, criteria, measure_
         ax.plot(t_coseismic[2:end], crack_length[2:end], color="red", label="crack length")        # plot every five steps
         ax.plot(0, crack_length[nn], "*",color="black", markersize=15, label="measured nucleation size")
         ax.set_xlabel("t(s)")
-        ax.set_ylim([0, 15])
+        # ax.set_ylim([0, Domain*Domain_X/1.5])
         ax.set_ylabel("Crack length(km)")
         ax.legend(loc="upper left")
 
@@ -649,19 +653,23 @@ end
 function Nucleation_example_evolution(sliprate, weakeningrate, FltX, tStart, t, N, criteria, measure_threshold, Domain, TNS, hypo, characteristic_index)
     
     # time steps before seismic threshold 
+    L = Domain*Domain_X/2
+    println("The length of the fault(km):", L)
+    println("The ratio of fault length to theretical value: ", L/TNS)
 
-    if  0.5 <= 5/TNS < 1  
-        n_before = 300                    # 350, 450
-    elseif 1 <= 5/TNS < 2  
-        n_before = 300 
+    if  0.5 <= L/TNS < 1  
+        n_before = 400                    # 350, 450
+    elseif 1 <= L/TNS < 2  
+        n_before = 180        # remember to reduce this value when a/b is large!
+        # n_before = 300
     # only works for a/b=0.9
-    elseif 2 <= 5/TNS < 4  
-        n_before = 200    #     200 for case29,30,31,32,40     700 for case33,  900 for case34 and 35 in high_res_2
-    elseif 4 <= 5/TNS < 8 
-        n_before = 120
-    elseif 8 <= 5/TNS < 16
-        n_before = 60
-    elseif 16 <= 5/TNS <= 32
+    elseif 2 <= L/TNS < 4  
+        n_before = 180    #  200 for case29,30,31,32,40     700 for case33,  900 for case34 and 35 in high_res_2
+    elseif 4 <= L/TNS < 8 
+        n_before = 130
+    elseif 8 <= L/TNS < 16
+        n_before = 80
+    elseif 16 <= L/TNS <= 32
         n_before = 50
     else
         n_before = 30
@@ -699,6 +707,9 @@ function Nucleation_example_evolution(sliprate, weakeningrate, FltX, tStart, t, 
         value = sliprate[indx:end,indx_last_int-n_before:indx_last_int+N]       # depth, timestep  # only use the slip rate data after the seismic threshold!
         value_1 = exp.(weakeningrate[indx:end,indx_last_int-n_before:indx_last_int+N]).*value./1e-6    # weakening rate
         depth = FltX[indx:end]
+
+        println("Mininum slip rate in selected data:", minimum(minimum(value[:,:])))
+        println("Maxinum slip rate in selected data:", maximum(maximum(value[:,:])))
 
         indx_around_hypocenter = findall((hypo[i] .- TNS) .<= abs.(depth) .<= (hypo[i] .+ TNS))  # get the indx around nucleation location
 
@@ -774,11 +785,11 @@ function Nucleation_example_evolution(sliprate, weakeningrate, FltX, tStart, t, 
         ax = fig.add_subplot(group, 3, 1+(j-1)*3)
         # println(size(t[indx_last_int:indx_last_int + N]))
         # println(size(value))
-        if 0.5 <= 5/TNS < 1  
+        if 0.5 <= L/TNS < 1  
             n_inter = 30
-        elseif 1 < 5/TNS < 4  
+        elseif 1 < L/TNS < 4  
             n_inter = 20 
-        elseif 4< 5/TNS < 16  
+        elseif 4< L/TNS < 16  
             n_inter = 10 
         else
             n_inter = 5

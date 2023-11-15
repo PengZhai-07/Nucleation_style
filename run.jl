@@ -1,3 +1,4 @@
+
 #################################
 # Run the simulations from here
 #################################
@@ -9,13 +10,21 @@
 # 5. Plot results from the scripts folder
 
 using Printf, LinearAlgebra, DelimitedFiles, SparseArrays, AlgebraicMultigrid, StaticArrays, IterativeSolvers, FEMSparse
+using BenchmarkTools
+# using MUMPS     # for MPI on multi cores
 # using Distributed
+# using Octavian
 using Base.Threads
 # using PyPlot    # no matplotlib in wozhi
-# BLAS.set_num_threads(2)  # If the underlying BLAS is using multiple threads, higher flop rates are realized
+BLAS.set_num_threads(4)  # If the underlying BLAS(!) is using multiple threads, higher flop rates are realized
+# functions in LinearAlgebra with BLAS end with !
+
 global Domain_X = 40e3
 global Domain_Y = 32e3
 global output_freq = 10
+global tol::Float64 = 1e-6
+
+println("tol: ", tol)
 
 include("$(@__DIR__)/par.jl")	    #	Set Parameters
 

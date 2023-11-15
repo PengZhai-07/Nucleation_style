@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #SBATCH --job-name=quartz_test
-#SBATCH --array=2,8
+#SBATCH --array=12
 
 ##SBATCH --mail-user=pengzhai@umich.edu
 ##SBATCH --mail-type=FAIL,ARRAY_TASKS
@@ -21,7 +21,7 @@
 # julia --threads 16 run.jl $SLURM_ARRAY_TASK_ID high_res.txt
 # julia --threads 16 run.jl $SLURM_ARRAY_TASK_ID high_res_2.txt
 # julia --threads 16 run.jl $SLURM_ARRAY_TASK_ID domain_size_test.txt
-julia --threads 16 run.jl $SLURM_ARRAY_TASK_ID quartz_test.txt
+julia --threads ${SLURM_CPUS_PER_TASK} run.jl ${SLURM_ARRAY_TASK_ID} quartz_test.txt
 
 # julia --threads 16 run.jl $SLURM_ARRAY_TASK_ID SSE_Creep.txt
 # julia --threads 16 run.jl $SLURM_ARRAY_TASK_ID SSE_Creep_2.txt

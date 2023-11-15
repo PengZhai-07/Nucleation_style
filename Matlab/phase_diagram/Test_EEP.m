@@ -211,13 +211,13 @@ text(log10(240),0.5,  ["Aseismic slip"],'Rotation',0,'FontSize',12)
 
 %% all test cases
 % scatter(P_1(:,1),P_1(:,2) ,'*','MarkerEdgeColor',"#77AC30", 'MarkerFaceColor',"#77AC30")    % resolution limit
-scatter(P_1(:,1),P_1(:,2) ,'*','g')    % resolution limit
-scatter(log10(40), 0.6 ,'*','g')    % resolution limit
-scatter(log10(30), 0.65 ,'*','g')    % resolution limit
-scatter(log10(20), 0.7 ,'*','g')    % resolution limit
-scatter(log10(8), 0.8 ,'*','g')    % resolution limit
-scatter(log10(4), 0.85 ,'*','g')    % resolution limit
-scatter(log10(2), 0.9 ,'*','g')    % resolution limit
+scatter(P_1(:,1),P_1(:,2) ,'*','k')    % resolution limit
+scatter(log10(40), 0.6 ,'*','k')    % resolution limit
+scatter(log10(30), 0.65 ,'*','k')    % resolution limit
+scatter(log10(20), 0.7 ,'*','k')    % resolution limit
+scatter(log10(8), 0.8 ,'*','k')    % resolution limit
+scatter(log10(4), 0.85 ,'*','k')    % resolution limit
+scatter(log10(2), 0.9 ,'*','k')    % resolution limit
 % scatter(log10(0.5), 0.9,'*','r')    % resolution limit
 %% example
 % scatter(log10(6), 0.8, 150, 'o','MarkerEdgeColor',[0,0,0], 'MarkerFaceColor',[1,0,0])    %  193

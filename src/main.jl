@@ -11,7 +11,7 @@
 #	and J.P. Ampuero's SEMLAB
 #
 ###############################################################################
-
+# using MPI
 
 # Healing exponential function
 function healing2(t,tStart,dam, cos_reduction)
@@ -37,7 +37,42 @@ function healing2(t,tStart,dam, cos_reduction)
     hmax*(1 .- exp.(-r*(t .- tStart)/P[1].yr2sec)) .+ dam     # hmax*(1 .- exp.(-r*(t .- tStart)/P[1].yr2sec)) > 0, when time is about 10 years, alphaa = dam + 0.05, healing completely!
 end
 
+
+
 function main(P, alphaa, cos_reduction, coseismic_b,Domain)
+
+    # # define rank of root process
+    # root::Int64=0
+
+    # # MPI initialization
+    # MPI.Init()
+    # comm = MPI.COMM_WORLD
+    # my_id = MPI.Comm_rank(comm)
+    # nproc = MPI.Comm_size(comm)
+
+    # MPI.Barrier(comm)
+    # MPI.Bcast!(P[1], comm, root)
+    # MPI.Bcast!(P[2], comm, root)
+    # MPI.Bcast!(P[3], comm, root)
+    # MPI.Bcast!(P[4], comm, root)
+    # MPI.Bcast!(P[5], comm, root)
+
+    # # total processes should be nx_domains*nz_domains
+    # nx_domains::Int64 = 3
+    # nz_domains::Int64 = 4
+
+    #     #Warning message if dimensions and number of processes don't match
+    # if ((my_id == root) && (nproc != (nx_domains * nz_domains)))
+    #     println("ERROR - Number of processes not equal to number of subdomains")
+    # end
+
+    # size_global_x = size_x + 2
+    # size_global_y = size_y + 2
+    # hx = Float64(1.0 / size_global_x)
+    # hy = Float64(1.0 / size_global_y)
+    # dt2 = 0.25 * min(hx, hy)^2 / k0 #fraction of CFL condition
+    # size_total_x = size_x + 2 * nx_domains + 2 #including ghost cells
+    # size_total_y = size_y + 2 * ny_domains + 2 #including ghost cells
 
     # please refer to par.jl to see the specific meaning of P
     # P[1] = integer  Nel, FltNglob, yr2sec, Total_time, IDstate, nglob
@@ -50,10 +85,6 @@ function main(P, alphaa, cos_reduction, coseismic_b,Domain)
     # P[8] = wgll2
     # P[9] = nglob
     # P[10] = did
-
-    #  ??? 
-    #  W_orig = W[:,:,damage_idx]
-    #  damage_amount::Float64 = 1.0
 
     # initial Shear modulus ratio of damage/host rock
     # pure elastic model: alphaa=1.0
@@ -116,7 +147,7 @@ function main(P, alphaa, cos_reduction, coseismic_b,Domain)
     # beta_::Vector{Float64} = zeros(P[1].nglob)
     # alpha_::Vector{Float64} = zeros(P[1].nglob)
 
-    # intial values on whole models!!!
+    # intial values on the whole model!!!
     F::Vector{Float64} = zeros(P[1].nglob)
     dPre::Vector{Float64} = zeros(P[1].nglob)
     vPre::Vector{Float64} = zeros(P[1].nglob)
@@ -172,20 +203,37 @@ function main(P, alphaa, cos_reduction, coseismic_b,Domain)
     kni = -Ksparse[P[4].FltNI, P[4].FltNI]   # stiffness of off-fault GLL nodes
     nKsparse = -Ksparse
 
+    # Super LU
+    # note: UMFPACK only supports Float64 or ComplexF64
+    # not sure how to best restrict the types
+    dump(P[11])
+    println(typeof(P[11]))    # Datatype
+    println(P[11])            # Splu
+    println(fieldnames(P[11]))  
+
+    ml_sp = ruge_stuben(kni, coarse_solver=P[11]) 
+    @time ruge_stuben(kni, coarse_solver=P[11]) 
+    println(typeof(ml_sp))
+
+
+    ml = ruge_stuben(kni)     # construct a ruge_stuben solver: multi level
+    @time ruge_stuben(kni)     # construct a ruge_stuben solver: multi level
+    println(typeof(ml))
+
     # algebraic multigrid preconditioner
-    ml = ruge_stuben(kni)
-    p = aspreconditioner(ml)
+    p = aspreconditioner(ml)       # multi-level preconditioner
     tmp = copy(a)
 
+    exit()
 
     # faster matrix multiplication
-     #  Ksparse = Ksparse'
-     #  nKsparse = nKsparse'
-     #  kni = kni'
+    # Ksparse = Ksparse'
+    # nKsparse = nKsparse'
+    # kni = kni'
 
-    #  Ksparse = ThreadedMul(Ksparse)
-    #  nKsparse = ThreadedMul(nKsparse)
-    #  kni = ThreadedMul(kni)
+    # Ksparse = ThreadedMul(Ksparse)
+    # nKsparse = ThreadedMul(nKsparse)
+    # kni = ThreadedMul(kni)
 
     # Damage evolution stuff: using with healing 
     did = P[10]   # index of GLL nodes in fault damage zone
@@ -201,6 +249,8 @@ function main(P, alphaa, cos_reduction, coseismic_b,Domain)
         write(io, join(P[3].cca, " "), "\n")
         write(io, join(P[3].ccb, " "), "\n")
         write(io, join(P[3].xLf, " "), "\n")
+        write(io, join(P[3].x_out, " "), "\n")
+        write(io, join(P[3].y_out, " "), "\n")
     end
     open(string(out_dir,"mass_matrix.out"), "w") do io
         write(io, join(P[3].M, " "), "\n")  # unit: MPa
@@ -208,6 +258,7 @@ function main(P, alphaa, cos_reduction, coseismic_b,Domain)
     # Open files to begin writing
     open(string(out_dir,"stress.out"), "w") do stress    # shear stress 
     open(string(out_dir,"sliprate.out"), "w") do sliprate   # fault sliprate (Vpl+sliprate controlled by RSF)
+    open(string(out_dir,"v_field.out"), "w") do v_field   # fault sliprate (Vpl+sliprate controlled by RSF)
     open(string(out_dir,"weakeningrate.out"), "w") do weakeningrate   # fault sliprate (Vpl+sliprate controlled by RSF)
     #open(string(out_dir,"slip.out"), "w") do slip   
     open(string(out_dir,"delfsec.out"), "w") do dfsec   # cultivate displacement(coseismic)
@@ -243,12 +294,15 @@ function main(P, alphaa, cos_reduction, coseismic_b,Domain)
     SSS = 0
     seismogenic_depth = findall(abs(Domain_X*Domain/4) .< abs.(P[3].FltX) .<= abs(Domain_X*Domain*3/4))
 
+
     while t < P[1].Total_time
         it = it + 1
 
         t = t + dt   # dt is the initial smallest timestep: dtmin
 
         if isolver == 1    # quasi-static phase at the beginning!!!
+
+
             # intial velocity and displacement field for all GLL nodes
             vPre .= v     # non-zero
             dPre .= d     # Culmulative slip (zero) 
@@ -266,21 +320,28 @@ function main(P, alphaa, cos_reduction, coseismic_b,Domain)
                 F .= 0.
                 F[P[4].iFlt] .= dPre[P[4].iFlt] .+ v[P[4].iFlt]*dt
 
-                # Assign previous displacement field as initial guess for off-fault nodes
-                dnew .= d[P[4].FltNI]    # zero
+                # Assign previous displacement field as initial FltNIguess for off-fault nodes
+                dnew .= d[P[4].FltNI]  
                 
-                # step 2: solve for displacement in the medium
+                # step 2: solve for displacement within the medium
                 # Solve d = K^-1 F by MGCG
-                # stiffness matrix on the fault 
-                rhs = (mul!(tmp,Ksparse,F))[P[4].FltNI]   # However comparing this to LinearAlgebra.mul! shows that the later is much faster.
-                #  rhs = (Ksparse*F)[P[4].FltNI]
+                rhs = (mul!(tmp,Ksparse,F))[P[4].FltNI]   
+                # rhs = (matmul!(tmp,Ksparse,F))[P[4].FltNI]  
+                #  rhs = (Ksparse*F)[P[4].FltNI]     # However comparing this to LinearAlgebra.mul! shows that the later is much faster.
 
                 # direct inversion
-                #  dnew = -(kni\rhs)
+                #  dnew = (kni\rhs)
+                # mgcg: multigrid preconditioned conjugate gradient 
+                # ! with initial guess of the solution as dnew
+                @time dnew, ch = cg!(dnew, kni, rhs, Pl=p, abstol=tol, reltol=tol, maxiter=100, verbose=false, log=true)    # note: in new version of julia, there is only abstol  
+                # @time AMG._solve(ml_sp, rhs, maxiter=100);  # takes 9 ms, 2x faster than before
 
-                # mgcg
-                dnew = cg!(dnew, kni, rhs, Pl=p, abstol=1e-6)    # note: in new version of julia, there is only abstol  
-  
+                exit(0)
+                # output the iteration history
+                if mod(it, 500) == 0 && p1==2
+                    println(ch, "\n")
+                end
+
                 # update displacement on the medium
                 d[P[4].FltNI] .= dnew
 
@@ -374,6 +435,7 @@ function main(P, alphaa, cos_reduction, coseismic_b,Domain)
         
         # If isolver != 1, or max slip rate is > 10^-3 m/s , dynamic phase
         else
+            
 
             dPre .= d
             vPre .= v
@@ -393,7 +455,7 @@ function main(P, alphaa, cos_reduction, coseismic_b,Domain)
             # Enforce K*d to be zero for velocity boundary
             a[P[4].FltIglobBC] .= 0.     # creeping fault
 
-            # Absorbing boundaries(Top, Bottom and right)    
+            # Absorbing boundaries(Top, Bottom and right)     cancel the internal forces at the boundary!
             a[P[4].iBcB] .= a[P[4].iBcB] .- P[3].BcBC.*v[P[4].iBcB]
             a[P[4].iBcR] .= a[P[4].iBcR] .- P[3].BcRC.*v[P[4].iBcR]
             a[P[4].iBcT] .= a[P[4].iBcT] .- P[3].BcTC.*v[P[4].iBcT]
@@ -403,7 +465,7 @@ function main(P, alphaa, cos_reduction, coseismic_b,Domain)
             Vf .= 2*vPre[P[4].iFlt] .+ P[2].Vpl
 
             # step4: find fault traction and slip velocity satisfying a friction law and the relation
-            # Sliprate and NR search           NRsearch.jl
+            # Sliprate and NR search        NRsearch.jl
             psi1, Vf1, tau1, psi2, Vf2, tau2 = FBC!(P[1].IDstate, P[3], NFBC, P[1].FltNglob, psi1, Vf1, tau1, psi2, Vf2, tau2, psi, Vf, FltVfree, dt)
 
             # step5: add the fault boundary term to the sum of internal forces
@@ -470,6 +532,8 @@ function main(P, alphaa, cos_reduction, coseismic_b,Domain)
         # record the coseismic event!!
         if  Vfmax > 1.01*P[2].Vthres && slipstart == 0
 
+            println("Start of dynamic solution\n")
+
             it_s = it_s + 1
             delfref = 2*d[P[4].iFlt] .+ P[2].Vpl*t
             
@@ -486,6 +550,8 @@ function main(P, alphaa, cos_reduction, coseismic_b,Domain)
 
         # slip rate is lower than Vthres(When earthquake ends or at the beginning )
         if Vfmax < 0.99*P[2].Vthres && slipstart == 1
+            
+            println("Start of quasi-static solution\n")
             it_e = it_e + 1
             delfafter = 2*d[P[4].iFlt] .+ P[2].Vpl*t .- delfref     # coseismic slip
             
@@ -587,7 +653,7 @@ function main(P, alphaa, cos_reduction, coseismic_b,Domain)
 
         current_sliprate = 2*v[P[4].iFlt] .+ P[2].Vpl
 
-        # Output timestep info on screen: every 50 timesteps
+        # Output timestep info on screen: every 500 timesteps
         if mod(it,500) == 0
             @printf("Time (yr) = %1.5g\n", t/P[1].yr2sec) 
             #  println("Vfmax = ", maximum(current_sliprate))
@@ -598,6 +664,10 @@ function main(P, alphaa, cos_reduction, coseismic_b,Domain)
             write(sliprate, join(2*v[P[4].iFlt] .+ P[2].Vpl, " "), "\n")
             write(weakeningrate, join(psi, " "), "\n")
             write(stress, join((tau + P[3].tauo)./1e6, " "), "\n")
+        end
+        
+        if mod(it,output_freq) == 0
+            write(v_field, join(2*v[P[4].out_seis] .+ P[2].Vpl, " "), "\n")      # output ground surface velocity field
         end
 
         # Determine quasi-static or dynamic regime based on max-slip velocity
@@ -626,6 +696,7 @@ function main(P, alphaa, cos_reduction, coseismic_b,Domain)
 
     # close files
 # end of writing data into files
+end
 end
 end
 end

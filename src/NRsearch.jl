@@ -62,7 +62,7 @@ function NRsearch!(fo, Vo, cca, ccb, Seff, tau, tauo, psi, FltZ, FltVfree)
     # NR search point by point for tau if Vf < Vlimit
 
     # eps = 0.001*cca*Seff
-    eps = 1e-6*cca*Seff
+    eps = 0.001*cca*Seff
     k = 0
     delta = Inf
 
