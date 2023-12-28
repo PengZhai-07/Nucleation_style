@@ -206,25 +206,28 @@ function main(P, alphaa, cos_reduction, coseismic_b,Domain)
     # Super LU
     # note: UMFPACK only supports Float64 or ComplexF64
     # not sure how to best restrict the types
-    dump(P[11])
-    println(typeof(P[11]))    # Datatype
-    println(P[11])            # Splu
-    println(fieldnames(P[11]))  
+    # dump(P[11])
+    # println(typeof(P[11]))    # Datatype
+    # println(P[11])            # Splu
+    # println(fieldnames(P[11]))  
 
-    ml_sp = ruge_stuben(kni, coarse_solver=P[11]) 
-    @time ruge_stuben(kni, coarse_solver=P[11]) 
-    println(typeof(ml_sp))
-
-
+    # ml_sp = ruge_stuben(kni, coarse_solver=P[11]) 
+    # # @time ruge_stuben(kni, coarse_solver=P[11]) 
+    # # println(typeof(ml_sp))
+    # p = aspreconditioner(ml_sp)       # multi-level preconditioner
+    # println(p)
+ 
     ml = ruge_stuben(kni)     # construct a ruge_stuben solver: multi level
-    @time ruge_stuben(kni)     # construct a ruge_stuben solver: multi level
-    println(typeof(ml))
+    # ml = smoothed_aggregation(kni) 
+    # @time ruge_stuben(kni)     # construct a ruge_stuben solver: multi level
+    # println(typeof(ml))
 
     # algebraic multigrid preconditioner
     p = aspreconditioner(ml)       # multi-level preconditioner
-    tmp = copy(a)
+    println(p)
 
-    exit()
+    tmp = copy(a)
+    # exit()
 
     # faster matrix multiplication
     # Ksparse = Ksparse'
@@ -249,8 +252,8 @@ function main(P, alphaa, cos_reduction, coseismic_b,Domain)
         write(io, join(P[3].cca, " "), "\n")
         write(io, join(P[3].ccb, " "), "\n")
         write(io, join(P[3].xLf, " "), "\n")
-        write(io, join(P[3].x_out, " "), "\n")
-        write(io, join(P[3].y_out, " "), "\n")
+        write(io, join(P[3].x_out), "\n")
+        write(io, join(P[3].y_out), "\n")
     end
     open(string(out_dir,"mass_matrix.out"), "w") do io
         write(io, join(P[3].M, " "), "\n")  # unit: MPa
@@ -324,23 +327,26 @@ function main(P, alphaa, cos_reduction, coseismic_b,Domain)
                 dnew .= d[P[4].FltNI]  
                 
                 # step 2: solve for displacement within the medium
-                # Solve d = K^-1 F by MGCG
-                rhs = (mul!(tmp,Ksparse,F))[P[4].FltNI]   
+                # Solve d = -K*F by MGCG
+                rhs = (mul!(tmp,Ksparse,F))[P[4].FltNI]    # this is a vector
                 # rhs = (matmul!(tmp,Ksparse,F))[P[4].FltNI]  
                 #  rhs = (Ksparse*F)[P[4].FltNI]     # However comparing this to LinearAlgebra.mul! shows that the later is much faster.
 
                 # direct inversion
                 #  dnew = (kni\rhs)
                 # mgcg: multigrid preconditioned conjugate gradient 
-                # ! with initial guess of the solution as dnew
-                @time dnew, ch = cg!(dnew, kni, rhs, Pl=p, abstol=tol, reltol=tol, maxiter=100, verbose=false, log=true)    # note: in new version of julia, there is only abstol  
-                # @time AMG._solve(ml_sp, rhs, maxiter=100);  # takes 9 ms, 2x faster than before
-
-                exit(0)
+                # ! with initial guess of the solution as dnew, which is faster than the AMG_solve
+                # CG is better for the symmetric positive definite matrix!
+                # @time cg!(dnew, kni, rhs, Pl=p, abstol=tol, reltol=tol, maxiter=50, verbose=false, log=true)    # note: in new version of julia, there is only abstol    
+                dnew, ch = cg!(dnew, kni, rhs, Pl=p, abstol=tol, reltol=tol, maxiter=50, verbose=false, log=true)    # note: in new version of julia, there is only abstol
+                # @time AMG._solve!(dnew, ml, rhs, abstol=tol, reltol=tol, maxiter=100, verbose=false, log=true) 
+                # dnew, ch = AMG._solve!(dnew, ml, rhs, abstol=1e-10, reltol=1e-10, maxiter=100, verbose=false, log=true)
+                
+                # exit(0)
                 # output the iteration history
-                if mod(it, 500) == 0 && p1==2
-                    println(ch, "\n")
-                end
+                # if mod(it, 500) == 0 && p1==2
+                #     println(ch, "\n")
+                # end
 
                 # update displacement on the medium
                 d[P[4].FltNI] .= dnew
@@ -455,10 +461,11 @@ function main(P, alphaa, cos_reduction, coseismic_b,Domain)
             # Enforce K*d to be zero for velocity boundary
             a[P[4].FltIglobBC] .= 0.     # creeping fault
 
+            # If this will cancel the top absorbing boundary?
             # Absorbing boundaries(Top, Bottom and right)     cancel the internal forces at the boundary!
             a[P[4].iBcB] .= a[P[4].iBcB] .- P[3].BcBC.*v[P[4].iBcB]
             a[P[4].iBcR] .= a[P[4].iBcR] .- P[3].BcRC.*v[P[4].iBcR]
-            a[P[4].iBcT] .= a[P[4].iBcT] .- P[3].BcTC.*v[P[4].iBcT]
+            # a[P[4].iBcT] .= a[P[4].iBcT] .- P[3].BcTC.*v[P[4].iBcT]
 
             ###### Fault Boundary Condition: Rate and State #############
             FltVfree .= 2*v[P[4].iFlt] .+ 2*half_dt*a[P[4].iFlt]./P[3].M[P[4].iFlt]
@@ -474,11 +481,13 @@ function main(P, alphaa, cos_reduction, coseismic_b,Domain)
 
             # here I don not need to set the cosesimic slip on creeping zone to be plate motion rate
             psi .= psi2
-            # 
-            a[P[4].iFlt] .= a[P[4].iFlt] .- P[3].FltL.*tau
+
+            # correct the fault traction : reduce the part accomodated by the fault friction!
+            a[P[4].iFlt] .= a[P[4].iFlt] .- P[3].FltL.*tau   
             ########## End of fault boundary condition ##############
 
-            # step6: Solve for a_new acceleration from the traction
+            # step6: Solve for a_new acceleration from the traction for the whole domain
+            # however, this hasn't been output!
             a .= a./P[3].M
 
             # step7: Correction 
@@ -666,14 +675,14 @@ function main(P, alphaa, cos_reduction, coseismic_b,Domain)
             write(stress, join((tau + P[3].tauo)./1e6, " "), "\n")
         end
         
-        if mod(it,output_freq) == 0
-            write(v_field, join(2*v[P[4].out_seis] .+ P[2].Vpl, " "), "\n")      # output ground surface velocity field
-        end
+        # if mod(it,output_freq) == 0
+        write(v_field, join(2*v[P[4].out_seis] .+ P[2].Vpl, " "), "\n")      # output ground surface velocity field at each timestep
+        # end
 
         # Determine quasi-static or dynamic regime based on max-slip velocity
         # When to change the solver
         # if isolver == 1 && Vfmax < 1e-3 || isolver == 2 && Vfmax < 1e-3         # with radiation damping as suggested by Ellbanna
-        if isolver == 1 && Vfmax < 5e-3 || isolver == 2 && Vfmax < 2e-3    
+        if isolver == 1 && Vfmax < 1e-4 || isolver == 2 && Vfmax < 2e-3    
             # 0.5e-3 is the initial slip rate, so that there is an initial earthquake at zero time!!
             # in addition, 5e-3 is half of the vthres, if it necessary to convert to dynamic regime in advance??
             isolver = 1   # quasi-static

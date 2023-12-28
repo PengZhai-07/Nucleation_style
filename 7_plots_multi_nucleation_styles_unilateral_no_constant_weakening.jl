@@ -3,6 +3,7 @@
 # #####################################
 using DelimitedFiles
 using LinearAlgebra
+using NaNStatistics
 
 # include("$(@__DIR__)/post/event_details.jl")
 include("$(@__DIR__)/post/plotting_script.jl")
@@ -21,7 +22,7 @@ project = "wholespace/phase_diagram_L_b/"
 # input_parameter = readdlm("$(@__DIR__)/SSE_Creep_2.txt", ',',  header=false)
 # input_parameter = readdlm("$(@__DIR__)/high_res.txt", ',',  header=false)
 # input_parameter = readdlm("$(@__DIR__)/high_res_2.txt", ',',  header=false)
-input_parameter = readdlm("$(@__DIR__)/whole_space_32.txt", ',',  header=false)
+input_parameter = readdlm("$(@__DIR__)/whole_space_32_copy.txt", ',',  header=false)
 
 a = size(input_parameter)[1]
 global ii::Int = 0
@@ -29,7 +30,7 @@ global ii::Int = 0
 plot_params()
 fig = PyPlot.figure(figsize=(20, 20))
 
-EX = [109, 124, 138, 150]  
+EX = [109, 124, 138, 150].+5  
 N_EX = length(EX)
 
 for index = EX                   # normal stress
@@ -137,6 +138,9 @@ for index = EX                   # normal stress
     indx = findall(abs.(FltX) .<= Domain*Domain_X)[1]
     value = sliprate'[indx:end,indx_last_int-n_before:indx_last_int+N]       # depth, timestep  # only use the slip rate data after the seismic threshold!
     value_1 = exp.(weakeningrate'[indx:end,indx_last_int-n_before:indx_last_int+N]).*value./1e-6    # weakening rate
+    value = movmean(value, 5)
+    value_1 = movmean(value_1, 5)
+    
     depth = FltX[indx:end]     # from 10km to 0 km
     # println("Depth", depth)
     
@@ -241,9 +245,9 @@ for index = EX                   # normal stress
     hypoo = NS_width[1, end, 1]
     println("The hypocenter is(km)",hypoo)
 
-    ax.plot(depth, value[:,mm:nn_inter:nn_trans],color="red", )        
-    ax.plot(depth, value[:,nn_trans:3*nn_inter:nn],color="red", ) 
-    ax.plot(depth, value[:,nn],color="red", )   
+    ax.plot(depth, value[:,mm:nn_inter:nn_trans],color="k", )        
+    ax.plot(depth, value[:,nn_trans:3*nn_inter:nn],color="k", ) 
+    ax.plot(depth, value[:,nn],color="k", )   
     # ax.plot([depth[1],depth[end]],[3e-9, 3e-9] , "k", linestyle=":")
     ax.plot([depth[1],depth[end]],[1e-9, 1e-9] , "k", linestyle=":")
     # ax.plot([depth[1],depth[end]],[2e-9, 2e-9] , "k", linestyle="--")
@@ -253,8 +257,8 @@ for index = EX                   # normal stress
         ax.text(1.5,1e-1,  string("a/b=",a_over_b))
         ax.text(1.5,1e-2,  string("\$RD_{RS}=\$", round(1000*Lc/5, digits=4)))
     else        
-        ax.text(7,1e-1,  string("a/b=",a_over_b))
-        ax.text(7,1e-2,  string("\$RD_{RS}=\$", round(1000*Lc/5, digits=4)))
+        ax.text(6.5,1e-1,  string("a/b=",a_over_b))
+        ax.text(6.5,1e-2,  string("\$RD_{RS}=\$", round(1000*Lc/5, digits=4)))
     end
     ax.set_yscale("log")
     ax.set_xlim([Domain*Domain_X/8, Domain*Domain_X*7/8])   
@@ -268,7 +272,7 @@ for index = EX                   # normal stress
     ax.set_title(letter[1+(ii-1)*4], loc="left")
     
     ax2 = fig.add_subplot(N_EX,4, 2+(ii-1)*4)
-    ax2.plot([1e-7,1e-6,1e-5,1e-4,1e-3,1e-2,1e-1], NS_width[i,:,2], color="limegreen", marker="o", label="Measured values")        # plot every five steps
+    ax2.plot([1e-7,1e-6,1e-5,1e-4,1e-3,1e-2,1e-1], NS_width[i,:,2], color="k", marker="o", label="Measured values")        # plot every five steps
     ax2.plot([1e-7,1e-6,1e-5,1e-4,1e-3,1e-2,1e-1], TNS.*ones(n_e,1), color="k", linestyle=":", label="Theoretical nucleation size")
     if ii == N_EX
         ax2.set_xlabel("Vmax(m/s)")
@@ -281,9 +285,9 @@ for index = EX                   # normal stress
     ax2.set_title(title)
 
     ax3 = fig.add_subplot(N_EX, 4, 3+(ii-1)*4)
-    ax3.plot(depth, value_1[:,mm:nn_inter:nn_trans],color="blue", )      
-    ax3.plot(depth, value_1[:,nn_trans:3*nn_inter:nn],color="blue", )    # plot every five steps
-    ax3.plot(depth, value_1[:,nn],color="blue", )
+    ax3.plot(depth, value_1[:,mm:nn_inter:nn_trans],color="k", )      
+    ax3.plot(depth, value_1[:,nn_trans:3*nn_inter:nn],color="k", )    # plot every five steps
+    ax3.plot(depth, value_1[:,nn],color="k", )
     ax3.plot([depth[1],depth[end]],[1, 1] , "k", linestyle=":", label="Ω=1")
     # ax2.plot([depth[1],depth[end]],[2, 2] , "k", linestyle="--", label="Ω=2")
     # ax2.plot([depth[1],depth[end]],[5, 5] , "k", linestyle="-", label="Ω=5")
@@ -299,7 +303,7 @@ for index = EX                   # normal stress
     ax3.set_title(letter[3+(ii-1)*4], loc="left")
 
     ax4 = fig.add_subplot(N_EX, 4, 4+(ii-1)*4)
-    ax4.plot([1e-10, 1e-9, 1e-8, 1e-7,1e-6,1e-5,1e-4,1e-3,1e-2,1e-1], Ω[:], color="limegreen", marker="o", label="Measured values")        # plot every five steps
+    ax4.plot([1e-10, 1e-9, 1e-8, 1e-7,1e-6,1e-5,1e-4,1e-3,1e-2,1e-1], Ω[:], color="k", marker="o", label="Measured values")        # plot every five steps
     if ii == N_EX
         ax4.set_xlabel("Vmax(m/s)")
     end

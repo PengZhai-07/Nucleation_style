@@ -1,4 +1,5 @@
 using DelimitedFiles
+using SparseArrays
 
 include("$(@__DIR__)/post/event_details.jl")
 include("$(@__DIR__)/post/plotting_script.jl")
@@ -20,6 +21,11 @@ cca = params[4,:]
 ccb = params[5,:]
 a_b = cca .- ccb
 Lc = params[6,:]
+# out_seis_x = params[7,:]    # depth
+# out_seis_y = params[8,:]    # epicenter distance
+
+# # ground velocity
+# ground_vel = readdlm(string(out_path, "v_field.out"), header=false)   # column: different stations   row: time
 
 time_vel = readdlm(string(out_path, "time_velocity.out"), header=false, Float64)
 t = time_vel[:,1]         # all real timesteps
@@ -37,6 +43,7 @@ hypo = event_time[:,3]
 d_hypo = event_time[:,4]    # unit: m 
 println("Cumulative slips when earthquakes happen:",d_hypo) 
 println("Depth of all seismic events:",hypo)
+
 
 sliprate = readdlm(string(out_path, "sliprate.out"), header=false)   # every 10 timesteps
 println("Dimension of sliprate:",size(sliprate))

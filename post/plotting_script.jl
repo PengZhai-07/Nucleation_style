@@ -71,6 +71,104 @@ end
 
 
 # Plot Vfmax
+function ground_VPlot(ground_vel,Vfmax, out_seis_x, out_seis_y, N, t, criteria)
+    
+
+    plot_params()
+    fig = PyPlot.figure(figsize=(15, 15))
+    ax1 = fig.add_subplot(411)
+    ax2 = fig.add_subplot(412)
+    ax3 = fig.add_subplot(413)
+    ax4 = fig.add_subplot(414)
+
+    N = 16000    # for expanding crack
+    
+    # t_seconds = (N+100) * 365 * 24 * 60 * 60 
+    # indx_last = findall(t .<= t_seconds)[end]   # last event!
+    indx::Int64 = findall(t[:] .<= tStart[5])[end] 
+    # Start::Int = indx-N/2        # start time of the third event, Vmax>1e-3 m/s    however, it needs time for the wave or GPS to arrive at the station
+    Start::Int = indx - N*4
+    End::Int = indx + N*2
+    # println("Epicenter distance(m):", out_seis_y)
+    
+    # println(minimum(Vfmax[indx:indx+N*2]))
+    # println(maximum(Vfmax[indx:indx+N*2]))
+
+    indx_nucleation::Int64 = indx + findall(Vfmax[indx:indx+N/2] .< criteria)[end]      # find the indx of Vf=1e-1 m/s    
+    t_nucleation = t[indx_nucleation]
+    println(indx_nucleation)
+
+    indx_transition::Int64 = Start + findall(Vfmax[Start:indx+N/2] .< 1e-4)[end]      # find the indx of Vf=5e-3 m/s   scheme transition    
+    # println(t[indx_nucleation])
+    t_transition = t[indx_transition]
+    println(indx_transition)
+
+    # Start_1::Int = indx_transition - N/80        # -N/5 for fixed-length     -N/80 for expanding
+    # End_1::Int = indx_nucleation + N/2        # +N for fixed length      +N/2   for expanding
+    # t_win1 = t[Start_1]
+    # t_win2 = t[End_1]
+
+    for i = 5       # station number
+        
+        ax1.plot(t[Start: End], ground_vel[Start: End, i], lw = 2.0, label = string("Epicenter dist.(m): ", out_seis_y[i]))
+        if i == 5
+            ax1.plot([t_nucleation, t_nucleation],[-10, 10], "k", linestyle="-",linewidth=1, label="Time when on-fault sliprate is over 1e-1 m/s")
+            ax1.plot([t_transition, t_transition],[-10, 10], "r", linestyle="--",linewidth=1, label="Time when on-fault sliprate is over 5e-3 m/s")
+        else
+            ax1.plot([t_nucleation, t_nucleation],[-10, 10], "k", linestyle="-",linewidth=1, )   
+            ax1.plot([t_transition, t_transition],[-10, 10], "r", linestyle="--",linewidth=1, )
+        end 
+
+        ax2.plot(t[Start: End], ground_vel[Start: End, i], lw = 2.0,  label = string("Epicenter dist.(m): ", out_seis_y[i]))
+        ax2.plot([t_nucleation, t_nucleation],[1e-15, 1e1], "k", linestyle="-",linewidth=1)
+        ax2.plot([t_transition, t_transition],[1e-15, 1e1], "r", linestyle="--",linewidth=1)
+        # plot the time window for ax3!
+        # ax2.plot([t_win1, t_win1],[1e-15, 1e1], "r", linestyle="-",linewidth=1)
+        # ax2.plot([t_win2, t_win2],[1e-15, 1e1], "r", linestyle="-",linewidth=1)
+
+        # ax3.plot(t[Start_1: End_1], ground_vel[Start_1: End_1, i], lw = 1, linestyle="--",label = string("Epicenter dist.(m): ", out_seis_y[i]))
+        # # ax3.plot([t_transition, t_transition],[-10, 10], "r", linestyle="--",linewidth=1)
+
+        # # ax4.plot(t[Start+6000: End], ground_vel[Start+6000: End, i], lw = 2.0)
+        # ax4.plot(t[Start_1: End_1], ground_vel[Start_1: End_1, i], lw = 1.0,linestyle="--",)
+    end
+    # ax.plot([0, indx_last],[1e-3, 1e-3] , "k", linestyle=":", label="Inertial threshold")
+    # ax.plot([0, indx_last],[1e-1, 1e-1] , "k", linestyle="--", label="Seismic threshold")
+    
+    # ax2.legend(loc="upper left") 
+    ax1.legend(loc="upper left") 
+    ax1.set_xlabel("Time(s)")
+    ax1.set_ylabel("Ground Velocity (m/s)")
+    # ax2.set_yscale("log")
+    ax1.set_ylim([-2, 5])         # here the velocity field could be negative!!
+
+    ax2.set_xlabel("Time(s)")
+    ax2.set_ylabel("Ground Velocity (m/s)")
+    ax2.set_yscale("log")
+    ax2.set_ylim([1e-10,1e1])        # m/s
+    # ax.set_ylim([-2.5, 2.5])         # here the velocity field could be negative!!
+    # show()
+
+    # ax3.set_xlabel("Time(s)")
+    # ax3.set_ylabel("Ground Velocity (m/s)")
+    # # ax2.set_yscale("log")
+    # ax3.set_ylim([-0.5e-3, 5e-3])
+    # # ax3.set_xlim([t[Start_1], t[End_1]])
+    # ax3.set_xlim([t[Start_1], t[Start_1]+10])      # only plot 10 seconds!
+
+    # ax4.set_xlabel("Time(s)")
+    # ax4.set_ylabel("Ground Velocity (m/s)")
+    # ax4.set_yscale("log")
+    # ax4.set_ylim([1e-6, 5e-3])  
+    # # ax4.set_xlim([t_transition, t_nucleation])       #
+    # ax4.set_xlim([t[Start_1], t[Start_1]+10])
+
+    figname = string(path, "V_field.png")
+    fig.savefig(figname, dpi = 300)
+
+end
+
+# Plot Vfmax
 function VfmaxPlot(Vfmax, N, t)
     plot_params()
     fig = PyPlot.figure(figsize=(15, 5))
@@ -139,7 +237,7 @@ end
 function sliprate_analysis(Vf, alphaa, t, yr2sec, sliprate, FltX, N, Domain)
 
     plot_params()
-    fig = PyPlot.figure(figsize=(15, 15))
+    fig = PyPlot.figure(figsize=(8, 10))
 
     ax = fig.add_subplot(211)
     ax.plot(t./yr2sec, Vf, lw = 2.0)
@@ -150,7 +248,8 @@ function sliprate_analysis(Vf, alphaa, t, yr2sec, sliprate, FltX, N, Domain)
     ax.set_yscale("log")
     #ax.set_xlim([0, 600])
     ax.set_ylim([1e-10, 1e2])
-    ax.set_xlim([0, N])
+    ax.set_xlim([N/2, N])
+    # ax.set_xlim([0, N])
     ax.legend(loc="upper right") 
     ax.set_title("(a)", loc="left")
 
@@ -172,6 +271,10 @@ function sliprate_analysis(Vf, alphaa, t, yr2sec, sliprate, FltX, N, Domain)
 
     # depth = FltX[indx:end]
 
+    t_seconds = N/2 * 365 * 24 * 60 * 60 
+    indx_half = findall(t .<= t_seconds)[end]   # last event!
+    indx_half_int::Int = floor(indx_half/output_freq)    # realistic timestep for sliprate data
+
     ax1 = fig.add_subplot(212)
 
     # c = ax1.pcolormesh(x, y, value, cmap="turbo",
@@ -181,11 +284,15 @@ function sliprate_analysis(Vf, alphaa, t, yr2sec, sliprate, FltX, N, Domain)
     c = ax1.imshow(value, cmap="turbo", aspect="auto",
                   norm=matplotlib.colors.LogNorm(vmin=1e-9, vmax=1e-1),
                   interpolation="bicubic",    # the interpolation method decide the final slip rate distrbution!!
-                  extent=[0,length(value[1,:]), 0, Domain*Domain_X])
+                #   extent=[length(value[1,:])/2, length(value[1,:]), 0, Domain*Domain_X])
+                  extent=[1,length(value[1,:]), 0, Domain*Domain_X])
     
     ax1.set_xlabel("Timestep")
     ax1.set_ylabel("X (km)")
-    ax.set_ylim([0, Domain*Domain_X])
+    ax1.set_ylim([0, Domain*Domain_X])
+    ax1.set_xlim([indx_half_int,length(value[1,:])])
+    # ax1.set_xlim([length(value[1,:])/2,length(value[1,:])])
+
     # ax1.set_yticks([0, 2, 4, 6, 8, 10])
     # ax1.set_yticklabels([-5, -3, -1, 1, 3, 5])
 
@@ -196,7 +303,7 @@ function sliprate_analysis(Vf, alphaa, t, yr2sec, sliprate, FltX, N, Domain)
     # fig.colorbar(c, ax=ax1, label="Slip rate(m/s)")
     
     # show()
-    figname = string(path, "sliprate_analysis.png")
+    figname = string(path, "sliprate_analysis_1.png")
     fig.savefig(figname, dpi = 600)
 
 end

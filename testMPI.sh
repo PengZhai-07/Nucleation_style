@@ -1,14 +1,14 @@
 #!/bin/bash
 
 #SBATCH --job-name=test_MPI
-#SBATCH --array=18
+#SBATCH --array=20
 
 ##SBATCH --mail-user=pengzhai@umich.edu
 ##SBATCH --mail-type=FAIL,ARRAY_TASKS
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=8
 #SBATCH --time=2-00:00:00
-#SBATCH --mem=10gb
+#SBATCH --mem=5gb
 #SBATCH --partition=standard
 #SBATCH --account=yiheh1
 ## remember to change the FILE name and array number

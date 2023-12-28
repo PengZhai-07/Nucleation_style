@@ -64,18 +64,18 @@ function setParameters(FZdepth::Int, halfwidth::Int, res::Int, T::Int, alpha::Fl
     #...................
 
     # default: host rock!!
-    # rho1::Float64 = 2670
-    # vs1::Float64 = 3462
+    rho1::Float64 = 2670
+    vs1::Float64 = 3462
 
-    # quartz
-    rho1::Float64 = 2650    # kg/m^3
-    vs1::Float64 = 4480    # m/s
+    # # quartz
+    # rho1::Float64 = 2650    # kg/m^3
+    # vs1::Float64 = 4480    # m/s
     
     # # The entire medium has low rigidity
     # rho1::Float64 = 2500
     # vs1::Float64 = 0.6*3462
     # the initial property of fualt damage zone: fault zone evolution!!!
-    rho2::Float64 = 2650
+    rho2::Float64 = rho1
     vs2::Float64 = sqrt(alpha)*vs1   # define the rigidity now(a constant during whole simulation)
 
     # note: it is not necessary to define the damage zone here with healing
@@ -144,8 +144,8 @@ function setParameters(FZdepth::Int, halfwidth::Int, res::Int, T::Int, alpha::Fl
 
     ## we could output the theoretical seismogram on this points: only SH waves
     ## and SH waves will only affect the shear stress on the fault line 
-    x_out = [6.0, 6.0, 6.0, 6.0, 6.0, 6.0].*(-1e3)  # x coordinate of receiver
-    y_out = [66.0, 130.0, 198.0, 250.0, 330.0, 396.0]     # y coordinate of receiver   # 
+    x_out = [0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0].*(-0e3)  # x coordinate of receiver: depth
+    y_out = [1000 2000 3000 4000 5000 6000 7000 8000]     # horizontal
     #  n_receiver = length(x_receiver) # number of receivers
     x_out, y_out, out_seis, dist = FindNearestNode(x_out, y_out, x, y)
 
@@ -319,18 +319,29 @@ function setParameters(FZdepth::Int, halfwidth::Int, res::Int, T::Int, alpha::Fl
     println("ThickY: ", ThickY, " m")
     @printf("dt: %1.09f s\n", dt)   # minimal timestep during coseismic stage
 
+
     return params_int(Nel, FltNglob, yr2sec, Total_time, IDstate, nglob),
             params_float(ETA, Vpl, Vthres, Vevne, dt, mu, ThickY, η),
             # arrary = vector
             params_farray(fo, Vo, xLf, M, BcBC, BcRC, BcTC, FltL, FltZ, FltX, cca, ccb, Seff, Snormal, SSpp, 
             tauo, XiLf, x_out, y_out),
             params_iarray(iFlt, iBcB, iBcR, iBcT, FltIglobBC, FltNI, out_seis), 
-            Ksparse, iglob, NGLL, wgll2, nglob, did
+            Ksparse, iglob, NGLL, wgll2, nglob, did, Splu
 
 end
 
+import SuiteSparse.UMFPACK: UmfpackLU
+import AlgebraicMultigrid: CoarseSolver
+
+# note: UMFPACK only supports Float64 or ComplexF64
+# not sure how to best restrict the types
+struct Splu <: CoarseSolver    # an abstract supertype, here the struct is CoarseSolver
+    LU::UmfpackLU
+    Splu(A) = new(lu(A))  # here A is only a new parameter, the Splu is a struct
+end
+
 # the sequence of above parameters should be the same with the following
-struct params_int{T<:Int}
+struct params_int{T<:Int}    # here the internal variable is Int
     # Domain size
     Nel::T          # total number of elements in the  2D model
     FltNglob::T     # total number of GLL nodes on the fault line 
@@ -394,8 +405,8 @@ struct params_farray{T<:Vector{Float64}}
     XiLf::T    # maximum slip in a timestep to constrain the length of timestep (based on friction law)
     #  diagKnew::T
 
-    xout::T   # output the seismogram
-    yout::T   # output the seismogram
+    x_out::T   # output the seismogram
+    y_out::T   # output the seismogram
 end
 
 struct params_iarray{T<:Vector{Int}}

@@ -15,7 +15,10 @@
 0.05,80,102,0,0,1.0,0.0,5,0.5,0.003,800,3
 0.05,80,103,0,0,1.0,0.0,5,0.5,0.003,800,3
 0.05,80,104,0,0,1.0,0.0,5,0.5,0.003,800,3
-0.05,80,105,0,0,1.0,0.0,5,0.5,0.003,800,3
+0.05,80,105,0,0,1.0,0.0,5,0.55,0.003001,800,2
+0.05,80,105,0,0,1.0,0.0,5,0.55,0.003,800,2
+0.05,80,105,0,0,1.0,0.0,5,0.55,0.003002,800,2
+0.05,80,105,0,0,1.0,0.0,5,0.55,0.003003,800,2
 
 # remember to change the wave speed in Par.jl, a (direct effect) in run.jl
 include initialconditions.jl
@@ -27,6 +30,6 @@ include initialconditions.jl
 # 15 tol=1e-10
 # 16 tol=1e-14
 
-# 17 compare free(this case) and absorbing boundary(14-16)       the effects of absorbing boundary is not good!     
+# 17 compare free(this case) and absorbing boundary(14-16)       the absorbing boundary is not good enough!     
 
 # 18 coarse-solver=Splu

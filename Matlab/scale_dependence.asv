@@ -1,0 +1,18 @@
+%%
+clear
+clc
+close all
+figure(1)
+set(0,'defaultfigurecolor','w')
+set(gcf,'Position',[20 20 800 500]);%左下角位置，宽高
+
+%%
+plot([log10(1) log10(1000)],[1,1],'r', LineWidth=1)
+hold on
+plot([log10(0.5) log10(500)],[2,2],'r', LineWidth=1)
+plot([log10(0.1)  log10(30)],[3,3],'r', LineWidth=1)
+L = [0.1,1,10,100,1000];
+xticks([log10(L)])
+xticklabels([0.1 1 10 100 1000])
+xlabel("RD_{RS}")
+box off

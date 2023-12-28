@@ -18,7 +18,7 @@ end
 
 # vec: 将指定数组重塑为一维列向量，即一维数组
 function FEsparse(Nel, Ke, iglob)
-    K = SparseMatrixCOO()   # Construct sparse matrix
+    K = SparseMatrixCOO()   # Construct sparse matrix  
     # using FEMSparse
     for eo in 1:Nel
         FEMSparse.assemble_local_matrix!(K, vec(iglob[:,:,eo]),

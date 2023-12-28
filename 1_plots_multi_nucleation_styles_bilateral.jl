@@ -3,6 +3,7 @@
 # #####################################
 using DelimitedFiles
 using LinearAlgebra
+using NaNStatistics
 
 # include("$(@__DIR__)/post/event_details.jl")
 include("$(@__DIR__)/post/plotting_script.jl")
@@ -20,17 +21,17 @@ project = "wholespace/phase_diagram_L_b/"
 # input_parameter = readdlm("$(@__DIR__)/SSE_Creep.txt", ',',  header=false)
 # input_parameter = readdlm("$(@__DIR__)/SSE_Creep_2.txt", ',',  header=false)
 # input_parameter = readdlm("$(@__DIR__)/high_res.txt", ',',  header=false)
-input_parameter = readdlm("$(@__DIR__)/whole_space_32.txt", ',',  header=false)
+input_parameter = readdlm("$(@__DIR__)/whole_space_32_copy.txt", ',',  header=false)
 a = size(input_parameter)[1]
 global ii::Int = 0
 
 plot_params()
-fig = PyPlot.figure(figsize=(20, 15))
+fig = PyPlot.figure(figsize=(20, 20))
 
-EX = [48, 44, 39]  
+EX = [118, 135, 176, 198]
 N_EX = length(EX)
 
-for index = EX                 # normal stress
+for index = EX                   # normal stress
 
     global ii += 1
     # domain parameters
@@ -64,9 +65,9 @@ for index = EX                 # normal stress
     #     rm(path, recursive = true)
     # end
 
-    mkpath(path)
+    # mkpath(path)
 
-    include("analyze_results.jl")     
+    include("analyze_results.jl");     
 
     # calculate the nucleation size and plot the nucleation process
     N_timestep::Int = input_parameter[index,11]       # time steps to use in sliprate for nucleation process
@@ -75,8 +76,7 @@ for index = EX                 # normal stress
     criteria = 1e-1    # seismic threshold to measure the nucleation size
     measure_threshold = 1e-2    # where measure the width of nucleation zone: 1e-7m/s for 
                                 # constant weakening(expanding crack) and 1e-3m/s for fixed length patch
-        
-    
+
     # theoretical nucleation size
     TNS_1 = 2/pi*mu*Lc*(a/a_over_b)/(multiple*10e6)/(a/a_over_b-a)^2/1000     # unit: km
     TNS_2 = 2*1.3774*mu*Lc/(a/a_over_b)/(multiple*10e6)/1000    # unit: km
@@ -96,16 +96,16 @@ for index = EX                 # normal stress
 
     # time steps before seismic threshold 
 
-    if 0.5 <= 5/TNS < 2  
+    if 1 <= 5/TNS < 4  
         n_before = 300
     elseif 2 <= 5/TNS < 4  
-        n_before = 270
+        n_before = 250 
     elseif 4 <= 5/TNS < 8 
         n_before = 150
     elseif 8 <= 5/TNS < 10
-        n_before = 100
-    elseif 10 <= 5/TNS < 18
         n_before = 75
+    elseif 10 <= 5/TNS < 18
+        n_before = 50
     elseif 18 <= 5/TNS <= 32
         n_before = 30
     else
@@ -124,28 +124,31 @@ for index = EX                 # normal stress
     group = 1
     n_e = 7    # number of measurements of nulceation size
     NS_width = zeros(group, n_e, 4)
-    nn_e = 10
+    nn_e = 12
     Ω = zeros(group, nn_e)
     EEP = zeros(group, n_e-1)
     EEPP = zeros(group)
     indx_1::Vector{Int64} = zeros(n_e)
     nn_before = 0
-    i = 1
-
+    i = 1    # only process the first event!
 
     #println("Time of the last seismic event(s):",tStart[end])
-    indx_last = findall(t[:].<= tStart[i+4])[end]    # here i+2 is used: from the second normal event(or 3rd normal event)
+    indx_last = findall(t[:].<= tStart[i+2])[end]    # here i+2 is used: from the second normal event(or 3rd normal event)
     indx_last_int::Int = floor(indx_last/output_freq)
     # indx_last_int::Int = floor(indx_last)
     #println("Index of timestep in sliprate(output every 10) at the beginning of last seismic event:", indx_last_int)
 
     indx = findall(abs.(FltX) .<= Domain*Domain_X)[1]
-    value = sliprate'[indx:end,indx_last_int-n_before:indx_last_int+N]       # depth, timestep  # only use the slip rate data after the seismic threshold!
-    value_1 = exp.(weakeningrate'[indx:end,indx_last_int-n_before:indx_last_int+N]).*value./1e-6    # weakening rate
+    # println("indx=", indx)
+    value = sliprate'[indx:end, indx_last_int-n_before:indx_last_int + N]       # depth, timestep  # only use the slip rate data after the seismic threshold!
+    value_1 = exp.(weakeningrate'[indx:end,indx_last_int - n_before:indx_last_int+N]).*value./1e-6    # weakening rate
+    
+    value = movmean(value, 5)
+    value_1 = movmean(value_1, 5)
+    
     depth = FltX[indx:end]
-    tt = t[indx_last_int-n_before:indx_last_int+N]
 
-    indx_around_hypocenter = findall((hypo_1[i+4] .- TNS) .<= abs.(depth) .<= (hypo_1[i+4] .+ TNS))  # get the indx around nucleation location
+    indx_around_hypocenter = findall((hypo_1[i+2] .- TNS) .<= abs.(depth) .<= (hypo_1[i+2] .+ TNS))  # get the indx around nucleation location
 
     # println("Index around hypocenter: ", indx_around_hypocenter)
     # find the index of maximum speed is over 1e-8m/s
@@ -155,7 +158,8 @@ for index = EX                 # normal stress
             break
         end
     end
-    println("The number of the timestep over 1e-8 m/s is:", mm)
+
+    # println("The number of the timestep over 1e-8 m/s is:", mm)
 
     for k = 1:n_e
 
@@ -166,6 +170,7 @@ for index = EX                 # normal stress
                 break
             end
         end
+
         println("The number of the timestep from 1e-8 m/s when maximum sliprate is over ",criteria/(10^(n_e-k)) ,"m/s is:", nn - mm)
 
         # measure the width of nucleation zone
@@ -180,12 +185,20 @@ for index = EX                 # normal stress
         NS_width[i,k, 2] = downdip_depth - updip_depth        # width of nucleation zone
         NS_width[i,k, 3] = updip_depth                   # updip
         NS_width[i,k, 4] = downdip_depth          # downdip
-
+        
         indx_1[k] = findall(FltX .>= NS_width[i,k,1])[end]   
+        # Ω[k] = value_1[indx_1 ,nn]
+
+
     end
+    # println("indx_1=", indx_1)
+    println("Comparison between measurement and theory:")
 
-    println("indx_1=", indx_1)
-
+    println(minimum(NS_width[i,:, 2]))     # min(Li)
+    println(TNS_2)
+    println(NS_width[i,n_e, 2])      # L0.1
+    println(TNS_1)
+    
     # the center of the asperity
     for k = 1:nn_e
 
@@ -196,12 +209,11 @@ for index = EX                 # normal stress
                 break
             end
         end
-        println("The number of the timestep from 1e-11 m/s when maximum sliprate is over ",criteria/(10^(nn_e-k)) ,"m/s is:", nnn)
+        # println("The number of the timestep from 1e-11 m/s when maximum sliprate is over ",criteria/(10^(nn_e-k)) ,"m/s is:", nnn)
 
         Ω[k] = value_1[indx_1[end] ,nnn]
-        
+            
     end
-
 
     for j = 2:N
         if  maximum(value[indx_around_hypocenter,j]) >= 5e-3
@@ -209,7 +221,7 @@ for index = EX                 # normal stress
             break
         end
     end
-
+    
     for k = 1:n_e-1
         EEP[i,k] = (log10(NS_width[i,k+1,2]*1e3) - log10(NS_width[i,k,2]*1e3))/(log10(criteria/(10^(n_e-k-1)))-log10(criteria/(10^(n_e-k))))
         # EEP[i,k] = (log10(NS_width[i,k+1,2]*1e3) - log10(NS_width[i,k,2]*1e3))/(log10(criteria/(10^(n_e-k-1)))-log10(criteria/(10^(n_e-k))))
@@ -230,30 +242,17 @@ for index = EX                 # normal stress
     # else
     #     n_inter = 5
     # end
-    if ii == 1
-        nn_inter = 30
-    elseif ii == 2
-        nn_inter = 20
-    elseif ii == 3
-        nn_inter = 10
-    end
 
-    ax.plot(depth, value[:,mm:nn_inter:nn_trans],color="red", )        
-    ax.plot(depth, value[:,nn_trans:4*nn_inter:nn],color="red", )     # ax.plot([depth[1],depth[end]],[3e-9, 3e-9] , "k", linestyle=":")
-    ax.plot(depth, value[:,nn],color="red", )
-    hypoo = hypo_1[i+4]
-    # ax.plot([depth[1],depth[end]],[3e-9, 3e-9] , "k", linestyle=":")
+    ax.plot(depth, value[:,mm:15:nn_trans],color="k", )        
+    ax.plot(depth, value[:,nn_trans:60:nn],color="k", )     # ax.plot([depth[1],depth[end]],[3e-9, 3e-9] , "k", linestyle=":")
+    ax.plot(depth, value[:,nn],color="k", )
     # ax.plot([depth[1],depth[end]],[2e-9, 2e-9] , "k", linestyle="--")
     ax.plot([depth[1],depth[end]],[1e-9, 1e-9] , "k", linestyle=":", label="1e-9 m/s")
+    hypoo = NS_width[i,end, 1]
     ax.plot([hypoo-TNS_1/2, hypoo+TNS_1/2],[5e-1, 5e-1], "k", linestyle="-",linewidth=3)
     ax.plot([hypoo-TNS_2/2, hypoo+TNS_2/2],[2e-1, 2e-1], "k", linestyle="-",linewidth=3)
-    if ii == 1
-        ax.text(1.5,1e-10,  string("a/b=",a_over_b))
-        ax.text(1.5,1e-11,  string("\$RD_{RS}=\$", round(1000*Lc/5, digits=4)))
-    else
-        ax.text(6.5,1e-1,  string("a/b=",a_over_b))
-        ax.text(6.5,1e-2,  string("\$RD_{RS}=\$", round(1000*Lc/5, digits=4)))
-    end
+    ax.text(1.5,1e-10,  string("a/b=",a_over_b))
+    ax.text(1.5,1e-11,  string("\$RD_{RS}=\$", round(1000*Lc/5, digits=4)))
     ax.set_yscale("log")
     ax.set_xlim([Domain*Domain_X/8, Domain*Domain_X*7/8])   
     ax.set_xticks([2,3,4,5,6,7,8])
@@ -264,24 +263,26 @@ for index = EX                 # normal stress
     end
     ax.set_ylabel("V(m/s)")
     ax.set_title(letter[1+(ii-1)*4], loc="left")
-    
-    ax2 = fig.add_subplot(N_EX, 4, 2+(ii-1)*4)
-    ax2.plot([1e-7,1e-6,1e-5,1e-4,1e-3,1e-2,1e-1], NS_width[i,:,2], color="limegreen", marker="o", label="Measured values")        # plot every five steps
+
+    ax2 = fig.add_subplot(4, 4, 2+(ii-1)*4)
+    ax2.plot([1e-7,1e-6,1e-5,1e-4,1e-3,1e-2,1e-1], NS_width[i,:,2], color="k", marker="o", label="Measured values")        # plot every five steps
     ax2.plot([1e-7,1e-6,1e-5,1e-4,1e-3,1e-2,1e-1], TNS.*ones(n_e,1), color="k", linestyle=":", label="Theoretical nucleation size")
+    ax2.plot([1e-7,1e-6,1e-5,1e-4,1e-3,1e-2,1e-1], TNS_2.*ones(n_e,1), color="k", linestyle=":", label="Lb")
     if ii == N_EX
         ax2.set_xlabel("Vmax(m/s)")
     end
     ax2.set_xscale("log")
     ax2.set_ylabel("L(km)")
     ax2.set_title(letter[2+(ii-1)*4], loc="left")
+    # ax3.legend(loc="upper right")
 
     title = string("EEP=", round(EEPP[i], digits=2))
     ax2.set_title(title)
 
-    ax3 = fig.add_subplot(N_EX, 4, 3+(ii-1)*4)
-    ax3.plot(depth, value_1[:,mm:nn_inter:nn_trans],color="blue", )      
-    ax3.plot(depth, value_1[:,nn_trans:4*nn_inter:nn],color="blue", )    # plot every five steps
-    ax3.plot(depth, value_1[:,nn],color="blue", )
+    ax3 = fig.add_subplot(4, 4, 3+(ii-1)*4)
+    ax3.plot(depth, value_1[:,mm:15:nn_trans],color="k", )      
+    ax3.plot(depth, value_1[:,nn_trans:60:nn],color="k", )    # plot every five steps
+    ax3.plot(depth, value_1[:,nn],color="k", )
     ax3.plot([depth[1],depth[end]],[1, 1] , "k", linestyle=":", label="Ω=1")
     # ax2.plot([depth[1],depth[end]],[2, 2] , "k", linestyle="--", label="Ω=2")
     # ax2.plot([depth[1],depth[end]],[5, 5] , "k", linestyle="-", label="Ω=5")
@@ -296,9 +297,8 @@ for index = EX                 # normal stress
     ax3.set_ylabel("Ω")
     ax3.set_title(letter[3+(ii-1)*4], loc="left")
 
-    ax4 = fig.add_subplot(N_EX, 4, 4+(ii-1)*4)
-    ax4.plot([1e-10, 1e-9, 1e-8, 1e-7,1e-6,1e-5,1e-4,1e-3,1e-2,1e-1], Ω[:], color="limegreen", marker="o", label="Measured values")        # plot every five steps
-    ax4.plot([1e-10,1e-1],[1, 1] , "k", linestyle=":", label="Ω=1")
+    ax4 = fig.add_subplot(4, 4, 4+(ii-1)*4)
+    ax4.plot([1e-12,1e-11,1e-10, 1e-9, 1e-8, 1e-7,1e-6,1e-5,1e-4,1e-3,1e-2,1e-1], Ω[:], color="k", marker="o", label="Measured values")        # plot every five steps
     if ii == N_EX
         ax4.set_xlabel("Vmax(m/s)")
     end
@@ -307,20 +307,12 @@ for index = EX                 # normal stress
     ax4.set_ylabel("Ω")
     ax4.set_title(letter[4+(ii-1)*4], loc="left")
 
-    # ax4 = fig.add_subplot(N_EX, 4, 4+(ii-1)*4)
-    # ax4.plot((tt[nn] .- tt[1:nn])./yr2sec, value_1[indx_1[end] ,1:nn], color="limegreen", marker="o", label="Measured values")        # plot every five steps
-    # # ax4.plot([1e-9, 1e1], [1, 1] , "k", linestyle=":", label="Ω=1")
-    # if ii == N_EX
-    #     ax4.set_xlabel("Time to instability(year)")
-    # end
-    # ax4.set_xscale("log")
-    # ax4.set_yscale("log")
-    # # ax4.set_xlim([1e-9, 1e1])
-    # ax4.set_ylabel("Ω")
-    # ax4.set_title(letter[4+(ii-1)*4], loc="left")
+    # title = string("EEP=", round(EEPP[i], digits=2))
+    # ax4.set_title(title)
 
 end
 path = "$(@__DIR__)/plots/wholespace/phase_diagram_L_b"        
-figname = string(path, "_no_healing_limit_representative_nucleation_style.png")
+# figname = string(path, "_4_representative_nucleation_style.pdf")
+figname = string(path, "_4_representative_nucleation_style.png")
 fig.savefig(figname, dpi = 600)
 #show()

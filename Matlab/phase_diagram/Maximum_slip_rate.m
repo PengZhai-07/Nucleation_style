@@ -5,7 +5,7 @@ close all
 %%
 figure(1)
 set(0,'defaultfigurecolor','w')
-set(gcf,'Position',[0 0 1000 1300]);%左下角位置，宽高
+set(gcf,'Position',[0 0 950 1300]);%左下角位置，宽高
 
 t = tiledlayout(4,3);
 t.TileSpacing = 'tight';
@@ -159,7 +159,7 @@ plot([log10(0.5), log10(300)],[0.35,0.35], "k--")
 n_xxx = [log10(1.6),log10(1.6),log10(1.2), log10(1.0), log10(0.8), log10(0.8), log10(0.8),log10(0.6),log10(0.6), log10(0.5), log10(0.5), log10(0.5),log10(0.4), log10(0.4)];
 n_yyy = [0.2,0.25,0.3,0.35,0.4,0.45,0.5,0.55,0.6,0.65,0.7,0.75,0.8,0.2];
 fill(n_xxx, n_yyy, [0.8,0.8,0.8],"LineStyle","-")
-text(log10(1),0.3, 'No data','Color','k','Rotation',0,'FontSize',12)
+text(log10(1),0.3, ["   Not"; "explored"],'Color','k','Rotation',0,'FontSize',12)
 %%
 % different rupture style
 %  aseismic slip
@@ -205,7 +205,7 @@ scatter(log10(4), 0.55,100,'v','filled','MarkerFaceColor','w', 'MarkerEdgeColor'
 scatter(log10(2.5), 0.55,180,'p','filled','MarkerFaceColor','w', 'MarkerEdgeColor', 'k')
 scatter(log10(1), 0.55,100,'d','filled','MarkerFaceColor','w', 'MarkerEdgeColor', 'k')
 
-textcolor = [0,0.8,0];
+textcolor = [0,0.0,0];
 %% rupture style for a/b>=0.4
 text(log10(200),0.55,"Aseismic slip",'Color',textcolor,'Rotation',40, 'FontWeight','demi')
 text(log10(60),0.45,"Symmetric-bilateral",'Color',textcolor,'Rotation',40, 'FontWeight','demi')

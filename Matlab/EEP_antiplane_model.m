@@ -2,7 +2,9 @@
 clear
 close all
 figure(1)
-set(0,'defaultfigurecolor','w')
+% set(0,'defaultfigurecolor','w')
+x = rgb2hex([0.8,0.8,0.8]);
+set(0,'defaultfigurecolor',  x)
 set(gcf,'Position',[20 20 1000 600]);%左下角位置，宽高
 %%
 plot([0 0],[-20,20], 'k', "lineWidth", 2)
